@@ -12,7 +12,7 @@ export default function Navbar() {
         <div className="flex justify-between items-center pb-4 border-b border-black/5">
           <div className="flex items-center gap-4">
             <Menu className="md:hidden w-6 h-6 text-brand-brown" />
-            <h1 className="font-serif text-xl md:text-2xl tracking-[0.2em] lowercase text-brand-brown">
+            <h1 className="font-secondary text-xl md:text-2xl tracking-[0.2em] lowercase text-brand-brown">
               mip
             </h1>
           </div>
