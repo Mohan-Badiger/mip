@@ -7,10 +7,14 @@ import Footer from "@/components/global/Footer";
 export default function Home() {
   return (
     <main className="min-h-screen">
-      <TopBar />
-      <Navbar />
-      <HeroCarousel />
-      <CollectionsGrid />
+      <header className="fixed w-full top-0 z-50 shadow-sm flex flex-col">
+        <TopBar />
+        <Navbar />
+      </header>
+      <div className="pt-[140px]">
+        <HeroCarousel />
+        <CollectionsGrid />
+      </div>
       <Footer />
     </main>
   );
