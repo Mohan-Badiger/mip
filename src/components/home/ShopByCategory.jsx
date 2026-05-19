@@ -6,13 +6,13 @@ import FadeInUp from '@/components/global/FadeInUp';
 
 export default function ShopByCategory() {
   return (
-    <section className="py-16 max-w-[1920px] mx-auto px-6 md:px-16 lg:px-24 border-t border-gray-100 bg-white">
+    <section className="py-10 md:py-16 max-w-[1920px] mx-auto px-4 md:px-16 lg:px-24 border-t border-gray-100 bg-white">
       {/* Category Section */}
       <div className="mb-20">
         <FadeInUp>
           <h2 className="font-secondary text-3xl md:text-4xl text-brand-brown mb-8">Shop By Category</h2>
         </FadeInUp>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 md:gap-10">
+        <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-10">
           {["Bangles", "Chains", "Earrings", "Necklaces", "Pendants", "Rings"].map((cat, idx) => (
             <FadeInUp key={cat} delay={idx * 0.1}>
               <div className="group cursor-pointer text-center">
@@ -45,7 +45,7 @@ export default function ShopByCategory() {
           ].map((gift, idx) => (
             <FadeInUp key={gift.title} delay={idx * 0.1}>
               <div className="group cursor-pointer">
-                <div className="relative h-[180px] md:h-[200px] w-full mb-4 overflow-hidden bg-gray-900 rounded-sm">
+                <div className="relative h-[140px] md:h-[200px] w-full mb-3 md:mb-4 overflow-hidden bg-gray-900 rounded-sm">
                   <Image
                     src="/images/category_bangles_1779203423031.png"
                     alt={gift.title}

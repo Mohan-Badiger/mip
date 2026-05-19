@@ -2,9 +2,9 @@ import React from 'react';
 
 export default function Footer() {
   return (
-    <footer className="bg-brand-brown text-white/80 py-16">
-      <div className="max-w-[1920px] mx-auto px-4 md:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+    <footer className="bg-brand-brown text-white/80 py-12 md:py-16">
+      <div className="max-w-[1920px] mx-auto px-6 md:px-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 mb-10 md:mb-12">
           <div>
             <h4 className="text-brand-gold font-secondary text-xl tracking-[0.2em] mb-6">Mip</h4>
             <p className="text-sm font-sans leading-relaxed text-white/70">

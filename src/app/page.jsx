@@ -18,13 +18,13 @@ export default function Home() {
         <TopBar />
         <Navbar />
       </header>
-      <div className="pt-[140px]">
+      <div className="pt-[90px] md:pt-[140px]">
         <HeroCarousel />
         <ExquisiteCollections />
         <CollectionsCards />
         <ShopByCategory />
-        <ShopByGender />
         <YCollection />
+        <ShopByGender />
         <PurchasePlanBanner />
         <TrustLegacy />
         <Newsletter />

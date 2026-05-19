@@ -6,11 +6,11 @@ import FadeInUp from '@/components/global/FadeInUp';
 
 export default function ShopByGender() {
   return (
-    <section className="py-16 max-w-[1920px] mx-auto px-6 md:px-16 lg:px-24 border-t border-gray-100 bg-white">
+    <section className="py-10 md:py-16 max-w-[1920px] mx-auto px-4 md:px-16 lg:px-24 border-t border-gray-100 bg-white">
       <FadeInUp>
         <h2 className="font-secondary text-3xl md:text-4xl text-brand-brown mb-12">Shop By Gender</h2>
       </FadeInUp>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+      <div className="grid grid-cols-3 md:grid-cols-3 gap-3 md:gap-12">
         {[
           { label: "Women", img: "/images/shop_gender_women.png" },
           { label: "Men", img: "/images/shop_gender_men.png" },

@@ -15,7 +15,7 @@ export default function YCollection() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2 }}
           viewport={{ once: true }}
-          className="absolute left-0 md:left-[10%] top-0 z-20 w-[260px] md:w-[340px] h-[420px]"
+          className="absolute left-0 md:left-[10%] top-0 z-20 w-[360px] md:w-[440px] h-[520px]"
         >
           <Image src="/images/y_collection_pink_1779203438367.png" alt="Y Collection Model" fill sizes="(max-width: 768px) 100vw, 30vw" className="object-cover" />
           <p className="absolute -bottom-8 left-0 text-gray-400 font-sans text-xs tracking-wide">Explore New Age Jewellery from the House of MIP</p>

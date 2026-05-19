@@ -1,98 +1,242 @@
 "use client";
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
+const slides = [
+  {
+    id: 0,
+    image: "/images/hero_slide_2.png",
+    tag: "New Collection",
+    collection: "Aradhana",
+    title: "Nature's most graceful bloom,\nset in diamond and gold.",
+    cta: "Explore Collection",
+    textSide: "left",
+    tagColor: "text-brand-gold",
+    textColor: "text-brand-brown",
+    subtitleColor: "text-brand-brown/70",
+    overlay: "bg-gradient-to-r from-white/60 via-white/10 to-transparent",
+  },
+  {
+    id: 1,
+    image: "/images/hero_slide_1.png",
+    tag: "Everyday Elegance",
+    collection: "Wear it every day,\nlove it forever",
+    title: "Diamond jewellery that moves with you",
+    price: "Starting from ₹10,000",
+    cta: "Shop Now",
+    textSide: "right",
+    tagColor: "text-brand-gold",
+    textColor: "text-brand-brown",
+    subtitleColor: "text-brand-brown/70",
+    overlay: "bg-gradient-to-l from-white/65 via-white/15 to-transparent",
+  },
+  {
+    id: 2,
+    image: "/images/hero_slide_3.png",
+    tag: "New Schemes",
+    collection: "Kanaka Plus",
+    title: "Invest once. Redeem in Gold or Silver\nwith no making charges.",
+    price: "Start from ₹1,000 / month",
+    cta: "Know More",
+    textSide: "left",
+    tagColor: "text-brand-gold",
+    textColor: "text-brand-brown",
+    subtitleColor: "text-brand-brown/70",
+    overlay: "bg-gradient-to-r from-white/65 via-white/15 to-transparent",
+  },
+  {
+    id: 3,
+    image: "/images/hero_slide_4.png",
+    tag: "Bridal 2025",
+    collection: "A Timeless Legacy",
+    title: "Handcrafted 916 BIS Hallmarked jewellery\nfor your most precious moments.",
+    cta: "View Bridal",
+    textSide: "right",
+    tagColor: "text-yellow-300",
+    textColor: "text-white",
+    subtitleColor: "text-white/75",
+    overlay: "bg-gradient-to-l from-black/55 via-black/20 to-transparent",
+  },
+];
+
+const SLIDE_INTERVAL = 5000;
+
 export default function HeroCarousel() {
+  const [current, setCurrent] = useState(0);
+  const [direction, setDirection] = useState(1); // 1 = forward, -1 = backward
+  const [paused, setPaused] = useState(false);
+
+  const goTo = useCallback((idx, dir = 1) => {
+    setDirection(dir);
+    setCurrent(idx);
+  }, []);
+
+  const prev = useCallback(() => {
+    const idx = (current - 1 + slides.length) % slides.length;
+    goTo(idx, -1);
+  }, [current, goTo]);
+
+  const next = useCallback(() => {
+    const idx = (current + 1) % slides.length;
+    goTo(idx, 1);
+  }, [current, goTo]);
+
+  // Auto-scroll
+  useEffect(() => {
+    if (paused) return;
+    const timer = setInterval(() => {
+      setCurrent((c) => (c + 1) % slides.length);
+      setDirection(1);
+    }, SLIDE_INTERVAL);
+    return () => clearInterval(timer);
+  }, [paused]);
+
+  const slide = slides[current];
+
+  const variants = {
+    enter: (dir) => ({ x: dir > 0 ? '6%' : '-6%', opacity: 0 }),
+    center: { x: 0, opacity: 1 },
+    exit: (dir) => ({ x: dir > 0 ? '-6%' : '6%', opacity: 0 }),
+  };
+
   return (
-    <div className="max-w-[1920px] mx-auto px-6 md:px-16 lg:px-15 pb-1 pt-6">
-      <div className="relative w-full h-[450px] md:h-[480px] bg-[#F8F3E6] overflow-hidden flex items-center rounded-sm shadow-md">
-        {/* Decorative Overlays */}
-        <div className="absolute inset-0 border-y-[6px] border-[#D8A452]/20 pointer-events-none z-10" />
+    <div className="max-w-[1940px] mx-auto px-4 md:px-12 lg:px-16 pt-4 md:pt-6 pb-1">
+      <div
+        className="relative w-full overflow-hidden rounded-xl md:rounded-sm shadow-lg"
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+      >
+        {/* ── Slide ── */}
+        <div className="relative w-full h-[450px] md:h-[480px]">
+          <AnimatePresence custom={direction} initial={false} mode="sync">
+            <motion.div
+              key={current}
+              custom={direction}
+              variants={variants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.65, ease: [0.25, 1, 0.5, 1] }}
+              className="absolute inset-0"
+            >
+              {/* Background Image */}
+              <Image
+                src={slide.image}
+                alt={slide.collection}
+                fill
+                priority
+                sizes="100vw"
+                className="object-cover object-center"
+              />
 
-        {/* Main Content Container */}
-        <div className="max-w-[1920px] mx-auto w-full h-full flex flex-col md:flex-row items-center px-4 md:px-12 relative z-10">
+              {/* Gradient overlay for text readability */}
+              <div className={`absolute inset-0 ${slide.overlay}`} />
 
-          {/* Left Side - Model Image */}
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1.2, ease: [0.25, 1, 0.5, 1] }}
-            className="hidden md:block md:w-5/12 h-full relative mix-blend-multiply"
+              {/* Text Content */}
+              <div className="absolute inset-0 flex items-center px-6 md:px-16 lg:px-20">
+                <div
+                  className={`max-w-[90%] md:max-w-[50%] lg:max-w-[45%] flex flex-col gap-2 md:gap-3
+                  ${slide.textSide === 'right' ? 'ml-auto text-right items-end' : 'mr-auto text-left items-start'}`}
+                >
+                  {/* Tag */}
+                  <motion.span
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.25, duration: 0.6 }}
+                    className={`font-sans text-[10px] md:text-xs tracking-[0.25em] uppercase font-semibold ${slide.tagColor}`}
+                  >
+                    {slide.tag}
+                  </motion.span>
+
+                  {/* Collection / Main Headline */}
+                  <motion.h2
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.35, duration: 0.65 }}
+                    className={`font-secondary text-2xl sm:text-3xl md:text-4xl lg:text-5xl leading-tight ${slide.textColor}`}
+                    style={{ whiteSpace: 'pre-line' }}
+                  >
+                    {slide.collection}
+                  </motion.h2>
+
+                  {/* Subtitle */}
+                  <motion.p
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.45, duration: 0.6 }}
+                    className={`font-sans text-xs sm:text-sm md:text-base leading-relaxed ${slide.subtitleColor}`}
+                    style={{ whiteSpace: 'pre-line' }}
+                  >
+                    {slide.title}
+                  </motion.p>
+
+                  {/* Price (if present) */}
+                  {slide.price && (
+                    <motion.p
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.5, duration: 0.55 }}
+                      className={`font-secondary text-lg md:text-2xl lg:text-3xl font-normal ${slide.textColor}`}
+                    >
+                      {slide.price}
+                    </motion.p>
+                  )}
+
+                  {/* CTA */}
+                  <motion.a
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.55, duration: 0.55 }}
+                    href="#"
+                    className={`mt-1 md:mt-2 inline-block font-sans text-[10px] md:text-xs font-semibold tracking-[0.2em] uppercase pb-0.5 border-b
+                    ${slide.textColor === 'text-white'
+                        ? 'border-white/70 text-white hover:border-white'
+                        : 'border-brand-gold text-brand-brown hover:text-brand-gold'}
+                    transition-colors duration-300`}
+                  >
+                    {slide.cta}
+                  </motion.a>
+                </div>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* ── Narrow Arrow Buttons ── */}
+          <button
+            onClick={prev}
+            className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-20 h-10 w-6 md:h-14 md:w-8 flex items-center justify-center bg-white/30 hover:bg-white/60 backdrop-blur-sm transition-all duration-200 rounded-sm group"
+            aria-label="Previous slide"
           >
-            <Image
-              src="/images/hero_model_scheme_1779204168417.png"
-              alt="Bhima Model"
-              fill
-              priority
-              sizes="50vw"
-              className="object-contain object-left"
+            <ChevronLeft className="w-4 h-4 md:w-5 md:h-5 text-white group-hover:text-brand-brown transition-colors" strokeWidth={1.5} />
+          </button>
+          <button
+            onClick={next}
+            className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-20 h-10 w-6 md:h-14 md:w-8 flex items-center justify-center bg-white/30 hover:bg-white/60 backdrop-blur-sm transition-all duration-200 rounded-sm group"
+            aria-label="Next slide"
+          >
+            <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-white group-hover:text-brand-brown transition-colors" strokeWidth={1.5} />
+          </button>
+        </div>
+
+        {/* ── Dot Indicators ── */}
+        <div className="flex items-center justify-center gap-2.5 py-3 md:py-4">
+          {slides.map((s, idx) => (
+            <button
+              key={s.id}
+              onClick={() => goTo(idx, idx > current ? 1 : -1)}
+              aria-label={`Go to slide ${idx + 1}`}
+              className={`rounded-full transition-all duration-400 ${idx === current
+                ? 'w-5 h-2 md:w-6 md:h-2 bg-brand-gold'
+                : 'w-2 h-2 bg-gray-300 hover:bg-brand-gold/50'
+                }`}
             />
-          </motion.div>
-
-          {/* Right Side - Schemes Text */}
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1.2, delay: 0.2, ease: [0.25, 1, 0.5, 1] }}
-            className="w-full md:w-7/12 flex flex-col items-center justify-center text-center mt-8 md:mt-0 px-4"
-          >
-            {/* Red Ribbon / Scroll */}
-            <div className="relative mb-12">
-              <div className="bg-[#B31D24] border-[3px] border-[#D8A452] shadow-xl relative z-10 px-8 py-3 md:px-16 md:py-4">
-                <h2 className="font-secondary text-2xl md:text-3xl text-white uppercase tracking-widest font-normal">
-                  New Schemes
-                </h2>
-              </div>
-              {/* Scroll Decorative Rods */}
-              <div className="absolute -left-3 top-[-10%] bottom-[-10%] w-3 bg-linear-to-b from-[#FAD284] via-[#8C5D1E] to-[#FAD284] rounded-full shadow-md z-20" />
-              <div className="absolute -right-3 top-[-10%] bottom-[-10%] w-3 bg-linear-to-b from-[#FAD284] via-[#8C5D1E] to-[#FAD284] rounded-full shadow-md z-20" />
-              <div className="absolute -left-4 top-[-15%] w-5 h-2 bg-[#8C5D1E] rounded-full z-20" />
-              <div className="absolute -left-4 bottom-[-15%] w-5 h-2 bg-[#8C5D1E] rounded-full z-20" />
-              <div className="absolute -right-4 top-[-15%] w-5 h-2 bg-[#8C5D1E] rounded-full z-20" />
-              <div className="absolute -right-4 bottom-[-15%] w-5 h-2 bg-[#8C5D1E] rounded-full z-20" />
-            </div>
-
-            {/* Schemes Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 w-full max-w-4xl relative">
-              {/* Vertical Divider */}
-              <div className="hidden md:block absolute left-1/2 top-[10%] bottom-[10%] w-px bg-brand-brown/20 -translate-x-1/2" />
-
-              {/* Kanaka Plus */}
-              <div className="flex flex-col items-center">
-                <h3 className="font-secondary text-3xl md:text-4xl text-brand-brown mb-4 font-medium tracking-wide">Kanaka Plus</h3>
-                <p className="font-sans text-brand-brown text-sm md:text-base leading-relaxed max-w-[280px]">
-                  Invest once.<br />
-                  Redeem in Gold or Silver jewellery with no making charges.<br />
-                  Also, Diamond & Platinum at extra value.*
-                </p>
-              </div>
-
-              {/* Shreyas */}
-              <div className="flex flex-col items-center">
-                <h3 className="font-secondary text-3xl md:text-4xl text-brand-brown mb-4 font-medium tracking-wide">Shreyas</h3>
-                <p className="font-sans text-brand-brown text-sm md:text-base leading-relaxed max-w-[320px]">
-                  Start from ₹1,000/month.<br />
-                  Save now, choose your favourite Gold, Silver, Diamond or Platinum jewellery at maturity.
-                </p>
-              </div>
-            </div>
-          </motion.div>
+          ))}
         </div>
 
-        {/* Carousel Navigation Arrows */}
-        <button className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 items-center justify-center rounded-full hover:bg-black/5 transition-colors z-20 cursor-pointer">
-          <ChevronLeft className="w-8 h-8 text-brand-brown/50" strokeWidth={1} />
-        </button>
-        <button className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 items-center justify-center rounded-full hover:bg-black/5 transition-colors z-20 cursor-pointer">
-          <ChevronRight className="w-8 h-8 text-brand-brown/50" strokeWidth={1} />
-        </button>
-
-        {/* T&C text */}
-        <div className="hidden md:block absolute right-8 top-1/2 transform translate-y-1/2 -rotate-90 origin-right text-[12px] uppercase tracking-widest text-brand-brown/60 z-20 font-sans">
-          *T&C apply
-        </div>
+        {/* T&C */}
+        <p className="text-center text-[9px] md:text-[10px] text-gray-400 font-sans tracking-wider pb-1">*T&amp;C apply</p>
       </div>
     </div>
   );

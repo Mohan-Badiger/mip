@@ -4,7 +4,7 @@ import FadeInUp from '@/components/global/FadeInUp';
 
 export default function TrustLegacy() {
   return (
-    <section className="py-20 max-w-[1920px] mx-auto px-6 md:px-16 lg:px-24 bg-white border-t border-gray-100">
+    <section className="py-12 md:py-20 max-w-[1920px] mx-auto px-4 md:px-16 lg:px-24 bg-white border-t border-gray-100">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
 
         {/* Left Column - Big Headline */}
