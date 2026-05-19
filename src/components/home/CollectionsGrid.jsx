@@ -3,7 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 
-const FadeInUp = ({ children, delay = 0 }: { children: React.ReactNode, delay?: number }) => (
+const FadeInUp = ({ children, delay = 0 }) => (
   <motion.div
     initial={{ opacity: 0, y: 40 }}
     whileInView={{ opacity: 1, y: 0 }}

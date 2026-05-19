@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+
 import { Inter, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 
@@ -9,16 +9,12 @@ const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant" 
 });
 
-export const metadata: Metadata = {
+export const metadata = {
   title: "Bhima Jewellers Online | Buy Latest Gold, Diamonds, Silver Jewellery",
   description: "High-converting luxury jewellery store built with Next.js",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body

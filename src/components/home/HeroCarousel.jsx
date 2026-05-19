@@ -12,6 +12,7 @@ export default function HeroCarousel() {
           alt="Luxury Gold Jewellery"
           fill
           priority
+          sizes="100vw"
           className="object-cover object-center"
         />
         <div className="absolute inset-0 bg-black/40" /> {/* Dark moody overlay */}
@@ -19,25 +20,25 @@ export default function HeroCarousel() {
 
       <div className="relative z-10 flex flex-col justify-center items-center h-full text-center px-4 max-w-4xl mx-auto mt-16">
         <motion.p
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
+          transition={{ duration: 1, delay: 0.2, ease: [0.25, 1, 0.5, 1] }}
           className="text-brand-gold lowercase tracking-[0.3em] text-xs md:text-sm mb-6 font-sans font-medium"
         >
           the royal collection
         </motion.p>
         <motion.h1
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
+          transition={{ duration: 1, delay: 0.4, ease: [0.25, 1, 0.5, 1] }}
           className="text-white font-serif text-4xl md:text-5xl lg:text-6xl lowercase tracking-wide leading-tight mb-8"
         >
           elegance etched <br /> in gold
         </motion.h1>
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
+          transition={{ duration: 1, delay: 0.6, ease: [0.25, 1, 0.5, 1] }}
         >
           <button className="bg-brand-brown text-brand-gold hover:bg-brand-gold hover:text-brand-brown transition-all duration-300 font-sans tracking-[0.2em] text-xs py-4 px-10 rounded-full border border-brand-gold lowercase">
             discover the collection
