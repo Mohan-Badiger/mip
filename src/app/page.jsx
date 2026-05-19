@@ -1,7 +1,14 @@
 import TopBar from "@/components/global/TopBar";
 import Navbar from "@/components/global/Navbar";
 import HeroCarousel from "@/components/home/HeroCarousel";
-import CollectionsGrid from "@/components/home/CollectionsGrid";
+import ExquisiteCollections from "@/components/home/ExquisiteCollections";
+import CollectionsCards from "@/components/home/CollectionsCards";
+import ShopByCategory from "@/components/home/ShopByCategory";
+import ShopByGender from "@/components/home/ShopByGender";
+import YCollection from "@/components/home/YCollection";
+import PurchasePlanBanner from "@/components/home/PurchasePlanBanner";
+import TrustLegacy from "@/components/home/TrustLegacy";
+import Newsletter from "@/components/home/Newsletter";
 import Footer from "@/components/global/Footer";
 
 export default function Home() {
@@ -13,7 +20,14 @@ export default function Home() {
       </header>
       <div className="pt-[140px]">
         <HeroCarousel />
-        <CollectionsGrid />
+        <ExquisiteCollections />
+        <CollectionsCards />
+        <ShopByCategory />
+        <ShopByGender />
+        <YCollection />
+        <PurchasePlanBanner />
+        <TrustLegacy />
+        <Newsletter />
       </div>
       <Footer />
     </main>

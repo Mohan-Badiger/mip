@@ -6,8 +6,10 @@
   --color-brand-gold-light: #E2D0A5;
   --color-bg-cream: #FAF8F5;
   --color-text-dark: #1A1A1A;
-  --font-serif: var(--font-cinzel);
-  --font-sans: var(--font-work-sans);
+  --font-primary: var(--font-primary);
+  --font-secondary: var(--font-secondary);
+  --font-serif: var(--font-secondary);
+  --font-sans: var(--font-primary);
 }
 
 @layer base {
