@@ -1,36 +1,18 @@
-"use client";
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Search, MapPin, User, ShoppingBag, Menu } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 export default function Navbar() {
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   const navLinks = [
-    "earrings", "bangles", "chains", "rings", "coins & bars", "all jewellery", "collections", "legacy"
+    "EARRINGS", "BANGLES", "CHAINS", "RINGS", "COINS & BARS", "ALL JEWELLERY", "COLLECTIONS", "LEGACY"
   ];
 
   return (
-    <motion.nav
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.5 }}
-      className={`fixed w-full z-40 transition-all duration-300 ${isScrolled ? 'bg-bg-cream shadow-sm py-2' : 'bg-transparent py-4'
-        }`}
-    >
+    <nav className="w-full bg-bg-cream py-4 shadow-sm relative z-40">
       <div className="max-w-[1920px] mx-auto px-4 md:px-8">
         <div className="flex justify-between items-center pb-4 border-b border-black/5">
           <div className="flex items-center gap-4">
-            <Menu className="md:hidden w-6 h-6" />
-            <h1 className={`font-serif text-xl md:text-2xl tracking-[0.2em] lowercase ${isScrolled ? 'text-brand-brown' : 'text-white'}`}>
+            <Menu className="md:hidden w-6 h-6 text-brand-brown" />
+            <h1 className="font-serif text-xl md:text-2xl tracking-[0.2em] lowercase text-brand-brown">
               mip
             </h1>
           </div>
@@ -39,13 +21,12 @@ export default function Navbar() {
             <input
               type="text"
               placeholder="search..."
-              className={`w-full py-2 px-4 rounded-full border bg-transparent text-sm focus:outline-none focus:border-brand-gold transition-colors lowercase ${isScrolled ? 'border-gray-300 text-text-dark placeholder-gray-500' : 'border-white/50 text-white placeholder-white/80'
-                }`}
+              className="w-full py-2 px-4 rounded-full border border-gray-300 bg-transparent text-sm focus:outline-none focus:border-brand-gold transition-colors lowercase text-text-dark placeholder-gray-500"
             />
-            <Search className={`absolute right-3 top-2 w-5 h-5 ${isScrolled ? 'text-gray-400' : 'text-white/80'}`} />
+            <Search className="absolute right-3 top-2 w-5 h-5 text-gray-400" />
           </div>
 
-          <div className={`flex items-center gap-4 md:gap-6 text-sm font-medium ${isScrolled ? 'text-text-dark' : 'text-white'}`}>
+          <div className="flex items-center gap-4 md:gap-6 text-sm font-medium text-text-dark">
             <button className="hidden lg:block hover:text-brand-gold transition-colors lowercase tracking-widest text-[11px]">gift card</button>
             <button className="hidden lg:block text-brand-gold hover:text-brand-gold-light transition-colors lowercase tracking-widest text-[11px]">purchase plan</button>
 
@@ -57,7 +38,7 @@ export default function Navbar() {
           </div>
         </div>
 
-        <div className={`hidden md:flex justify-center gap-8 pt-4 text-[11px] tracking-[0.2em] lowercase font-medium ${isScrolled ? 'text-brand-brown' : 'text-white'}`}>
+        <div className="hidden md:flex justify-center gap-8 pt-4 text-[11px] tracking-[0.2em] uppercase font-medium text-brand-brown">
           {navLinks.map((link) => (
             <a key={link} href="#" className="relative group overflow-hidden">
               {link}
@@ -66,6 +47,6 @@ export default function Navbar() {
           ))}
         </div>
       </div>
-    </motion.nav>
+    </nav>
   );
 }

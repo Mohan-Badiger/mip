@@ -6,6 +6,8 @@
   --color-brand-gold-light: #E2D0A5;
   --color-bg-cream: #FAF8F5;
   --color-text-dark: #1A1A1A;
+  --font-serif: var(--font-cinzel);
+  --font-sans: var(--font-work-sans);
 }
 
 @layer base {
@@ -17,6 +19,6 @@
   body {
     background-color: var(--background);
     color: var(--foreground);
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-sans);
   }
 }

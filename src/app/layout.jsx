@@ -1,12 +1,15 @@
 
-import { Inter, Cormorant_Garamond } from "next/font/google";
+import { Work_Sans, Cinzel } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const cormorant = Cormorant_Garamond({ 
-  weight: ["300", "400", "500", "600", "700"],
+const workSans = Work_Sans({ 
   subsets: ["latin"], 
-  variable: "--font-cormorant" 
+  variable: "--font-work-sans" 
+});
+
+const cinzel = Cinzel({
+  subsets: ["latin"],
+  variable: "--font-cinzel"
 });
 
 export const metadata = {
@@ -17,9 +20,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body
-        className={`${inter.variable} ${cormorant.variable} antialiased font-sans`}
-      >
+      <body className={`${workSans.variable} ${cinzel.variable} antialiased font-sans`}>
         {children}
       </body>
     </html>
