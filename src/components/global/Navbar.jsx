@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { Search, MapPin, User, ShoppingBag, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -7,7 +8,13 @@ export default function Navbar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const navLinks = [
-    "EARRINGS", "BANGLES", "CHAINS", "RINGS", "COINS & BARS", "ALL JEWELLERY", "COLLECTIONS"
+    { label: 'EARRINGS',    href: '/collections/earrings' },
+    { label: 'BANGLES',     href: '/collections/bangles' },
+    { label: 'CHAINS',      href: '/collections/chains' },
+    { label: 'RINGS',       href: '/collections/rings' },
+    { label: 'COINS & BARS', href: '/collections/coins-bars' },
+    { label: 'ALL JEWELLERY', href: '/collections' },
+    { label: 'COLLECTIONS', href: '/collections' },
   ];
 
   return (
@@ -27,9 +34,11 @@ export default function Navbar() {
               >
                 <Menu className="w-6 h-6" />
               </button>
-              <h1 className="font-secondary text-xl md:text-2xl tracking-[0.2em] lowercase text-brand-brown">
-                mip
-              </h1>
+              <Link href="/">
+                <h1 className="font-secondary text-xl md:text-2xl tracking-[0.2em] lowercase text-brand-brown">
+                  mip
+                </h1>
+              </Link>
             </div>
 
             {/* Center: Search bar (desktop only) */}
@@ -44,8 +53,8 @@ export default function Navbar() {
 
             {/* Right: Actions */}
             <div className="flex items-center gap-3 md:gap-6 text-sm font-medium text-text-dark">
-              <button className="hidden lg:block hover:text-brand-gold transition-colors tracking-widest text-[11px]">Gift Card</button>
-              <button className="hidden lg:block text-brand-gold hover:text-brand-gold-light transition-colors tracking-widest text-[11px]">Purchase Plan</button>
+              <Link href="/" className="hidden lg:block hover:text-brand-gold transition-colors tracking-widest text-[11px]">Gift Card</Link>
+              <Link href="/purchase-plan" className="hidden lg:block text-brand-gold hover:text-brand-gold-light transition-colors tracking-widest text-[11px]">Purchase Plan</Link>
 
               <div className="flex gap-3 md:gap-4 items-center border-l border-current pl-3 md:pl-4">
                 {/* Search icon on mobile */}
@@ -60,10 +69,10 @@ export default function Navbar() {
           {/* ── Desktop Nav Links ── */}
           <div className="hidden md:flex justify-center gap-8 pt-4 text-[11px] tracking-[0.2em] font-medium text-brand-brown">
             {navLinks.map((link) => (
-              <a key={link} href="#" className="relative group overflow-hidden">
-                {link}
+              <Link key={link.label} href={link.href} className="relative group overflow-hidden">
+                {link.label}
                 <span className="absolute bottom-0 left-0 w-full h-px bg-brand-gold transform scale-x-0 group-hover:scale-x-100 transition-transform origin-center duration-300" />
-              </a>
+              </Link>
             ))}
           </div>
 
@@ -119,26 +128,21 @@ export default function Navbar() {
               {/* Nav Links */}
               <nav className="flex-1 overflow-y-auto px-6 py-2">
                 <ul>
-                  {navLinks.map((link, idx) => (
-                    <li key={link}>
-                      <a
-                        href="#"
+                  {navLinks.map((link) => (
+                    <li key={link.label}>
+                      <Link
+                        href={link.href}
                         onClick={() => setDrawerOpen(false)}
                         className="flex items-center py-3.5 text-[12px] tracking-[0.18em] font-medium text-brand-brown hover:text-brand-gold border-b border-black/5 transition-colors"
                       >
-                        {link}
-                      </a>
+                        {link.label}
+                      </Link>
                     </li>
                   ))}
                 </ul>
-
                 <div className="mt-6 space-y-1">
-                  <a href="#" className="flex items-center py-3 text-[12px] tracking-widest text-brand-brown hover:text-brand-gold transition-colors border-b border-black/5">
-                    Gift Card
-                  </a>
-                  <a href="#" className="flex items-center py-3 text-[12px] tracking-widest text-brand-gold font-medium hover:text-brand-gold-light transition-colors">
-                    Purchase Plan
-                  </a>
+                  <a href="#" onClick={() => setDrawerOpen(false)} className="flex items-center py-3 text-[12px] tracking-widest text-brand-brown hover:text-brand-gold transition-colors border-b border-black/5">Gift Card</a>
+                  <Link href="/purchase-plan" onClick={() => setDrawerOpen(false)} className="flex items-center py-3 text-[12px] tracking-widest text-brand-gold font-medium hover:text-brand-gold-light transition-colors">Purchase Plan</Link>
                 </div>
               </nav>
 
