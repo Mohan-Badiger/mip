@@ -30,7 +30,7 @@ export default function CollectionsCards() {
                   className="object-cover transition-transform duration-[1.5s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-105"
                 />
               </div>
-              <h3 className="font-secondary text-xl text-brand-brown mb-1 flex items-center gap-1 font-medium tracking-wide">
+              <h3 className="font-primary text-xl text-brand-brown mb-1 flex items-center gap-1 font-medium tracking-wide">
                 {item.title} <ArrowUpRight className="w-4 h-4 text-gray-400 group-hover:text-brand-brown transition-colors" />
               </h3>
               {item.sub && <p className="font-sans text-[11px] text-gray-400 tracking-wider uppercase">{item.sub}</p>}

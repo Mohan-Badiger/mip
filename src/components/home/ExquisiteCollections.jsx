@@ -15,7 +15,7 @@ export default function ExquisiteCollections() {
           {/* Text */}
           <FadeInUp>
             <h2 className="font-secondary text-3xl text-brand-brown mb-4 leading-tight">
-              Choose what fits your style from our exquisite collections
+              Luxury That Matches Your Style
             </h2>
             <p className="font-sans text-gray-500 text-sm mb-6 leading-relaxed">
               Blending tradition with modernity. We set the standard for the ultimate in Diamond Jewellery.
@@ -69,7 +69,7 @@ export default function ExquisiteCollections() {
           <div className="w-1/3 pt-12">
             <FadeInUp>
               <h2 className="font-secondary text-5xl text-brand-brown mb-6 leading-tight">
-                Choose what fits your style from our exquisite collections
+                Luxury That Matches Your Style
               </h2>
               <p className="font-sans text-gray-500 text-sm mb-10 leading-relaxed max-w-sm">
                 Blending tradition with modernity. We set the standard for the ultimate in Diamond Jewellery.
