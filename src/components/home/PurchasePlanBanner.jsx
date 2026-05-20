@@ -15,12 +15,12 @@ export default function PurchasePlanBanner() {
             <h2 className="font-secondary text-3xl font-normal tracking-wide leading-tight">
               MIP My Choice
             </h2>
-            <p className="font-sans text-white/90 text-sm leading-relaxed">
+            <p className="font-primary text-white/90 text-sm leading-relaxed">
               Join our EMA Jewellery Purchase Plan and avail exciting benefits.
             </p>
             <a
               href="#"
-              className="inline-block font-sans text-xs font-semibold text-white tracking-widest uppercase pb-1 border-b-2 border-white hover:text-brand-brown hover:border-brand-brown transition-colors duration-300"
+              className="inline-block font-primary text-xs font-semibold text-white tracking-widest uppercase pb-1 border-b-2 border-white hover:text-brand-brown hover:border-brand-brown transition-colors duration-300"
             >
               Explore
             </a>
@@ -47,12 +47,12 @@ export default function PurchasePlanBanner() {
               <h2 className="font-secondary text-4xl lg:text-5xl mb-4 font-normal tracking-wide leading-tight">
                 MIP My Choice
               </h2>
-              <p className="font-sans text-white/90 text-base mb-6 max-w-md leading-relaxed">
+              <p className="font-primary text-white/90 text-base mb-6 max-w-md leading-relaxed">
                 Join our EMA Jewellery Purchase Plan and avail exciting benefits.
               </p>
               <a
                 href="#"
-                className="inline-block font-sans text-sm font-semibold text-white tracking-widest uppercase pb-1 border-b-2 border-white hover:text-brand-brown hover:border-brand-brown transition-colors duration-300"
+                className="inline-block font-primary text-sm font-semibold text-white tracking-widest uppercase pb-1 border-b-2 border-white hover:text-brand-brown hover:border-brand-brown transition-colors duration-300"
               >
                 Explore
               </a>

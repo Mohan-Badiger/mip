@@ -25,7 +25,7 @@ export default function ShopByCategory() {
                     className="object-cover opacity-90 transition-transform duration-1000 group-hover:scale-110 group-hover:opacity-100"
                   />
                 </div>
-                <p className="font-sans text-[11px] tracking-wider uppercase text-gray-500">{cat}</p>
+                <p className="font-primary text-[14px] tracking-wider uppercase text-gray-500">{cat}</p>
               </div>
             </FadeInUp>
           ))}
@@ -54,10 +54,10 @@ export default function ShopByCategory() {
                     className="object-cover opacity-90 transition-transform duration-1000 group-hover:scale-105"
                   />
                 </div>
-                <h3 className="font-secondary text-xl text-brand-brown mb-1 flex items-center gap-1 font-medium tracking-wide">
+                <h3 className="font-primary text-xl text-brand-brown mb-1 flex items-center gap-1 font-medium tracking-wide">
                   {gift.title} <ArrowUpRight className="w-4 h-4 text-gray-400 group-hover:text-brand-brown transition-colors" />
                 </h3>
-                <p className="font-sans text-[11px] text-gray-400 tracking-wider uppercase">{gift.sub}</p>
+                <p className="font-primary text-[11px] text-gray-400 tracking-wider uppercase">{gift.sub}</p>
               </div>
             </FadeInUp>
           ))}
