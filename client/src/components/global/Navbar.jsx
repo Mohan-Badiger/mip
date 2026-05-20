@@ -8,10 +8,10 @@ export default function Navbar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const navLinks = [
-    { label: 'EARRINGS',    href: '/collections/earrings' },
-    { label: 'BANGLES',     href: '/collections/bangles' },
-    { label: 'CHAINS',      href: '/collections/chains' },
-    { label: 'RINGS',       href: '/collections/rings' },
+    { label: 'EARRINGS', href: '/collections/earrings' },
+    { label: 'BANGLES', href: '/collections/bangles' },
+    { label: 'CHAINS', href: '/collections/chains' },
+    { label: 'RINGS', href: '/collections/rings' },
     { label: 'COINS & BARS', href: '/collections/coins-bars' },
     { label: 'ALL JEWELLERY', href: '/collections' },
     { label: 'COLLECTIONS', href: '/collections' },

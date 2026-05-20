@@ -1,6 +1,7 @@
 "use client";
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import FadeInUp from '@/components/global/FadeInUp';
 
 export default function PurchasePlanBanner() {
@@ -18,12 +19,12 @@ export default function PurchasePlanBanner() {
             <p className="font-primary text-white/90 text-sm leading-relaxed">
               Join our EMA Jewellery Purchase Plan and avail exciting benefits.
             </p>
-            <a
-              href="#"
+            <Link
+              href="/purchase-plan"
               className="inline-block font-primary text-xs font-semibold text-white tracking-widest uppercase pb-1 border-b-2 border-white hover:text-brand-brown hover:border-brand-brown transition-colors duration-300"
             >
               Explore
-            </a>
+            </Link>
           </div>
           {/* Model image below banner on mobile */}
           <div className="relative w-full h-[280px] bg-[#f0e8d8]">
@@ -50,12 +51,12 @@ export default function PurchasePlanBanner() {
               <p className="font-primary text-white/90 text-base mb-6 max-w-md leading-relaxed">
                 Join our EMA Jewellery Purchase Plan and avail exciting benefits.
               </p>
-              <a
-                href="#"
+              <Link
+                href="/purchase-plan"
                 className="inline-block font-primary text-sm font-semibold text-white tracking-widest uppercase pb-1 border-b-2 border-white hover:text-brand-brown hover:border-brand-brown transition-colors duration-300"
               >
                 Explore
-              </a>
+              </Link>
             </div>
             {/* Spacer for model */}
             <div className="w-2/5 h-full" />

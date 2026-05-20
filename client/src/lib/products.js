@@ -3,7 +3,7 @@
 export const categories = [
   { slug: 'earrings',   label: 'Earrings',      image: '/images/product_earrings_1.png',               description: 'Elegant drops to stunning jhumkas' },
   { slug: 'bangles',    label: 'Bangles',        image: '/images/category_bangles_1779203423031.png',    description: 'Traditional kadas to modern stacks' },
-  { slug: 'chains',     label: 'Chains',         image: '/images/media__1779203222950.png',              description: 'Delicate to bold gold chains' },
+  { slug: 'chains',     label: 'Chains',         image: '/images/luxury_gold_hero_1779199654262.png',    description: 'Delicate to bold gold chains' },
   { slug: 'rings',      label: 'Rings',          image: '/images/modern_diamonds_1779199687171.png',     description: 'Solitaires, eternity bands & more' },
   { slug: 'coins-bars', label: 'Coins & Bars',   image: '/images/luxury_gold_hero_1779199654262.png',    description: 'BIS Hallmarked 22KT & 24KT gold' },
   { slug: 'necklaces',  label: 'Necklaces',      image: '/images/bridal_jewellery_1779199671286.png',    description: 'Temple sets to contemporary pendants' },
@@ -14,9 +14,9 @@ export const products = [
   { id: 'e1', slug: 'lotus-diamond-drops',      name: 'Lotus Diamond Drops',         category: 'earrings',   image: '/images/product_earrings_1.png',             price: 28500, weight: '3.2g', metal: '18KT Gold', stone: 'Diamond', tag: 'New' },
   { id: 'e2', slug: 'classic-jhumka',           name: 'Classic Jhumka',              category: 'earrings',   image: '/images/product_earrings_1.png',             price: 18900, weight: '5.1g', metal: '22KT Gold', stone: null,      tag: null },
   { id: 'e3', slug: 'pearl-drop-studs',         name: 'Pearl Drop Studs',            category: 'earrings',   image: '/images/product_earrings_1.png',             price: 12400, weight: '2.8g', metal: '18KT Gold', stone: 'Pearl',   tag: 'Bestseller' },
-  { id: 'e4', slug: 'heritage-chandbali',       name: 'Heritage Chandbali',          category: 'earrings',   image: '/images/media__1779203223212.png',            price: 34200, weight: '7.6g', metal: '22KT Gold', stone: null,      tag: null },
+  { id: 'e4', slug: 'heritage-chandbali',       name: 'Heritage Chandbali',          category: 'earrings',   image: '/images/product_earrings_1.png',              price: 34200, weight: '7.6g', metal: '22KT Gold', stone: null,      tag: null },
   { id: 'e5', slug: 'floral-studs',             name: 'Floral Diamond Studs',        category: 'earrings',   image: '/images/product_earrings_1.png',             price: 22100, weight: '2.1g', metal: '18KT Gold', stone: 'Diamond', tag: null },
-  { id: 'e6', slug: 'temple-jhumka',            name: 'Temple Jhumka',               category: 'earrings',   image: '/images/media__1779203223024.png',            price: 26700, weight: '6.3g', metal: '22KT Gold', stone: null,      tag: 'New' },
+  { id: 'e6', slug: 'temple-jhumka',            name: 'Temple Jhumka',               category: 'earrings',   image: '/images/product_earrings_1.png',              price: 26700, weight: '6.3g', metal: '22KT Gold', stone: null,      tag: 'New' },
 
   // Bangles
   { id: 'b1', slug: 'classic-gold-bangle',      name: 'Classic Plain Bangle Set',    category: 'bangles',    image: '/images/category_bangles_1779203423031.png',  price: 42000, weight: '14.2g', metal: '22KT Gold', stone: null,      tag: 'Bestseller' },
@@ -27,12 +27,12 @@ export const products = [
   { id: 'b6', slug: 'antique-bangle',          name: 'Antique Finish Bangle',       category: 'bangles',    image: '/images/category_bangles_1779203423031.png',  price: 33600, weight: '10.4g', metal: '22KT Gold', stone: null,      tag: null },
 
   // Chains
-  { id: 'c1', slug: 'singapore-chain',          name: 'Singapore Chain',             category: 'chains',     image: '/images/media__1779203222950.png',            price: 24300, weight: '5.4g',  metal: '22KT Gold', stone: null,      tag: 'Bestseller' },
-  { id: 'c2', slug: 'box-chain',               name: 'Box Chain',                   category: 'chains',     image: '/images/media__1779203222950.png',            price: 19800, weight: '4.2g',  metal: '22KT Gold', stone: null,      tag: null },
-  { id: 'c3', slug: 'figaro-chain',            name: 'Figaro Chain',                category: 'chains',     image: '/images/media__1779203223185.png',            price: 31400, weight: '7.8g',  metal: '22KT Gold', stone: null,      tag: null },
-  { id: 'c4', slug: 'rope-chain',              name: 'Rope Chain',                  category: 'chains',     image: '/images/media__1779203223024.png',            price: 27600, weight: '6.5g',  metal: '22KT Gold', stone: null,      tag: 'New' },
-  { id: 'c5', slug: 'diamond-chain',           name: 'Diamond Station Chain',       category: 'chains',     image: '/images/media__1779203222950.png',            price: 45200, weight: '5.1g',  metal: '18KT Gold', stone: 'Diamond', tag: null },
-  { id: 'c6', slug: 'cable-chain',             name: 'Cable Chain',                 category: 'chains',     image: '/images/media__1779203223185.png',            price: 16900, weight: '3.8g',  metal: '22KT Gold', stone: null,      tag: null },
+  { id: 'c1', slug: 'singapore-chain',          name: 'Singapore Chain',             category: 'chains',     image: '/images/luxury_gold_hero_1779199654262.png',  price: 24300, weight: '5.4g',  metal: '22KT Gold', stone: null,      tag: 'Bestseller' },
+  { id: 'c2', slug: 'box-chain',               name: 'Box Chain',                   category: 'chains',     image: '/images/luxury_gold_hero_1779199654262.png',  price: 19800, weight: '4.2g',  metal: '22KT Gold', stone: null,      tag: null },
+  { id: 'c3', slug: 'figaro-chain',            name: 'Figaro Chain',                category: 'chains',     image: '/images/luxury_gold_hero_1779199654262.png',  price: 31400, weight: '7.8g',  metal: '22KT Gold', stone: null,      tag: null },
+  { id: 'c4', slug: 'rope-chain',              name: 'Rope Chain',                  category: 'chains',     image: '/images/luxury_gold_hero_1779199654262.png',  price: 27600, weight: '6.5g',  metal: '22KT Gold', stone: null,      tag: 'New' },
+  { id: 'c5', slug: 'diamond-chain',           name: 'Diamond Station Chain',       category: 'chains',     image: '/images/luxury_gold_hero_1779199654262.png',  price: 45200, weight: '5.1g',  metal: '18KT Gold', stone: 'Diamond', tag: null },
+  { id: 'c6', slug: 'cable-chain',             name: 'Cable Chain',                 category: 'chains',     image: '/images/luxury_gold_hero_1779199654262.png',  price: 16900, weight: '3.8g',  metal: '22KT Gold', stone: null,      tag: null },
 
   // Rings
   { id: 'r1', slug: 'solitaire-diamond-ring',  name: 'Solitaire Diamond Ring',      category: 'rings',      image: '/images/modern_diamonds_1779199687171.png',   price: 52000, weight: '3.4g',  metal: '18KT Gold', stone: 'Diamond', tag: 'Bestseller' },
@@ -54,7 +54,7 @@ export const products = [
   { id: 'n1', slug: 'temple-necklace',        name: 'Temple Gold Necklace',        category: 'necklaces',  image: '/images/bridal_jewellery_1779199671286.png',  price: 124000, weight: '32.4g', metal: '22KT Gold', stone: null,      tag: 'Bestseller' },
   { id: 'n2', slug: 'diamond-pendant-set',    name: 'Diamond Pendant Necklace',    category: 'necklaces',  image: '/images/bridal_jewellery_1779199671286.png',  price: 86500,  weight: '8.2g',  metal: '18KT Gold', stone: 'Diamond', tag: null },
   { id: 'n3', slug: 'ruby-choker',           name: 'Ruby Gold Choker',            category: 'necklaces',  image: '/images/bridal_jewellery_1779199671286.png',  price: 98200,  weight: '24.6g', metal: '22KT Gold', stone: 'Ruby',    tag: 'New' },
-  { id: 'n4', slug: 'long-gold-chain',       name: 'Opera Length Gold Chain',     category: 'necklaces',  image: '/images/media__1779203222950.png',            price: 54300,  weight: '18.8g', metal: '22KT Gold', stone: null,      tag: null },
+  { id: 'n4', slug: 'long-gold-chain',       name: 'Opera Length Gold Chain',     category: 'necklaces',  image: '/images/luxury_gold_hero_1779199654262.png',  price: 54300,  weight: '18.8g', metal: '22KT Gold', stone: null,      tag: null },
   { id: 'n5', slug: 'antique-haram',         name: 'Antique Gold Haram',          category: 'necklaces',  image: '/images/bridal_jewellery_1779199671286.png',  price: 188000, weight: '52.4g', metal: '22KT Gold', stone: null,      tag: null },
   { id: 'n6', slug: 'pearl-necklace',        name: 'Pearl & Gold Necklace',       category: 'necklaces',  image: '/images/bridal_jewellery_1779199671286.png',  price: 44800,  weight: '12.1g', metal: '18KT Gold', stone: 'Pearl',   tag: null },
 ];

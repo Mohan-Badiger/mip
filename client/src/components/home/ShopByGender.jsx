@@ -6,9 +6,9 @@ import { ArrowUpRight } from 'lucide-react';
 import FadeInUp from '@/components/global/FadeInUp';
 
 const genders = [
-  { label: "Women", sub: "For Her", img: "/images/shop_gender_women.png", href: "/collections?gender=women" },
-  { label: "Men", sub: "For Him", img: "/images/shop_gender_men.png", href: "/collections?gender=men" },
-  { label: "Kids", sub: "For Them", img: "/images/shop_gender_kids.png", href: "/collections?gender=kids" },
+  { label: "Women", sub: "For Her", img: "/images/shop_gender_women.png", href: "/collections" },
+  { label: "Men", sub: "For Him", img: "/images/shop_gender_men.png", href: "/collections" },
+  { label: "Kids", sub: "For Them", img: "/images/shop_gender_kids.png", href: "/collections" },
 ];
 
 export default function ShopByGender() {
