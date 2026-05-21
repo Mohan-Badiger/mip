@@ -1,7 +1,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -12,8 +18,12 @@ export default function GoldRatesPage() {
     <div className="flex-1 space-y-4 p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Gold Rate Management</h2>
-          <p className="text-muted-foreground">Manage daily gold, silver, and platinum rates for pricing engine.</p>
+          <h2 className="text-3xl font-bold tracking-tight">
+            Gold Rate Management
+          </h2>
+          <p className="text-muted-foreground">
+            Manage daily gold, silver, and platinum rates for pricing engine.
+          </p>
         </div>
         <div className="flex items-center space-x-2">
           <Button variant="outline">
@@ -29,7 +39,9 @@ export default function GoldRatesPage() {
         <Card>
           <CardHeader>
             <CardTitle>Current Rates (per gram)</CardTitle>
-            <CardDescription>Update the base metal prices manually.</CardDescription>
+            <CardDescription>
+              Update the base metal prices manually.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -54,27 +66,36 @@ export default function GoldRatesPage() {
         <Card>
           <CardHeader>
             <CardTitle>Settings & Automation</CardTitle>
-            <CardDescription>Configure how rates are applied to products.</CardDescription>
+            <CardDescription>
+              Configure how rates are applied to products.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex items-center justify-between space-x-2">
               <div className="flex flex-col space-y-1">
                 <Label>Auto-update Rates</Label>
-                <span className="text-sm text-muted-foreground">Automatically fetch rates from MCX at 10 AM daily.</span>
+                <span className="text-sm text-muted-foreground">
+                  Automatically fetch rates from MCX at 10 AM daily.
+                </span>
               </div>
               <Switch id="auto-sync" />
             </div>
             <div className="flex items-center justify-between space-x-2">
               <div className="flex flex-col space-y-1">
                 <Label>Live Price Banner</Label>
-                <span className="text-sm text-muted-foreground">Show the live gold rate banner on the frontend header.</span>
+                <span className="text-sm text-muted-foreground">
+                  Show the live gold rate banner on the frontend header.
+                </span>
               </div>
               <Switch id="show-banner" defaultChecked />
             </div>
             <div className="flex items-center justify-between space-x-2">
               <div className="flex flex-col space-y-1">
                 <Label>Apply to Pricing Engine</Label>
-                <span className="text-sm text-muted-foreground">Automatically recalculate all product prices when rates change.</span>
+                <span className="text-sm text-muted-foreground">
+                  Automatically recalculate all product prices when rates
+                  change.
+                </span>
               </div>
               <Switch id="auto-calc" defaultChecked />
             </div>

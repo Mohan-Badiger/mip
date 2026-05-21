@@ -1,32 +1,30 @@
 "use client";
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Search, Bell, User, Menu, X, Settings } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import React, { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Search, Bell, User, Menu, X, Settings } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 export function AdminNavbar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const pathname = usePathname();
 
   const navLinks = [
-    { label: 'DASHBOARD', href: '/' },
-    { label: 'PRODUCTS', href: '/products' },
-    { label: 'ORDERS', href: '/orders' },
-    { label: 'CUSTOMERS', href: '/customers' },
-    { label: 'COLLECTIONS', href: '/collections' },
-    { label: 'CMS', href: '/cms' },
+    { label: "DASHBOARD", href: "/" },
+    { label: "PRODUCTS", href: "/products" },
+    { label: "ORDERS", href: "/orders" },
+    { label: "CUSTOMERS", href: "/customers" },
+    { label: "COLLECTIONS", href: "/collections" },
+    { label: "CMS", href: "/cms" },
   ];
 
   return (
     <>
       <nav className="w-full bg-background py-3 md:py-4 sticky top-0 z-50 shadow-sm border-b border-border/40">
         <div className="max-w-[1920px] mx-auto px-4 md:px-8">
-
           {/* ── Top Row ── */}
           <div className="flex justify-between items-center pb-3 md:pb-4 border-b border-border/40">
-
             {/* Left: Hamburger + Logo */}
             <div className="flex items-center gap-3">
               <button
@@ -50,6 +48,7 @@ export function AdminNavbar() {
                 placeholder="Search orders, products, customers..."
                 className="w-full py-2 px-4 rounded-full border border-border bg-transparent text-sm focus:outline-none focus:border-primary transition-colors text-foreground placeholder-muted-foreground"
               />
+
               <Search className="absolute right-3 top-2 w-5 h-5 text-muted-foreground" />
             </div>
 
@@ -76,17 +75,27 @@ export function AdminNavbar() {
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
               return (
-                <Link key={link.label} href={link.href} className={cn("relative group overflow-hidden", isActive ? "text-primary" : "")}>
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  className={cn(
+                    "relative group overflow-hidden",
+                    isActive ? "text-primary" : "",
+                  )}
+                >
                   {link.label}
-                  <span className={cn(
-                    "absolute bottom-0 left-0 w-full h-px bg-primary transform origin-center transition-transform duration-300",
-                    isActive ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-                  )} />
+                  <span
+                    className={cn(
+                      "absolute bottom-0 left-0 w-full h-px bg-primary transform origin-center transition-transform duration-300",
+                      isActive
+                        ? "scale-x-100"
+                        : "scale-x-0 group-hover:scale-x-100",
+                    )}
+                  />
                 </Link>
               );
             })}
           </div>
-
         </div>
       </nav>
 
@@ -111,7 +120,9 @@ export function AdminNavbar() {
               className="absolute left-0 top-0 bottom-0 w-[80vw] max-w-[320px] bg-background flex flex-col shadow-2xl"
             >
               <div className="flex items-center justify-between px-6 py-5 border-b border-border/50">
-                <span className="font-heading text-xl tracking-[0.2em] lowercase text-secondary-foreground font-bold">mip admin</span>
+                <span className="font-heading text-xl tracking-[0.2em] lowercase text-secondary-foreground font-bold">
+                  mip admin
+                </span>
                 <button
                   onClick={() => setDrawerOpen(false)}
                   className="flex items-center justify-center text-foreground hover:text-primary transition-colors"
@@ -127,6 +138,7 @@ export function AdminNavbar() {
                     placeholder="Search..."
                     className="w-full py-2.5 px-4 rounded-full border border-border bg-white text-sm focus:outline-none focus:border-primary transition-colors text-foreground placeholder-muted-foreground"
                   />
+
                   <Search className="absolute right-3 top-2.5 w-4 h-4 text-muted-foreground" />
                 </div>
               </div>
@@ -142,7 +154,9 @@ export function AdminNavbar() {
                           onClick={() => setDrawerOpen(false)}
                           className={cn(
                             "flex items-center py-3.5 text-[12px] tracking-[0.18em] font-medium border-b border-border/50 transition-colors",
-                            isActive ? "text-primary" : "text-secondary-foreground hover:text-primary"
+                            isActive
+                              ? "text-primary"
+                              : "text-secondary-foreground hover:text-primary",
                           )}
                         >
                           {link.label}
