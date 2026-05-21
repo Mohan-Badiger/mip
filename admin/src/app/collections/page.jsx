@@ -6,10 +6,34 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Image as ImageIcon, Settings } from "lucide-react";
 
 const collections = [
-  { id: "COL001", name: "Bridal Elegance 2024", products: 45, status: "Active", type: "Campaign" },
-  { id: "COL002", name: "Temple Jewellery", products: 120, status: "Active", type: "Category" },
-  { id: "COL003", name: "Office Wear Minimalist", products: 65, status: "Active", type: "Theme" },
-  { id: "COL004", name: "Diwali Special Offers", products: 30, status: "Draft", type: "Campaign" },
+  {
+    id: "COL001",
+    name: "Bridal Elegance 2024",
+    products: 45,
+    status: "Active",
+    type: "Campaign",
+  },
+  {
+    id: "COL002",
+    name: "Temple Jewellery",
+    products: 120,
+    status: "Active",
+    type: "Category",
+  },
+  {
+    id: "COL003",
+    name: "Office Wear Minimalist",
+    products: 65,
+    status: "Active",
+    type: "Theme",
+  },
+  {
+    id: "COL004",
+    name: "Diwali Special Offers",
+    products: 30,
+    status: "Draft",
+    type: "Campaign",
+  },
 ];
 
 export default function CollectionsPage() {
@@ -18,7 +42,9 @@ export default function CollectionsPage() {
       <div className="flex items-center justify-between space-y-2">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Collections</h2>
-          <p className="text-muted-foreground">Manage your product collections, themes, and campaigns.</p>
+          <p className="text-muted-foreground">
+            Manage your product collections, themes, and campaigns.
+          </p>
         </div>
         <div className="flex items-center space-x-2">
           <Button>
@@ -29,10 +55,18 @@ export default function CollectionsPage() {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {collections.map((collection) => (
-          <Card key={collection.id} className="overflow-hidden hover:shadow-lg transition-all">
+          <Card
+            key={collection.id}
+            className="overflow-hidden hover:shadow-lg transition-all"
+          >
             <div className="h-32 bg-muted flex items-center justify-center relative">
               <ImageIcon className="h-10 w-10 text-muted-foreground opacity-50" />
-              <Badge className="absolute top-2 right-2" variant={collection.status === "Active" ? "default" : "secondary"}>
+              <Badge
+                className="absolute top-2 right-2"
+                variant={
+                  collection.status === "Active" ? "default" : "secondary"
+                }
+              >
                 {collection.status}
               </Badge>
             </div>
@@ -52,7 +86,7 @@ export default function CollectionsPage() {
             </CardContent>
           </Card>
         ))}
-        
+
         <Card className="flex flex-col items-center justify-center h-full min-h-[280px] border-dashed border-2 bg-muted/20 hover:bg-muted/50 cursor-pointer transition-colors">
           <div className="flex flex-col items-center gap-2 text-muted-foreground">
             <div className="w-12 h-12 rounded-full bg-background flex items-center justify-center">
