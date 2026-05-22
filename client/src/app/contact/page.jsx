@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import React, { useState } from 'react';
 import Link from 'next/link';
 import PageLayout from '@/components/global/PageLayout';
@@ -73,8 +73,12 @@ export default function ContactPage() {
             <div className="border-t border-gray-100 pt-6">
               <p className="font-primary text-[10px] tracking-[0.2em] uppercase text-gray-400 mb-3">Follow Us</p>
               <div className="flex gap-4">
-                {['Instagram', 'Facebook', 'YouTube'].map((social) => (
-                  <a key={social} href="#" className="font-primary text-xs text-brand-brown hover:text-brand-gold transition-colors">{social}</a>
+                {[
+                  { name: 'Instagram', href: 'https://instagram.com' },
+                  { name: 'Facebook', href: 'https://facebook.com' },
+                  { name: 'YouTube', href: 'https://youtube.com' }
+                ].map((social) => (
+                  <a key={social.name} href={social.href} target="_blank" rel="noopener noreferrer" className="font-primary text-xs text-brand-brown hover:text-brand-gold transition-colors">{social.name}</a>
                 ))}
               </div>
             </div>

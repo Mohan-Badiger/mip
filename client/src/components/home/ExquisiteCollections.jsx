@@ -1,7 +1,8 @@
-﻿"use client";
+"use client";
 import React from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import FadeInUp from '@/components/global/FadeInUp';
 
@@ -20,9 +21,9 @@ export default function ExquisiteCollections() {
             <p className="font-primary text-gray-500 text-sm mb-6 leading-relaxed">
               Blending tradition with modernity. We set the standard for the ultimate in Diamond Jewellery.
             </p>
-            <a href="#" className="inline-flex items-center gap-2 font-primary text-brand-brown text-base pb-2 border-b-2 border-brand-gold hover:text-brand-gold transition-colors">
+            <Link href="/collections" className="inline-flex items-center gap-2 font-primary text-brand-brown text-base pb-2 border-b-2 border-brand-gold hover:text-brand-gold transition-colors">
               View Collections <ArrowUpRight className="w-4 h-4 text-gray-400" />
-            </a>
+            </Link>
           </FadeInUp>
 
           {/* Images: main portrait + two thumbnails */}
@@ -74,9 +75,9 @@ export default function ExquisiteCollections() {
               <p className="font-primary text-gray-500 text-sm mb-10 leading-relaxed max-w-sm">
                 Blending tradition with modernity. We set the standard for the ultimate in Diamond Jewellery.
               </p>
-              <a href="#" className="inline-flex items-center gap-2 font-primary text-brand-brown text-lg pb-2 border-b-2 border-brand-gold hover:text-brand-gold transition-colors">
+              <Link href="/collections" className="inline-flex items-center gap-2 font-primary text-brand-brown text-lg pb-2 border-b-2 border-brand-gold hover:text-brand-gold transition-colors">
                 View Collections <ArrowUpRight className="w-5 h-5 text-gray-400" />
-              </a>
+              </Link>
             </FadeInUp>
           </div>
 

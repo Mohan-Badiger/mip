@@ -5,6 +5,7 @@ import { Mail, Lock, User, Phone, X, ArrowLeft, Loader2, Sparkles, Check } from 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function AuthModal() {
   const { 
@@ -593,7 +594,7 @@ export default function AuthModal() {
                           disabled={isLoading}
                         />
                         <label htmlFor="privacyPolicy" className="text-[10px] text-gray-500 font-primary cursor-pointer leading-tight select-none">
-                          I agree to the <a href="#" className="text-brand-brown hover:text-brand-gold underline font-semibold transition-colors">Privacy Policy</a>
+                          I agree to the <Link href="/about" onClick={closeAuthModal} className="text-brand-brown hover:text-brand-gold underline font-semibold transition-colors">Privacy Policy</Link>
                         </label>
                       </div>
 

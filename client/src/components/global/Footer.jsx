@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
@@ -15,7 +15,7 @@ const footerSections = [
       { label: 'About Us',           href: '/about' },
       { label: 'Our Stores',          href: '/stores' },
       { label: 'Purchase Plan',       href: '/purchase-plan' },
-      { label: 'Gift Cards',          href: '#' },
+      { label: 'Gift Cards',          href: '/purchase-plan' },
       { label: 'Contact Us',          href: '/contact' },
     ],
   },
@@ -33,10 +33,10 @@ const footerSections = [
   {
     title: 'Policies',
     links: [
-      { label: 'Shipping & Returns',  href: '#' },
-      { label: 'Privacy Policy',       href: '#' },
-      { label: 'Terms & Conditions',   href: '#' },
-      { label: 'Hallmark Info',        href: '#' },
+      { label: 'Shipping & Returns',  href: '/about#shipping' },
+      { label: 'Privacy Policy',       href: '/about#privacy' },
+      { label: 'Terms & Conditions',   href: '/about#terms' },
+      { label: 'Hallmark Info',        href: '/about#hallmark' },
     ],
   },
 ];
@@ -78,13 +78,13 @@ export default function Footer() {
           </Link>
           {/* Social icons — always visible */}
           <div className="flex items-center gap-4">
-            <a href="#" aria-label="Instagram" className="w-9 h-9 flex items-center justify-center border border-white/20 hover:border-brand-gold hover:text-brand-gold transition-colors rounded-full">
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="w-9 h-9 flex items-center justify-center border border-white/20 hover:border-brand-gold hover:text-brand-gold transition-colors rounded-full">
               <IgIcon />
             </a>
-            <a href="#" aria-label="Facebook" className="w-9 h-9 flex items-center justify-center border border-white/20 hover:border-brand-gold hover:text-brand-gold transition-colors rounded-full">
+            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="w-9 h-9 flex items-center justify-center border border-white/20 hover:border-brand-gold hover:text-brand-gold transition-colors rounded-full">
               <FbIcon />
             </a>
-            <a href="#" aria-label="YouTube" className="w-9 h-9 flex items-center justify-center border border-white/20 hover:border-brand-gold hover:text-brand-gold transition-colors rounded-full">
+            <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="w-9 h-9 flex items-center justify-center border border-white/20 hover:border-brand-gold hover:text-brand-gold transition-colors rounded-full">
               <YtIcon />
             </a>
           </div>
@@ -156,9 +156,9 @@ export default function Footer() {
         <div className="max-w-[1920px] mx-auto px-5 md:px-8 py-4 flex flex-col md:flex-row items-center justify-between gap-2 text-[11px] font-primary text-white/35">
           <p>&copy; {new Date().getFullYear()} MIP Jewellers. All Rights Reserved.</p>
           <div className="flex gap-4">
-            <a href="#" className="hover:text-white/60 transition-colors">Privacy</a>
-            <a href="#" className="hover:text-white/60 transition-colors">Terms</a>
-            <a href="#" className="hover:text-white/60 transition-colors">Sitemap</a>
+            <Link href="/about#privacy" className="hover:text-white/60 transition-colors">Privacy</Link>
+            <Link href="/about#terms" className="hover:text-white/60 transition-colors">Terms</Link>
+            <Link href="/collections" className="hover:text-white/60 transition-colors">Sitemap</Link>
           </div>
         </div>
       </div>

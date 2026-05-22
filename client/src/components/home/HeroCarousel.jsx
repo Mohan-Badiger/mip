@@ -1,7 +1,8 @@
-﻿"use client";
+"use client";
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
+import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const slides = [
@@ -12,6 +13,7 @@ const slides = [
     collection: "Aradhana",
     title: "Nature's most graceful bloom,\nset in diamond and gold.",
     cta: "Explore Collection",
+    href: "/collections",
     textSide: "left",
     tagColor: "text-brand-gold",
     textColor: "text-brand-brown",
@@ -26,6 +28,7 @@ const slides = [
     title: "Diamond jewellery that moves with you",
     price: "Starting from ₹10,000",
     cta: "Shop Now",
+    href: "/collections/earrings",
     textSide: "right",
     tagColor: "text-brand-gold",
     textColor: "text-brand-brown",
@@ -40,6 +43,7 @@ const slides = [
     title: "Invest once. Redeem in Gold or Silver\nwith no making charges.",
     price: "Start from ₹1,000 / month",
     cta: "Know More",
+    href: "/purchase-plan",
     textSide: "left",
     tagColor: "text-brand-gold",
     textColor: "text-brand-brown",
@@ -53,6 +57,7 @@ const slides = [
     collection: "A Timeless Legacy",
     title: "Handcrafted 916 BIS Hallmarked jewellery\nfor your most precious moments.",
     cta: "View Bridal",
+    href: "/collections/necklaces",
     textSide: "right",
     tagColor: "text-yellow-300",
     textColor: "text-white",
@@ -185,19 +190,20 @@ export default function HeroCarousel() {
                   )}
 
                   {/* CTA */}
-                  <motion.a
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.55, duration: 0.55 }}
-                    href="#"
-                    className={`mt-1 md:mt-2 inline-block font-primary text-[10px] md:text-xs font-semibold tracking-[0.2em] uppercase pb-0.5 border-b
-                    ${slide.textColor === 'text-white'
-                        ? 'border-white/70 text-white hover:border-white'
-                        : 'border-brand-gold text-brand-brown hover:text-brand-gold'}
-                    transition-colors duration-300`}
-                  >
-                    {slide.cta}
-                  </motion.a>
+                  <Link href={slide.href} passHref legacyBehavior>
+                    <motion.a
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.55, duration: 0.55 }}
+                      className={`mt-1 md:mt-2 inline-block font-primary text-[10px] md:text-xs font-semibold tracking-[0.2em] uppercase pb-0.5 border-b
+                      ${slide.textColor === 'text-white'
+                          ? 'border-white/70 text-white hover:border-white'
+                          : 'border-brand-gold text-brand-brown hover:text-brand-gold'}
+                      transition-colors duration-300`}
+                    >
+                      {slide.cta}
+                    </motion.a>
+                  </Link>
                 </div>
               </div>
             </motion.div>

@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Search, MapPin, User, ShoppingBag, Menu, X, TrendingUp, ArrowUpRight, Clock } from 'lucide-react';
+import { Search, MapPin, User, ShoppingBag, Menu, X, TrendingUp, ArrowUpRight, Clock, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
@@ -293,6 +293,7 @@ function SearchOverlay({ onClose }) {
 
 export default function Navbar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [categoriesExpanded, setCategoriesExpanded] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileSearchQuery, setMobileSearchQuery] = useState('');
@@ -398,7 +399,7 @@ export default function Navbar() {
 
             {/* Right: Actions */}
             <div className="flex items-center gap-3 md:gap-6 text-sm font-medium text-text-dark">
-              <Link href="/" className="hidden lg:block hover:text-brand-gold transition-colors tracking-widest text-[11px]">Gift Card</Link>
+              <Link href="/purchase-plan" className="hidden lg:block hover:text-brand-gold transition-colors tracking-widest text-[11px]">Gift Card</Link>
               <Link href="/purchase-plan" className="hidden lg:block text-brand-gold hover:text-brand-gold-light transition-colors tracking-widest text-[11px]">Purchase Plan</Link>
 
               <div className="flex gap-3 md:gap-4 items-center border-l border-current pl-3 md:pl-4">
@@ -738,22 +739,69 @@ export default function Navbar() {
                     </button>
                   </div>
                 )}
-                <ul>
-                  {navLinks.map((link) => (
-                    <li key={link.label}>
+                <div className="divide-y divide-black/5">
+                  {/* Collapsible Shop Categories */}
+                  <div>
+                    <button
+                      onClick={() => setCategoriesExpanded(!categoriesExpanded)}
+                      className="w-full flex items-center justify-between py-3.5 text-[12px] tracking-[0.18em] font-medium text-brand-brown hover:text-brand-gold transition-colors text-left focus:outline-none cursor-pointer"
+                    >
+                      <span>SHOP CATEGORIES</span>
+                      <ChevronDown className={`w-4 h-4 text-brand-gold transition-transform duration-200 ${categoriesExpanded ? 'rotate-180' : ''}`} />
+                    </button>
+                    
+                    <AnimatePresence>
+                      {categoriesExpanded && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.25 }}
+                          className="overflow-hidden bg-bg-cream/30 pl-4"
+                        >
+                          <ul className="pb-2 space-y-1">
+                            {[
+                              { label: 'EARRINGS', href: '/collections/earrings' },
+                              { label: 'BANGLES', href: '/collections/bangles' },
+                              { label: 'CHAINS', href: '/collections/chains' },
+                              { label: 'RINGS', href: '/collections/rings' },
+                              { label: 'COINS & BARS', href: '/collections/coins-bars' },
+                              { label: 'ALL JEWELLERY', href: '/collections' },
+                            ].map((cat) => (
+                              <li key={cat.label}>
+                                <Link
+                                  href={cat.href}
+                                  onClick={() => setDrawerOpen(false)}
+                                  className="block py-2.5 text-[11px] tracking-[0.15em] text-brand-brown hover:text-brand-gold transition-colors"
+                                >
+                                  {cat.label}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  {/* Rest of the links */}
+                  {[
+                    { label: 'COLLECTIONS', href: '/collections' },
+                    { label: 'PURCHASE PLAN', href: '/purchase-plan' },
+                    { label: 'OUR STORES', href: '/stores' },
+                    { label: 'ABOUT US', href: '/about' },
+                    { label: 'CONTACT US', href: '/contact' },
+                  ].map((link) => (
+                    <div key={link.label}>
                       <Link
                         href={link.href}
                         onClick={() => setDrawerOpen(false)}
-                        className="flex items-center py-3.5 text-[12px] tracking-[0.18em] font-medium text-brand-brown hover:text-brand-gold border-b border-black/5 transition-colors"
+                        className="flex items-center py-3.5 text-[12px] tracking-[0.18em] font-medium text-brand-brown hover:text-brand-gold transition-colors"
                       >
                         {link.label}
                       </Link>
-                    </li>
+                    </div>
                   ))}
-                </ul>
-                <div className="mt-6 space-y-1">
-                  <a href="#" onClick={() => setDrawerOpen(false)} className="flex items-center py-3 text-[12px] tracking-widest text-brand-brown hover:text-brand-gold transition-colors border-b border-black/5">Gift Card</a>
-                  <Link href="/purchase-plan" onClick={() => setDrawerOpen(false)} className="flex items-center py-3 text-[12px] tracking-widest text-brand-gold font-medium hover:text-brand-gold-light transition-colors">Purchase Plan</Link>
                 </div>
               </nav>
 

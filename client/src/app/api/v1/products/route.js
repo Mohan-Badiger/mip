@@ -12,9 +12,13 @@ export async function GET(req) {
   try {
     await dbConnect();
 
-    // Auto-seed Category and Product collections if empty
+    // Auto-seed Category and Product collections if empty or if existing products lack gender field
+    const firstProduct = await Product.findOne({});
     const productCount = await Product.countDocuments();
-    if (productCount === 0) {
+    if (productCount === 0 || (firstProduct && !firstProduct.gender)) {
+      if (productCount > 0) {
+        await Product.deleteMany({});
+      }
 
       // Ensure Gold Rates exist
       let rates = await GoldRate.find({});
@@ -116,7 +120,8 @@ export async function GET(req) {
           makingChargeValue: Math.round(makingCharges),
           gemstones,
           stock: 10,
-          isActive: true
+          isActive: true,
+          gender: mockP.gender || 'Women'
         });
       }
     }
@@ -134,8 +139,13 @@ export async function GET(req) {
     const metalType = searchParams.get('metalType');
     const metalPurity = searchParams.get('metalPurity');
     const searchQuery = searchParams.get('search');
+    const genderParam = searchParams.get('gender');
 
     const query = { isActive: true };
+
+    if (genderParam) {
+      query.gender = { $regex: new RegExp(`^${genderParam}$`, 'i') };
+    }
 
     // Resolve Category if provided by ID or Slug
     if (categoryParam) {
