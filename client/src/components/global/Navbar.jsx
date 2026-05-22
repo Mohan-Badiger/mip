@@ -1,18 +1,350 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Search, MapPin, User, ShoppingBag, Menu, X } from 'lucide-react';
+import { Search, MapPin, User, ShoppingBag, Menu, X, TrendingUp, ArrowUpRight, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
+import { formatPrice } from '@/lib/products';
+
+const TRENDING_SEARCHES = [
+  { label: 'Necklaces', href: '/collections/necklaces', icon: '📿' },
+  { label: 'Bracelets', href: '/collections/bangles', icon: '💛' },
+  { label: 'Rings', href: '/collections/rings', icon: '💍' },
+  { label: 'Chains', href: '/collections/chains', icon: '⛓️' },
+  { label: 'Chokers', href: '/collections/necklaces', icon: '✨' },
+  { label: 'Earrings', href: '/collections/earrings', icon: '👂' },
+  { label: 'Bangles', href: '/collections/bangles', icon: '🌟' },
+  { label: 'Silver', href: '/collections', icon: '🪙' },
+];
+
+function useDebounce(value, delay) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(t);
+  }, [value, delay]);
+  return debounced;
+}
+
+function SearchOverlay({ onClose }) {
+  const router = useRouter();
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const inputRef = useRef(null);
+  const debouncedQuery = useDebounce(query, 320);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  // Prevent body scroll while overlay is open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, []);
+
+  // Fetch results when debounced query changes
+  useEffect(() => {
+    if (!debouncedQuery.trim()) {
+      setResults([]);
+      return;
+    }
+    setIsSearching(true);
+    fetch(`/api/v1/products?search=${encodeURIComponent(debouncedQuery.trim())}&limit=6`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && Array.isArray(data.products)) {
+          setResults(data.products);
+        } else {
+          setResults([]);
+        }
+      })
+      .catch(() => setResults([]))
+      .finally(() => setIsSearching(false));
+  }, [debouncedQuery]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (query.trim()) {
+      router.push(`/collections?search=${encodeURIComponent(query.trim())}`);
+      onClose();
+    }
+  };
+
+  const handleTrending = (href) => {
+    router.push(href);
+    onClose();
+  };
+
+  const handleProductClick = () => {
+    onClose();
+  };
+
+  const hasQuery = query.trim().length > 0;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      className="fixed inset-0 z-[300] flex flex-col"
+    >
+      {/* Blurred backdrop */}
+      <div
+        className="absolute inset-0 bg-brand-brown/70 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* Search Panel */}
+      <motion.div
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: -20, opacity: 0 }}
+        transition={{ duration: 0.25, ease: [0.25, 1, 0.5, 1] }}
+        className="relative z-10 bg-bg-cream shadow-2xl"
+      >
+        {/* Search Input Row */}
+        <div className="max-w-[900px] mx-auto px-4 md:px-8 py-5">
+          <form onSubmit={handleSubmit} className="flex items-center gap-4">
+            <Search className="w-5 h-5 text-brand-gold shrink-0" strokeWidth={1.5} />
+            <input
+              ref={inputRef}
+              type="text"
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder="Search for jewellery, metals, styles..."
+              className="flex-1 bg-transparent text-brand-brown text-lg md:text-xl font-primary placeholder-gray-400 focus:outline-none tracking-wide"
+              autoComplete="off"
+              spellCheck={false}
+            />
+            {query && (
+              <button
+                type="button"
+                onClick={() => setQuery('')}
+                className="text-gray-400 hover:text-brand-brown transition-colors p-1 shrink-0"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-brand-brown hover:text-brand-gold transition-colors p-1 shrink-0 ml-2"
+              aria-label="Close search"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </form>
+          {/* Animated underline */}
+          <div className="h-px bg-gradient-to-r from-brand-brown/10 via-brand-gold to-brand-brown/10 mt-4" />
+        </div>
+
+        {/* Results / Trending Panel */}
+        <div className="max-w-[900px] mx-auto px-4 md:px-8 pb-8 max-h-[70vh] overflow-y-auto">
+
+          {/* ── Live Search Results (shown when typing) ── */}
+          {hasQuery && (
+            <div className="mb-6">
+              {/* Loading shimmer */}
+              {isSearching && (
+                <div className="space-y-3 pt-2">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="flex gap-3 animate-pulse">
+                      <div className="w-14 h-14 bg-gray-200 shrink-0" />
+                      <div className="flex-1 space-y-2 py-1">
+                        <div className="h-3 bg-gray-200 rounded w-3/4" />
+                        <div className="h-2.5 bg-gray-100 rounded w-1/3" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Results list */}
+              {!isSearching && results.length > 0 && (
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-[10px] font-primary tracking-[0.25em] uppercase text-gray-400 font-semibold">
+                      {results.length} result{results.length !== 1 ? 's' : ''} for &ldquo;{query}&rdquo;
+                    </span>
+                    <button
+                      onClick={() => { router.push(`/collections?search=${encodeURIComponent(query.trim())}`); onClose(); }}
+                      className="text-[10px] font-primary tracking-widest uppercase text-brand-gold hover:text-brand-brown transition-colors font-semibold flex items-center gap-1"
+                    >
+                      View all <ArrowUpRight className="w-3 h-3" />
+                    </button>
+                  </div>
+                  <div className="space-y-1">
+                    {results.map((product) => (
+                      <Link
+                        key={product._id}
+                        href={`/products/${product.slug || product._id}`}
+                        onClick={handleProductClick}
+                        className="group flex items-center gap-4 p-3 hover:bg-white transition-all duration-200 border border-transparent hover:border-brand-gold/20"
+                      >
+                        {/* Product Image */}
+                        <div className="w-14 h-14 bg-gray-100 shrink-0 relative overflow-hidden">
+                          {product.images?.[0] ? (
+                            <Image
+                              src={product.images[0]}
+                              alt={product.name}
+                              fill
+                              className="object-cover group-hover:scale-105 transition-transform duration-300"
+                              sizes="56px"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-300 text-xl">💎</div>
+                          )}
+                        </div>
+                        {/* Product Info */}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-primary text-sm font-semibold text-brand-brown group-hover:text-brand-gold transition-colors truncate tracking-wide">
+                            {product.name}
+                          </p>
+                          <p className="font-primary text-[11px] text-gray-400 mt-0.5 tracking-wide">
+                            {product.metalPurity} {product.metalType?.charAt(0).toUpperCase() + product.metalType?.slice(1)}
+                            {product.metalWeight ? ` · ${product.metalWeight}g` : ''}
+                          </p>
+                        </div>
+                        {/* Price */}
+                        <div className="shrink-0 text-right">
+                          <p className="font-primary text-sm font-semibold text-brand-brown">
+                            {formatPrice(product.pricing?.finalPrice || product.price || 0)}
+                          </p>
+                          <ArrowUpRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-brand-gold transition-colors ml-auto mt-0.5" />
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* No results */}
+              {!isSearching && results.length === 0 && (
+                <div className="py-6">
+                  <p className="font-secondary text-lg text-brand-brown mb-1">No results found</p>
+                  <p className="font-primary text-xs text-gray-400 tracking-wide">
+                    Try searching for &ldquo;rings&rdquo;, &ldquo;gold chains&rdquo; or &ldquo;diamond earrings&rdquo;
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── Trending Searches — always visible ── */}
+          <div className={hasQuery ? 'border-t border-gray-100 pt-5' : ''}>
+            <div className="flex items-center gap-2 mb-4">
+              <TrendingUp className="w-3.5 h-3.5 text-brand-gold" />
+              <span className="text-[10px] font-primary tracking-[0.25em] uppercase text-brand-gold font-semibold">
+                Trending Searches
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {TRENDING_SEARCHES.map((item) => (
+                <button
+                  key={item.label}
+                  onClick={() => handleTrending(item.href)}
+                  className="group flex items-center gap-2 px-3.5 py-2 bg-white border border-brand-gold/20 hover:border-brand-gold hover:bg-brand-gold/5 transition-all duration-200 text-sm font-primary text-brand-brown cursor-pointer"
+                >
+                  <span className="text-base leading-none">{item.icon}</span>
+                  <span className="tracking-wide text-xs">{item.label}</span>
+                  <ArrowUpRight className="w-3 h-3 text-gray-300 group-hover:text-brand-gold transition-colors" />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Browse Categories — only on empty state */}
+          {!hasQuery && (
+            <div className="mt-8 pt-6 border-t border-gray-100">
+              <span className="text-[10px] font-primary tracking-[0.25em] uppercase text-gray-400 font-semibold block mb-4">
+                Browse Categories
+              </span>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {[
+                  { label: 'All Earrings', href: '/collections/earrings', sub: 'Studs, Drops & Hoops' },
+                  { label: 'All Bangles', href: '/collections/bangles', sub: 'Gold & Diamond' },
+                  { label: 'All Rings', href: '/collections/rings', sub: 'Solitaire & Bands' },
+                  { label: 'All Chains', href: '/collections/chains', sub: '18KT & 22KT Gold' },
+                ].map((cat) => (
+                  <Link
+                    key={cat.label}
+                    href={cat.href}
+                    onClick={onClose}
+                    className="group p-3.5 bg-white border border-gray-100 hover:border-brand-gold/40 hover:shadow-sm transition-all duration-200"
+                  >
+                    <p className="font-primary text-xs font-semibold text-brand-brown group-hover:text-brand-gold transition-colors tracking-wide">{cat.label}</p>
+                    <p className="font-primary text-[10px] text-gray-400 mt-0.5 tracking-wide">{cat.sub}</p>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
 
 export default function Navbar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [mobileSearchQuery, setMobileSearchQuery] = useState('');
+  const [mobileResults, setMobileResults] = useState([]);
+  const [mobileSearching, setMobileSearching] = useState(false);
   const router = useRouter();
   const { cartCount, isMounted } = useCart();
   const { user, isLoggedIn, login, logout, openAuthModal } = useAuth();
+  const debouncedMobileQuery = useDebounce(mobileSearchQuery, 320);
+
+  // Keyboard shortcut: Cmd/Ctrl+K opens search
+  useEffect(() => {
+    const handler = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+      if (e.key === 'Escape') {
+        setSearchOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
+
+  // Mobile search live results
+  useEffect(() => {
+    if (!debouncedMobileQuery.trim()) {
+      setMobileResults([]);
+      return;
+    }
+    setMobileSearching(true);
+    fetch(`/api/v1/products?search=${encodeURIComponent(debouncedMobileQuery.trim())}&limit=5`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && Array.isArray(data.products)) {
+          setMobileResults(data.products);
+        } else {
+          setMobileResults([]);
+        }
+      })
+      .catch(() => setMobileResults([]))
+      .finally(() => setMobileSearching(false));
+  }, [debouncedMobileQuery]);
+
+  const handleMobileSearch = (e) => {
+    e.preventDefault();
+    if (mobileSearchQuery.trim()) {
+      router.push(`/collections?search=${encodeURIComponent(mobileSearchQuery.trim())}`);
+      setDrawerOpen(false);
+    }
+  };
 
   const navLinks = [
     { label: 'EARRINGS', href: '/collections/earrings' },
@@ -48,14 +380,20 @@ export default function Navbar() {
               </Link>
             </div>
 
-            {/* Center: Search bar (desktop only) */}
-            <div className="hidden md:flex flex-1 max-w-md mx-8 relative">
-              <input
-                type="text"
-                placeholder="Search..."
-                className="w-full py-2 px-4 rounded-full border border-gray-300 bg-transparent text-sm focus:outline-none focus:border-brand-gold transition-colors text-text-dark placeholder-gray-500"
-              />
-              <Search className="absolute right-3 top-2 w-5 h-5 text-gray-400" />
+            {/* Center: Premium Search bar (desktop) */}
+            <div className="hidden md:flex flex-1 max-w-md mx-8">
+              <button
+                onClick={() => setSearchOpen(true)}
+                className="w-full flex items-center gap-3 px-4 py-2.5 border border-gray-200 hover:border-brand-gold/60 bg-white/60 hover:bg-white transition-all duration-200 group text-left"
+              >
+                <Search className="w-4 h-4 text-gray-400 group-hover:text-brand-gold transition-colors shrink-0" strokeWidth={1.5} />
+                <span className="flex-1 text-sm font-primary text-gray-400 group-hover:text-gray-500 transition-colors tracking-wide">
+                  Search jewellery, metals, styles…
+                </span>
+                <kbd className="hidden lg:flex items-center gap-1 px-1.5 py-0.5 text-[9px] font-primary text-gray-300 border border-gray-200 tracking-widest">
+                  ⌘K
+                </kbd>
+              </button>
             </div>
 
             {/* Right: Actions */}
@@ -65,7 +403,13 @@ export default function Navbar() {
 
               <div className="flex gap-3 md:gap-4 items-center border-l border-current pl-3 md:pl-4">
                 {/* Search icon on mobile */}
-                <Search className="md:hidden w-5 h-5 cursor-pointer hover:text-brand-gold transition-colors" aria-label="Search" />
+                <button
+                  onClick={() => setSearchOpen(true)}
+                  className="md:hidden flex items-center justify-center hover:text-brand-gold transition-colors"
+                  aria-label="Search"
+                >
+                  <Search className="w-5 h-5 cursor-pointer" />
+                </button>
                 <Link href="/stores" aria-label="Store locator" className="hover:text-brand-gold transition-colors">
                   <MapPin className="w-5 h-5 cursor-pointer" />
                 </Link>
@@ -171,7 +515,7 @@ export default function Navbar() {
                               >
                                 Sign In
                               </button>
-                              <span className="text-[8px] text-gray-400 block text-center font-primary">Use any email & password</span>
+                              <span className="text-[8px] text-gray-400 block text-center font-primary">Use any email &amp; password</span>
                             </form>
                           )}
                         </motion.div>
@@ -203,6 +547,11 @@ export default function Navbar() {
 
         </div>
       </nav>
+
+      {/* ── Full-Screen Search Overlay ── */}
+      <AnimatePresence>
+        {searchOpen && <SearchOverlay onClose={() => setSearchOpen(false)} />}
+      </AnimatePresence>
 
       {/* ── Mobile Drawer ── */}
       <AnimatePresence>
@@ -240,14 +589,95 @@ export default function Navbar() {
 
               {/* Mobile Search */}
               <div className="px-6 py-4 border-b border-black/5">
-                <div className="relative">
+                <form onSubmit={handleMobileSearch} className="relative">
                   <input
                     type="text"
+                    value={mobileSearchQuery}
+                    onChange={e => setMobileSearchQuery(e.target.value)}
                     placeholder="Search jewellery..."
-                    className="w-full py-2.5 px-4 rounded-full border border-gray-300 bg-white text-sm focus:outline-none focus:border-brand-gold transition-colors text-text-dark placeholder-gray-400"
+                    className="w-full py-2.5 pl-4 pr-10 border border-gray-200 focus:border-brand-gold bg-white text-sm focus:outline-none font-primary text-text-dark placeholder-gray-400 transition-colors"
                   />
-                  <Search className="absolute right-3 top-2.5 w-4 h-4 text-gray-400" />
-                </div>
+                  {mobileSearchQuery ? (
+                    <button
+                      type="button"
+                      onClick={() => { setMobileSearchQuery(''); setMobileResults([]); }}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  ) : (
+                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                  )}
+                </form>
+
+                {/* Mobile search results */}
+                <AnimatePresence>
+                  {mobileSearchQuery && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="pt-2 space-y-1">
+                        {mobileSearching && (
+                          <div className="py-3 text-center">
+                            <div className="w-4 h-4 border-2 border-brand-gold border-t-transparent rounded-full animate-spin mx-auto" />
+                          </div>
+                        )}
+                        {!mobileSearching && mobileResults.map(product => (
+                          <Link
+                            key={product._id}
+                            href={`/products/${product.slug || product._id}`}
+                            onClick={() => { setDrawerOpen(false); setMobileSearchQuery(''); }}
+                            className="flex items-center gap-3 py-2 hover:text-brand-gold transition-colors"
+                          >
+                            <div className="w-9 h-9 bg-gray-100 shrink-0 relative overflow-hidden">
+                              {product.images?.[0] && (
+                                <Image src={product.images[0]} alt={product.name} fill className="object-cover" sizes="36px" />
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-primary text-xs font-semibold text-brand-brown truncate">{product.name}</p>
+                              <p className="font-primary text-[10px] text-gray-400">{formatPrice(product.pricing?.finalPrice || 0)}</p>
+                            </div>
+                          </Link>
+                        ))}
+                        {!mobileSearching && mobileResults.length === 0 && (
+                          <p className="font-primary text-xs text-gray-400 py-2 text-center">No results found</p>
+                        )}
+                        {!mobileSearching && mobileResults.length > 0 && (
+                          <button
+                            onClick={handleMobileSearch}
+                            className="w-full text-center font-primary text-[10px] tracking-widest uppercase text-brand-gold hover:text-brand-brown transition-colors py-1.5 border-t border-gray-100 mt-1"
+                          >
+                            View all results
+                          </button>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Trending tags (mobile, empty state) */}
+                {!mobileSearchQuery && (
+                  <div className="pt-3">
+                    <p className="text-[9px] font-primary tracking-widest uppercase text-gray-400 mb-2 flex items-center gap-1">
+                      <TrendingUp className="w-3 h-3 text-brand-gold" /> Trending
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {TRENDING_SEARCHES.slice(0, 6).map(item => (
+                        <button
+                          key={item.label}
+                          onClick={() => { router.push(item.href); setDrawerOpen(false); }}
+                          className="px-2.5 py-1 text-[9px] font-primary tracking-wide border border-gray-200 text-brand-brown hover:border-brand-gold hover:text-brand-gold transition-colors cursor-pointer bg-white"
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Nav Links */}
@@ -295,7 +725,7 @@ export default function Navbar() {
                   <div className="mb-4 bg-bg-cream/80 p-3 border border-brand-gold/15 flex items-center justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-[9px] text-gray-400 font-primary tracking-wide uppercase">Guest Mode</p>
-                      <p className="text-[11px] text-brand-brown font-bold font-primary truncate">Access orders & favourites</p>
+                      <p className="text-[11px] text-brand-brown font-bold font-primary truncate">Access orders &amp; favourites</p>
                     </div>
                     <button
                       onClick={() => {
