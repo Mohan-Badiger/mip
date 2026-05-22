@@ -3,9 +3,14 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Search, MapPin, User, ShoppingBag, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 
 export default function Navbar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const { cartCount, isMounted } = useCart();
+  const { user, isLoggedIn, login, logout, openAuthModal } = useAuth();
 
   const navLinks = [
     { label: 'EARRINGS', href: '/collections/earrings' },
@@ -59,9 +64,126 @@ export default function Navbar() {
               <div className="flex gap-3 md:gap-4 items-center border-l border-current pl-3 md:pl-4">
                 {/* Search icon on mobile */}
                 <Search className="md:hidden w-5 h-5 cursor-pointer hover:text-brand-gold transition-colors" aria-label="Search" />
-                <MapPin className="w-5 h-5 cursor-pointer hover:text-brand-gold transition-colors" aria-label="Store locator" />
-                <User className="w-5 h-5 cursor-pointer hover:text-brand-gold transition-colors" aria-label="Account" />
-                <ShoppingBag className="w-5 h-5 cursor-pointer hover:text-brand-gold transition-colors" aria-label="Cart" />
+                <Link href="/stores" aria-label="Store locator" className="hover:text-brand-gold transition-colors">
+                  <MapPin className="w-5 h-5 cursor-pointer" />
+                </Link>
+                <div className="relative flex items-center">
+                  <button 
+                    onClick={() => {
+                      if (isMounted && isLoggedIn) {
+                        setAccountOpen(!accountOpen);
+                      } else {
+                        openAuthModal();
+                      }
+                    }}
+                    className="flex items-center justify-center text-text-dark hover:text-brand-gold transition-colors cursor-pointer focus:outline-none"
+                    aria-label="Account Menu"
+                  >
+                    <User className="w-5 h-5" />
+                  </button>
+                  
+                  <AnimatePresence>
+                    {accountOpen && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setAccountOpen(false)} />
+                        <motion.div
+                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                          transition={{ duration: 0.15 }}
+                          className="absolute right-0 mt-8 w-56 bg-white border border-brand-gold/15 shadow-xl py-2 z-50 rounded-none text-left"
+                        >
+                          {isMounted && isLoggedIn && user ? (
+                            <>
+                              <div className="px-4 py-2 border-b border-gray-100">
+                                <p className="text-[9px] text-gray-400 font-sans tracking-wide uppercase">Logged In As</p>
+                                <p className="text-xs text-brand-brown font-semibold font-sans truncate">{user.name}</p>
+                              </div>
+                              <Link 
+                                href="/account?tab=profile" 
+                                onClick={() => setAccountOpen(false)}
+                                className="block px-4 py-2 text-xs font-sans text-gray-700 hover:bg-bg-cream hover:text-brand-brown transition-colors"
+                              >
+                                My Account Profile
+                              </Link>
+                              <Link 
+                                href="/account?tab=orders" 
+                                onClick={() => setAccountOpen(false)}
+                                className="block px-4 py-2 text-xs font-sans text-gray-700 hover:bg-bg-cream hover:text-brand-brown transition-colors"
+                              >
+                                Orders History
+                              </Link>
+                              <Link 
+                                href="/account?tab=favourites" 
+                                onClick={() => setAccountOpen(false)}
+                                className="block px-4 py-2 text-xs font-sans text-gray-700 hover:bg-bg-cream hover:text-brand-brown transition-colors"
+                              >
+                                Favourites (Wishlist)
+                              </Link>
+                              <div className="border-t border-gray-100 mt-1 pt-1">
+                                <button 
+                                  onClick={() => {
+                                    logout();
+                                    setAccountOpen(false);
+                                  }}
+                                  className="w-full text-left block px-4 py-2 text-xs font-sans text-red-600 hover:bg-red-50 transition-colors font-semibold cursor-pointer"
+                                >
+                                  Sign Out
+                                </button>
+                              </div>
+                            </>
+                          ) : (
+                            <form 
+                              onSubmit={(e) => {
+                                e.preventDefault();
+                                const email = e.target.elements.signin_email.value;
+                                login(email, '');
+                                setAccountOpen(false);
+                              }}
+                              className="px-4 py-3 space-y-2.5"
+                            >
+                              <p className="text-[9px] text-brand-brown font-sans tracking-widest uppercase font-bold">Secure Sign In</p>
+                              <div>
+                                <input 
+                                  name="signin_email"
+                                  type="email"
+                                  required
+                                  placeholder="your.email@domain.com"
+                                  className="w-full text-xs px-2.5 py-2 border border-gray-200 focus:outline-none focus:border-brand-gold font-sans bg-bg-cream/20 text-text-dark"
+                                />
+                              </div>
+                              <div>
+                                <input 
+                                  name="signin_password"
+                                  type="password"
+                                  required
+                                  placeholder="Password"
+                                  defaultValue="password"
+                                  className="w-full text-xs px-2.5 py-2 border border-gray-200 focus:outline-none focus:border-brand-gold font-sans bg-bg-cream/20 text-text-dark"
+                                />
+                              </div>
+                              <button 
+                                type="submit"
+                                className="w-full bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white text-[10px] font-sans font-bold tracking-wider py-2 uppercase transition-all cursor-pointer shadow-xs"
+                              >
+                                Sign In
+                              </button>
+                              <span className="text-[8px] text-gray-400 block text-center font-sans">Use any email & password</span>
+                            </form>
+                          )}
+                        </motion.div>
+                      </>
+                    )}
+                  </AnimatePresence>
+                </div>
+                <Link href="/cart" aria-label="Shopping Cart" className="hover:text-brand-gold transition-colors relative flex items-center justify-center">
+                  <ShoppingBag className="w-5 h-5 cursor-pointer" />
+                  {isMounted && cartCount > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 bg-brand-gold text-white font-sans font-bold text-[9px] w-4.5 h-4.5 rounded-full flex items-center justify-center shadow-sm">
+                      {cartCount}
+                    </span>
+                  )}
+                </Link>
               </div>
             </div>
           </div>
@@ -127,6 +249,61 @@ export default function Navbar() {
 
               {/* Nav Links */}
               <nav className="flex-1 overflow-y-auto px-6 py-2">
+                {isMounted && isLoggedIn && user ? (
+                  <div className="mb-4 bg-bg-cream/80 p-3 border border-brand-gold/15">
+                    <p className="text-[9px] text-gray-400 font-sans tracking-wide uppercase">Welcome back</p>
+                    <p className="text-xs text-brand-brown font-bold font-sans truncate mb-2">{user.name}</p>
+                    
+                    <div className="grid grid-cols-3 gap-2 text-[9px] font-sans font-semibold text-center">
+                      <Link 
+                        href="/account?tab=profile" 
+                        onClick={() => setDrawerOpen(false)}
+                        className="bg-white border border-gray-200 py-1.5 hover:text-brand-gold transition-colors block text-brand-brown"
+                      >
+                        Profile
+                      </Link>
+                      <Link 
+                        href="/account?tab=orders" 
+                        onClick={() => setDrawerOpen(false)}
+                        className="bg-white border border-gray-200 py-1.5 hover:text-brand-gold transition-colors block text-brand-brown"
+                      >
+                        Orders
+                      </Link>
+                      <Link 
+                        href="/account?tab=favourites" 
+                        onClick={() => setDrawerOpen(false)}
+                        className="bg-white border border-gray-200 py-1.5 hover:text-brand-gold transition-colors block text-brand-brown"
+                      >
+                        Wishlist
+                      </Link>
+                    </div>
+                    <button 
+                      onClick={() => {
+                        logout();
+                        setDrawerOpen(false);
+                      }}
+                      className="mt-2.5 w-full text-center text-red-600 hover:bg-red-50 border border-red-200/50 py-1 text-[9px] font-sans font-bold uppercase transition-colors cursor-pointer bg-white"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                ) : (
+                  <div className="mb-4 bg-bg-cream/80 p-3 border border-brand-gold/15 flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-[9px] text-gray-400 font-sans tracking-wide uppercase">Guest Mode</p>
+                      <p className="text-[11px] text-brand-brown font-bold font-sans truncate">Access orders & favourites</p>
+                    </div>
+                    <button 
+                      onClick={() => {
+                        setDrawerOpen(false);
+                        openAuthModal();
+                      }}
+                      className="bg-brand-brown hover:bg-brand-gold text-white text-[10px] font-sans font-bold px-3 py-1.5 uppercase transition-colors shrink-0 cursor-pointer"
+                    >
+                      Sign In
+                    </button>
+                  </div>
+                )}
                 <ul>
                   {navLinks.map((link) => (
                     <li key={link.label}>

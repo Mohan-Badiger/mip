@@ -14,7 +14,7 @@ export default function TrustLegacy() {
               MIP Jewellers – <br className="hidden md:inline" />A Choice You Can Trust
             </h2>
             <p className="font-sans text-brand-brown text-sm md:text-base leading-relaxed font-semibold max-w-md">
-              At MIP Jewellers, Trust is our Foundation. Choosing MIP is not merely selecting jewellery; it's making a conscious decision to entrust your moments and milestones to a brand with a rich legacy of trust and integrity.
+              {"At MIP Jewellers, Trust is our Foundation. Choosing MIP is not merely selecting jewellery; it's making a conscious decision to entrust your moments and milestones to a brand with a rich legacy of trust and integrity."}
             </p>
           </FadeInUp>
         </div>
@@ -41,9 +41,9 @@ export default function TrustLegacy() {
           </FadeInUp>
 
           <FadeInUp delay={0.3}>
-            <p className="italic font-serif text-brand-gold text-lg mb-4">But there's more ...</p>
+            <p className="italic font-serif text-brand-gold text-lg mb-4">{"But there's more ..."}</p>
             <p>
-              <strong>Transparency</strong> in transactions is one of the foundations of trust. At MIP Jewellers, we give you every detail of your purchase, from gold weight and stone specifics to net weight, stone charge, and making charge. With each transaction, we aim to build more than just a sale; we strive to build a relationship founded on openness, reliability, and the enduring trust you place in MIP Jewellers. That's our commitment. We provide you with an unprecedented level of transparency in exchange for your trust. We value YOU.
+              <strong>Transparency</strong> in transactions is one of the foundations of trust. At MIP Jewellers, we give you every detail of your purchase, from gold weight and stone specifics to net weight, stone charge, and making charge. With each transaction, we aim to build more than just a sale; we strive to build a relationship founded on openness, reliability, and the enduring trust you place in MIP Jewellers. {"That's our commitment. We provide you with an unprecedented level of transparency in exchange for your trust. We value YOU."}
             </p>
           </FadeInUp>
 

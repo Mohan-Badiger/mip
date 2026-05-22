@@ -2,16 +2,28 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Heart, ShoppingBag, Shield, RotateCcw, Truck, ChevronDown, ChevronUp, ArrowUpRight } from 'lucide-react';
+import { Heart, ShoppingBag, Shield, RotateCcw, Truck, ChevronDown, ChevronUp, ArrowUpRight, Check } from 'lucide-react';
 import PageLayout from '@/components/global/PageLayout';
+import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 import { getProductById, getProductsByCategory, formatPrice, getCategoryBySlug } from '@/lib/products';
 
 export default function ProductPage({ params }) {
   const { id } = React.use(params);
   const product = getProductById(id);
   const [activeTab, setActiveTab] = useState('details');
-  const [wishlisted, setWishlisted] = useState(false);
+  const { toggleWishlist, isWishlisted, isMounted: authMounted } = useAuth();
+  const wishlisted = authMounted && product ? isWishlisted(product.id) : false;
   const [openFaq, setOpenFaq] = useState(null);
+  const { addToCart } = useCart();
+  const [added, setAdded] = useState(false);
+
+  const handleAddToCart = () => {
+    if (!product) return;
+    addToCart(product, 1);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  };
 
   if (!product) {
     return (
@@ -101,11 +113,27 @@ export default function ProductPage({ params }) {
 
             {/* Actions */}
             <div className="flex gap-3 mb-6">
-              <button className="flex-1 bg-brand-brown hover:bg-brand-gold transition-colors text-white font-sans text-xs font-semibold tracking-[0.2em] uppercase py-4 flex items-center justify-center gap-2">
-                <ShoppingBag className="w-4 h-4" /> Add to Cart
+              <button
+                onClick={handleAddToCart}
+                disabled={added}
+                className={`flex-1 transition-all duration-300 font-sans text-xs font-semibold tracking-[0.2em] uppercase py-4 flex items-center justify-center gap-2 cursor-pointer ${
+                  added 
+                    ? 'bg-emerald-600 text-white' 
+                    : 'bg-brand-brown hover:bg-brand-gold text-white'
+                }`}
+              >
+                {added ? (
+                  <>
+                    <Check className="w-4 h-4" /> Added to Cart
+                  </>
+                ) : (
+                  <>
+                    <ShoppingBag className="w-4 h-4" /> Add to Cart
+                  </>
+                )}
               </button>
               <button
-                onClick={() => setWishlisted(!wishlisted)}
+                onClick={() => toggleWishlist(product)}
                 className={`w-14 flex items-center justify-center border transition-colors ${wishlisted ? 'border-brand-brown bg-brand-brown text-white' : 'border-gray-200 text-brand-brown hover:border-brand-brown'}`}
                 aria-label="Wishlist"
               >

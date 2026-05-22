@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import PageLayout from '@/components/global/PageLayout';
 import { CheckCircle2, ArrowUpRight } from 'lucide-react';
@@ -48,7 +47,7 @@ export default function PurchasePlanPage() {
         <p className="font-sans text-[10px] tracking-[0.3em] uppercase text-brand-gold mb-2">Smart Jewellery Savings</p>
         <h1 className="font-secondary text-4xl md:text-5xl text-brand-brown tracking-wide">Purchase Plans</h1>
         <p className="font-sans text-gray-500 text-sm mt-3 max-w-lg mx-auto">
-          MIP's jewellery savings plans let you invest systematically and redeem in your dream jewellery — with bonus value and zero making charges.
+          {"MIP's jewellery savings plans let you invest systematically and redeem in your dream jewellery — with bonus value and zero making charges."}
         </p>
       </div>
 
