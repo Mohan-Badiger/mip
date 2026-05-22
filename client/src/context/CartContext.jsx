@@ -1,65 +1,183 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useAuth } from './AuthContext';
 
 const CartContext = createContext(undefined);
 
 export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);
   const [isMounted, setIsMounted] = useState(false);
+  const { isLoggedIn, isMounted: authMounted } = useAuth();
 
-  // Load cart from localStorage on mount
+  // Mapping helper to map database cart items to the client structure
+  const mapBackendCartItems = (items) => {
+    if (!Array.isArray(items)) return [];
+    return items.map(item => {
+      const p = item.product;
+      if (!p) return null;
+      return {
+        product: {
+          id: p._id,
+          slug: p.slug,
+          name: p.name,
+          image: p.images && p.images[0] ? p.images[0] : '/images/placeholder.png',
+          price: p.pricing?.finalPrice || p.price,
+          weight: p.metalWeight ? p.metalWeight + 'g' : '—',
+          metal: p.metalPurity && p.metalType ? `${p.metalPurity} ${p.metalType.toUpperCase()}` : '—',
+          stone: p.gemstones && p.gemstones[0] ? (p.gemstones[0].type.charAt(0).toUpperCase() + p.gemstones[0].type.slice(1)) : null,
+          tag: p.tag || null
+        },
+        quantity: item.quantity
+      };
+    }).filter(Boolean);
+  };
+
+  // 1. Initial Load: load from backend if logged in, otherwise from localStorage
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsMounted(true);
-      const savedCart = localStorage.getItem('mip_cart');
-      if (savedCart) {
+    async function loadInitialCart() {
+      if (authMounted) {
+        if (isLoggedIn) {
+          try {
+            const res = await fetch('/api/v1/cart');
+            const data = await res.json();
+            if (data.success && data.cart && Array.isArray(data.cart.items)) {
+              setCartItems(mapBackendCartItems(data.cart.items));
+            }
+          } catch (e) {
+            console.error('Failed to load cart from backend:', e);
+          }
+        } else {
+          const savedCart = localStorage.getItem('mip_cart');
+          if (savedCart) {
+            try {
+              setCartItems(JSON.parse(savedCart));
+            } catch (e) {
+              console.error('Failed to parse cart items from localStorage:', e);
+            }
+          }
+        }
+        setIsMounted(true);
+      }
+    }
+    loadInitialCart();
+  }, [isLoggedIn, authMounted]);
+
+  // 2. Sync guest cart items to backend upon login
+  useEffect(() => {
+    if (isMounted && isLoggedIn && cartItems.length > 0) {
+      async function syncCartOnLogin() {
         try {
-          setCartItems(JSON.parse(savedCart));
+          const formattedItems = cartItems.map(item => ({
+            product: item.product.id || item.product._id,
+            quantity: item.quantity
+          }));
+          await fetch('/api/v1/cart', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ items: formattedItems })
+          });
+          // Fetch updated cart from backend to resolve prices/names
+          const res = await fetch('/api/v1/cart');
+          const data = await res.json();
+          if (data.success && data.cart && Array.isArray(data.cart.items)) {
+            setCartItems(mapBackendCartItems(data.cart.items));
+          }
         } catch (e) {
-          console.error('Failed to parse cart items from localStorage:', e);
+          console.error('Failed to sync cart on login:', e);
         }
       }
-    }, 0);
-    return () => clearTimeout(timer);
-  }, []);
+      syncCartOnLogin();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoggedIn]);
 
-  // Sync cart with localStorage when it changes
+  // 3. Save to localStorage when cart changes (fallback for guest users)
   useEffect(() => {
-    if (isMounted) {
+    if (isMounted && !isLoggedIn) {
       localStorage.setItem('mip_cart', JSON.stringify(cartItems));
     }
-  }, [cartItems, isMounted]);
+  }, [cartItems, isMounted, isLoggedIn]);
 
-  const addToCart = (product, quantity = 1) => {
+  const addToCart = async (product, quantity = 1) => {
+    let updatedItems = [];
     setCartItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.product.id === product.id);
       if (existingItem) {
-        return prevItems.map((item) =>
+        updatedItems = prevItems.map((item) =>
           item.product.id === product.id
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
+      } else {
+        updatedItems = [...prevItems, { product, quantity }];
       }
-      return [...prevItems, { product, quantity }];
+      return updatedItems;
     });
+
+    if (isLoggedIn) {
+      try {
+        const existingItem = cartItems.find((item) => item.product.id === product.id);
+        const newQty = existingItem ? existingItem.quantity + quantity : quantity;
+        await fetch('/api/v1/cart', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productId: product.id || product._id, quantity: newQty })
+        });
+      } catch (err) {
+        console.error('Failed to update cart item in backend:', err);
+      }
+    }
   };
 
-  const removeFromCart = (productId) => {
+  const removeFromCart = async (productId) => {
     setCartItems((prevItems) => prevItems.filter((item) => item.product.id !== productId));
+
+    if (isLoggedIn) {
+      try {
+        await fetch(`/api/v1/cart?productId=${productId}`, {
+          method: 'DELETE'
+        });
+      } catch (err) {
+        console.error('Failed to remove cart item from backend:', err);
+      }
+    }
   };
 
-  const updateQuantity = (productId, quantity) => {
+  const updateQuantity = async (productId, quantity) => {
     if (quantity < 1) return;
     setCartItems((prevItems) =>
       prevItems.map((item) =>
         item.product.id === productId ? { ...item, quantity } : item
       )
     );
+
+    if (isLoggedIn) {
+      try {
+        await fetch('/api/v1/cart', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productId, quantity })
+        });
+      } catch (err) {
+        console.error('Failed to update cart quantity in backend:', err);
+      }
+    }
   };
 
-  const clearCart = () => {
+  const clearCart = async () => {
     setCartItems([]);
+    if (isLoggedIn) {
+      try {
+        await fetch('/api/v1/cart', {
+          method: 'DELETE'
+        });
+      } catch (err) {
+        console.error('Failed to clear cart in backend:', err);
+      }
+    } else {
+      localStorage.removeItem('mip_cart');
+    }
   };
 
   // Derive counts

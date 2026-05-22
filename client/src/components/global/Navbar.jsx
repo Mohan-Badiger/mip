@@ -91,42 +91,42 @@ export default function Navbar() {
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: 10, scale: 0.95 }}
                           transition={{ duration: 0.15 }}
-                          className="absolute right-0 mt-8 w-56 bg-white border border-brand-gold/15 shadow-xl py-2 z-50 rounded-none text-left"
+                          className="absolute right-0 top-full mt-3 w-56 bg-white/95 backdrop-blur-md border border-brand-gold/25 shadow-[0_10px_35px_rgba(78,54,41,0.08)] py-2.5 z-50 rounded-none text-left font-sans"
                         >
                           {isMounted && isLoggedIn && user ? (
                             <>
-                              <div className="px-4 py-2 border-b border-gray-100">
-                                <p className="text-[9px] text-gray-400 font-sans tracking-wide uppercase">Logged In As</p>
-                                <p className="text-xs text-brand-brown font-semibold font-sans truncate">{user.name}</p>
+                              <div className="px-4 py-2 border-b border-gray-100/60">
+                                <p className="text-[9px] text-gray-400 font-sans tracking-widest uppercase font-semibold">Logged In As</p>
+                                <p className="text-xs text-brand-brown font-semibold font-sans truncate mt-0.5">{user.name}</p>
                               </div>
                               <Link 
                                 href="/account?tab=profile" 
                                 onClick={() => setAccountOpen(false)}
-                                className="block px-4 py-2 text-xs font-sans text-gray-700 hover:bg-bg-cream hover:text-brand-brown transition-colors"
+                                className="block px-4 py-2.5 text-xs font-sans text-gray-600 hover:bg-bg-cream/60 hover:text-brand-brown transition-all duration-200 tracking-wide font-medium"
                               >
                                 My Account Profile
                               </Link>
                               <Link 
                                 href="/account?tab=orders" 
                                 onClick={() => setAccountOpen(false)}
-                                className="block px-4 py-2 text-xs font-sans text-gray-700 hover:bg-bg-cream hover:text-brand-brown transition-colors"
+                                className="block px-4 py-2.5 text-xs font-sans text-gray-600 hover:bg-bg-cream/60 hover:text-brand-brown transition-all duration-200 tracking-wide font-medium"
                               >
                                 Orders History
                               </Link>
                               <Link 
                                 href="/account?tab=favourites" 
                                 onClick={() => setAccountOpen(false)}
-                                className="block px-4 py-2 text-xs font-sans text-gray-700 hover:bg-bg-cream hover:text-brand-brown transition-colors"
+                                className="block px-4 py-2.5 text-xs font-sans text-gray-600 hover:bg-bg-cream/60 hover:text-brand-brown transition-all duration-200 tracking-wide font-medium"
                               >
                                 Favourites (Wishlist)
                               </Link>
-                              <div className="border-t border-gray-100 mt-1 pt-1">
+                              <div className="border-t border-gray-100/60 mt-1.5 pt-1.5">
                                 <button 
                                   onClick={() => {
                                     logout();
                                     setAccountOpen(false);
                                   }}
-                                  className="w-full text-left block px-4 py-2 text-xs font-sans text-red-600 hover:bg-red-50 transition-colors font-semibold cursor-pointer"
+                                  className="w-full text-left block px-4 py-2 text-xs font-sans text-red-600 hover:bg-red-50/50 transition-all duration-200 tracking-wide font-bold cursor-pointer"
                                 >
                                   Sign Out
                                 </button>
