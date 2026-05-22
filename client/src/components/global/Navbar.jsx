@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Search, MapPin, User, ShoppingBag, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
@@ -9,6 +10,7 @@ import { useAuth } from '@/context/AuthContext';
 export default function Navbar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const router = useRouter();
   const { cartCount, isMounted } = useCart();
   const { user, isLoggedIn, login, logout, openAuthModal } = useAuth();
 
@@ -68,7 +70,7 @@ export default function Navbar() {
                   <MapPin className="w-5 h-5 cursor-pointer" />
                 </Link>
                 <div className="relative flex items-center">
-                  <button 
+                  <button
                     onClick={() => {
                       if (isMounted && isLoggedIn) {
                         setAccountOpen(!accountOpen);
@@ -81,7 +83,7 @@ export default function Navbar() {
                   >
                     <User className="w-5 h-5" />
                   </button>
-                  
+
                   <AnimatePresence>
                     {accountOpen && (
                       <>
@@ -91,49 +93,50 @@ export default function Navbar() {
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: 10, scale: 0.95 }}
                           transition={{ duration: 0.15 }}
-                          className="absolute right-0 top-full mt-3 w-56 bg-white/95 backdrop-blur-md border border-brand-gold/25 shadow-[0_10px_35px_rgba(78,54,41,0.08)] py-2.5 z-50 rounded-none text-left font-sans"
+                          className="absolute right-0 top-full mt-3 w-56 bg-white/95 backdrop-blur-md border border-brand-gold/25 shadow-[0_10px_35px_rgba(78,54,41,0.08)] py-2.5 z-50 rounded-none text-left font-primary"
                         >
                           {isMounted && isLoggedIn && user ? (
                             <>
                               <div className="px-4 py-2 border-b border-gray-100/60">
-                                <p className="text-[9px] text-gray-400 font-sans tracking-widest uppercase font-semibold">Logged In As</p>
-                                <p className="text-xs text-brand-brown font-semibold font-sans truncate mt-0.5">{user.name}</p>
+                                <p className="text-[9px] text-gray-400 font-primary tracking-widest uppercase font-semibold">Logged In As</p>
+                                <p className="text-xs text-brand-brown font-semibold font-primary truncate mt-0.5">{user.name}</p>
                               </div>
-                              <Link 
-                                href="/account?tab=profile" 
+                              <Link
+                                href="/account?tab=profile"
                                 onClick={() => setAccountOpen(false)}
-                                className="block px-4 py-2.5 text-xs font-sans text-gray-600 hover:bg-bg-cream/60 hover:text-brand-brown transition-all duration-200 tracking-wide font-medium"
+                                className="block px-4 py-2.5 text-xs font-primary text-gray-600 hover:bg-bg-cream/60 hover:text-brand-brown transition-all duration-200 tracking-wide font-medium"
                               >
                                 My Account Profile
                               </Link>
-                              <Link 
-                                href="/account?tab=orders" 
+                              <Link
+                                href="/account?tab=orders"
                                 onClick={() => setAccountOpen(false)}
-                                className="block px-4 py-2.5 text-xs font-sans text-gray-600 hover:bg-bg-cream/60 hover:text-brand-brown transition-all duration-200 tracking-wide font-medium"
+                                className="block px-4 py-2.5 text-xs font-primary text-gray-600 hover:bg-bg-cream/60 hover:text-brand-brown transition-all duration-200 tracking-wide font-medium"
                               >
                                 Orders History
                               </Link>
-                              <Link 
-                                href="/account?tab=favourites" 
+                              <Link
+                                href="/account?tab=favourites"
                                 onClick={() => setAccountOpen(false)}
-                                className="block px-4 py-2.5 text-xs font-sans text-gray-600 hover:bg-bg-cream/60 hover:text-brand-brown transition-all duration-200 tracking-wide font-medium"
+                                className="block px-4 py-2.5 text-xs font-primary text-gray-600 hover:bg-bg-cream/60 hover:text-brand-brown transition-all duration-200 tracking-wide font-medium"
                               >
                                 Favourites (Wishlist)
                               </Link>
                               <div className="border-t border-gray-100/60 mt-1.5 pt-1.5">
-                                <button 
+                                <button
                                   onClick={() => {
                                     logout();
                                     setAccountOpen(false);
+                                    router.push('/');
                                   }}
-                                  className="w-full text-left block px-4 py-2 text-xs font-sans text-red-600 hover:bg-red-50/50 transition-all duration-200 tracking-wide font-bold cursor-pointer"
+                                  className="w-full text-left block px-4 py-2 text-xs font-primary text-red-600 hover:bg-red-50/50 transition-all duration-200 tracking-wide font-semibold cursor-pointer"
                                 >
                                   Sign Out
                                 </button>
                               </div>
                             </>
                           ) : (
-                            <form 
+                            <form
                               onSubmit={(e) => {
                                 e.preventDefault();
                                 const email = e.target.elements.signin_email.value;
@@ -142,33 +145,33 @@ export default function Navbar() {
                               }}
                               className="px-4 py-3 space-y-2.5"
                             >
-                              <p className="text-[9px] text-brand-brown font-sans tracking-widest uppercase font-bold">Secure Sign In</p>
+                              <p className="text-[9px] text-brand-brown font-primary tracking-widest uppercase font-bold">Secure Sign In</p>
                               <div>
-                                <input 
+                                <input
                                   name="signin_email"
                                   type="email"
                                   required
                                   placeholder="your.email@domain.com"
-                                  className="w-full text-xs px-2.5 py-2 border border-gray-200 focus:outline-none focus:border-brand-gold font-sans bg-bg-cream/20 text-text-dark"
+                                  className="w-full text-xs px-2.5 py-2 border border-gray-200 focus:outline-none focus:border-brand-gold font-primary bg-bg-cream/20 text-text-dark"
                                 />
                               </div>
                               <div>
-                                <input 
+                                <input
                                   name="signin_password"
                                   type="password"
                                   required
                                   placeholder="Password"
                                   defaultValue="password"
-                                  className="w-full text-xs px-2.5 py-2 border border-gray-200 focus:outline-none focus:border-brand-gold font-sans bg-bg-cream/20 text-text-dark"
+                                  className="w-full text-xs px-2.5 py-2 border border-gray-200 focus:outline-none focus:border-brand-gold font-primary bg-bg-cream/20 text-text-dark"
                                 />
                               </div>
-                              <button 
+                              <button
                                 type="submit"
-                                className="w-full bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white text-[10px] font-sans font-bold tracking-wider py-2 uppercase transition-all cursor-pointer shadow-xs"
+                                className="w-full bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white text-[10px] font-primary font-bold tracking-wider py-2 uppercase transition-all cursor-pointer shadow-xs"
                               >
                                 Sign In
                               </button>
-                              <span className="text-[8px] text-gray-400 block text-center font-sans">Use any email & password</span>
+                              <span className="text-[8px] text-gray-400 block text-center font-primary">Use any email & password</span>
                             </form>
                           )}
                         </motion.div>
@@ -179,7 +182,7 @@ export default function Navbar() {
                 <Link href="/cart" aria-label="Shopping Cart" className="hover:text-brand-gold transition-colors relative flex items-center justify-center">
                   <ShoppingBag className="w-5 h-5 cursor-pointer" />
                   {isMounted && cartCount > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 bg-brand-gold text-white font-sans font-bold text-[9px] w-4.5 h-4.5 rounded-full flex items-center justify-center shadow-sm">
+                    <span className="absolute -top-1.5 -right-1.5 bg-brand-gold text-white font-primary font-bold text-[9px] w-4.5 h-4.5 rounded-full flex items-center justify-center shadow-sm">
                       {cartCount}
                     </span>
                   )}
@@ -251,38 +254,39 @@ export default function Navbar() {
               <nav className="flex-1 overflow-y-auto px-6 py-2">
                 {isMounted && isLoggedIn && user ? (
                   <div className="mb-4 bg-bg-cream/80 p-3 border border-brand-gold/15">
-                    <p className="text-[9px] text-gray-400 font-sans tracking-wide uppercase">Welcome back</p>
-                    <p className="text-xs text-brand-brown font-bold font-sans truncate mb-2">{user.name}</p>
-                    
-                    <div className="grid grid-cols-3 gap-2 text-[9px] font-sans font-semibold text-center">
-                      <Link 
-                        href="/account?tab=profile" 
+                    <p className="text-[9px] text-gray-400 font-primary tracking-wide uppercase">Welcome back</p>
+                    <p className="text-xs text-brand-brown font-bold font-primary truncate mb-2">{user.name}</p>
+
+                    <div className="grid grid-cols-3 gap-2 text-[9px] font-primary font-semibold text-center">
+                      <Link
+                        href="/account?tab=profile"
                         onClick={() => setDrawerOpen(false)}
                         className="bg-white border border-gray-200 py-1.5 hover:text-brand-gold transition-colors block text-brand-brown"
                       >
                         Profile
                       </Link>
-                      <Link 
-                        href="/account?tab=orders" 
+                      <Link
+                        href="/account?tab=orders"
                         onClick={() => setDrawerOpen(false)}
                         className="bg-white border border-gray-200 py-1.5 hover:text-brand-gold transition-colors block text-brand-brown"
                       >
                         Orders
                       </Link>
-                      <Link 
-                        href="/account?tab=favourites" 
+                      <Link
+                        href="/account?tab=favourites"
                         onClick={() => setDrawerOpen(false)}
                         className="bg-white border border-gray-200 py-1.5 hover:text-brand-gold transition-colors block text-brand-brown"
                       >
                         Wishlist
                       </Link>
                     </div>
-                    <button 
+                    <button
                       onClick={() => {
                         logout();
                         setDrawerOpen(false);
+                        router.push('/');
                       }}
-                      className="mt-2.5 w-full text-center text-red-600 hover:bg-red-50 border border-red-200/50 py-1 text-[9px] font-sans font-bold uppercase transition-colors cursor-pointer bg-white"
+                      className="mt-2.5 w-full text-center text-red-600 hover:bg-red-50 border border-red-200/50 py-1 text-[9px] font-primary font-bold uppercase transition-colors cursor-pointer bg-white"
                     >
                       Sign Out
                     </button>
@@ -290,15 +294,15 @@ export default function Navbar() {
                 ) : (
                   <div className="mb-4 bg-bg-cream/80 p-3 border border-brand-gold/15 flex items-center justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="text-[9px] text-gray-400 font-sans tracking-wide uppercase">Guest Mode</p>
-                      <p className="text-[11px] text-brand-brown font-bold font-sans truncate">Access orders & favourites</p>
+                      <p className="text-[9px] text-gray-400 font-primary tracking-wide uppercase">Guest Mode</p>
+                      <p className="text-[11px] text-brand-brown font-bold font-primary truncate">Access orders & favourites</p>
                     </div>
-                    <button 
+                    <button
                       onClick={() => {
                         setDrawerOpen(false);
                         openAuthModal();
                       }}
-                      className="bg-brand-brown hover:bg-brand-gold text-white text-[10px] font-sans font-bold px-3 py-1.5 uppercase transition-colors shrink-0 cursor-pointer"
+                      className="bg-brand-brown hover:bg-brand-gold text-white text-[10px] font-primary font-bold px-3 py-1.5 uppercase transition-colors shrink-0 cursor-pointer"
                     >
                       Sign In
                     </button>

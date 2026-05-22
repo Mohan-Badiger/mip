@@ -1,4 +1,4 @@
-
+﻿
 import { Work_Sans, Cinzel } from "next/font/google";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
@@ -23,7 +23,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${workSans.variable} ${cinzel.variable} antialiased font-sans`} suppressHydrationWarning>
+      <body className={`${workSans.variable} ${cinzel.variable} antialiased font-primary`} suppressHydrationWarning>
         <AuthProvider>
           <CartProvider>
             {children}

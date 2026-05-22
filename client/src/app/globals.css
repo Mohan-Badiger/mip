@@ -9,7 +9,7 @@
   --font-primary: var(--font-primary);
   --font-secondary: var(--font-secondary);
   --font-serif: var(--font-secondary);
-  --font-sans: var(--font-primary);
+  --font-primary: var(--font-primary);
 }
 
 @layer base {
@@ -21,7 +21,7 @@
   body {
     background-color: var(--background);
     color: var(--foreground);
-    font-family: var(--font-sans);
+    font-family: var(--font-primary);
   }
 }
 

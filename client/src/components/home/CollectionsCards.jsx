@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import React from 'react';
 import Image from 'next/image';
 import { ArrowUpRight } from 'lucide-react';
@@ -33,7 +33,7 @@ export default function CollectionsCards() {
               <h3 className="font-primary text-xl text-brand-brown mb-1 flex items-center gap-1 font-medium tracking-wide">
                 {item.title} <ArrowUpRight className="w-4 h-4 text-gray-400 group-hover:text-brand-brown transition-colors" />
               </h3>
-              {item.sub && <p className="font-sans text-[11px] text-gray-400 tracking-wider uppercase">{item.sub}</p>}
+              {item.sub && <p className="font-primary text-[11px] text-gray-400 tracking-wider uppercase">{item.sub}</p>}
             </div>
           </FadeInUp>
         ))}

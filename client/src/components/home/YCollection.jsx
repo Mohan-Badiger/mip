@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import React from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
@@ -16,7 +16,7 @@ export default function YCollection() {
       <div className="lg:hidden py-12 px-4">
         {/* Header */}
         <FadeInUp>
-          <p className="font-sans text-[10px] tracking-[0.3em] uppercase text-brand-gold mb-2">
+          <p className="font-primary text-[10px] tracking-[0.3em] uppercase text-brand-gold mb-2">
             New Collection
           </p>
           <h2 className="font-secondary text-4xl text-brand-brown leading-tight mb-1">
@@ -42,7 +42,7 @@ export default function YCollection() {
             {/* Right text column */}
             <div className="flex flex-col justify-between py-2">
               <div>
-                <p className="font-sans text-xs text-gray-400 leading-relaxed">
+                <p className="font-primary text-xs text-gray-400 leading-relaxed">
                   Explore New Age Jewellery from the House of MIP — where bold design meets timeless gold.
                 </p>
               </div>
@@ -64,7 +64,7 @@ export default function YCollection() {
         <FadeInUp delay={0.2}>
           <Link
             href="/collections"
-            className="inline-flex items-center gap-2 font-sans text-sm font-medium text-brand-brown pb-1 border-b border-brand-gold hover:text-brand-gold transition-colors"
+            className="inline-flex items-center gap-2 font-primary text-sm font-medium text-brand-brown pb-1 border-b border-brand-gold hover:text-brand-gold transition-colors"
           >
             Explore Collection <ArrowUpRight className="w-4 h-4 text-brand-gold" />
           </Link>
@@ -92,7 +92,7 @@ export default function YCollection() {
               sizes="30vw"
               className="object-cover object-top"
             />
-            <p className="absolute -bottom-8 left-0 text-gray-400 font-sans text-xs tracking-widest uppercase">
+            <p className="absolute -bottom-8 left-0 text-gray-400 font-primary text-xs tracking-widest uppercase">
               Explore New Age Jewellery
             </p>
           </motion.div>
@@ -131,7 +131,7 @@ export default function YCollection() {
             />
             <Link
               href="/collections"
-              className="absolute -bottom-12 right-0 inline-flex items-center gap-2 font-sans text-base text-brand-brown pb-1 border-b border-brand-gold hover:text-brand-gold transition-colors"
+              className="absolute -bottom-12 right-0 inline-flex items-center gap-2 font-primary text-base text-brand-brown pb-1 border-b border-brand-gold hover:text-brand-gold transition-colors"
             >
               Explore More <ArrowUpRight className="w-4 h-4 text-gray-400" />
             </Link>
@@ -163,7 +163,7 @@ export default function YCollection() {
             className="relative z-40 text-center"
           >
             <div className="bg-white/85 backdrop-blur-sm px-8 py-5">
-              <p className="font-sans text-[9px] tracking-[0.3em] uppercase text-brand-gold mb-2">New Collection</p>
+              <p className="font-primary text-[9px] tracking-[0.3em] uppercase text-brand-gold mb-2">New Collection</p>
               <h2 className="font-secondary text-5xl xl:text-6xl text-brand-brown">Y Collection</h2>
             </div>
           </motion.div>

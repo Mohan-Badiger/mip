@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
@@ -47,7 +47,7 @@ function AccordionSection({ title, links }) {
     <div className="border-b border-white/10">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between py-4 font-sans text-[10px] tracking-[0.25em] uppercase text-white font-semibold"
+        className="w-full flex items-center justify-between py-4 font-primary text-[10px] tracking-[0.25em] uppercase text-white font-semibold"
       >
         {title}
         <ChevronDown className={`w-4 h-4 text-brand-gold transition-transform duration-300 ${open ? 'rotate-180' : ''}`} />
@@ -56,7 +56,7 @@ function AccordionSection({ title, links }) {
         <ul className="space-y-3">
           {links.map((l) => (
             <li key={l.label}>
-              <Link href={l.href} className="font-sans text-sm text-white/65 hover:text-brand-gold transition-colors">{l.label}</Link>
+              <Link href={l.href} className="font-primary text-sm text-white/65 hover:text-brand-gold transition-colors">{l.label}</Link>
             </li>
           ))}
         </ul>
@@ -74,7 +74,7 @@ export default function Footer() {
         <div className="flex items-center justify-between">
           <Link href="/">
             <h3 className="font-secondary text-2xl tracking-[0.25em] text-brand-gold">mip</h3>
-            <p className="font-sans text-[10px] tracking-[0.2em] uppercase text-white/40 mt-0.5">Since 1925</p>
+            <p className="font-primary text-[10px] tracking-[0.2em] uppercase text-white/40 mt-0.5">Since 1925</p>
           </Link>
           {/* Social icons — always visible */}
           <div className="flex items-center gap-4">
@@ -99,15 +99,15 @@ export default function Footer() {
 
         {/* Contact on mobile */}
         <div className="py-5 border-b border-white/10">
-          <p className="font-sans text-[10px] tracking-[0.25em] uppercase text-white font-semibold mb-3">Contact</p>
+          <p className="font-primary text-[10px] tracking-[0.25em] uppercase text-white font-semibold mb-3">Contact</p>
           <ul className="space-y-2">
             <li>
-              <a href="tel:18001201925" className="font-sans text-sm text-white/65 hover:text-brand-gold transition-colors">
+              <a href="tel:18001201925" className="font-primary text-sm text-white/65 hover:text-brand-gold transition-colors">
                 Toll Free: 1800-120-1925
               </a>
             </li>
             <li>
-              <a href="mailto:support@mip.com" className="font-sans text-sm text-white/65 hover:text-brand-gold transition-colors">
+              <a href="mailto:support@mip.com" className="font-primary text-sm text-white/65 hover:text-brand-gold transition-colors">
                 support@mip.com
               </a>
             </li>
@@ -120,14 +120,14 @@ export default function Footer() {
         <div className="grid grid-cols-4 gap-12">
           {/* Brand column */}
           <div>
-            <p className="font-sans text-sm text-white/60 leading-relaxed mb-6">
+            <p className="font-primary text-sm text-white/60 leading-relaxed mb-6">
               A Legacy of Purity since 1925. Handcrafted 916 BIS Hallmarked jewellery blending timeless tradition with modern elegance.
             </p>
             <div className="space-y-2">
-              <a href="tel:18001201925" className="block font-sans text-sm text-white/60 hover:text-brand-gold transition-colors">
+              <a href="tel:18001201925" className="block font-primary text-sm text-white/60 hover:text-brand-gold transition-colors">
                 1800-120-1925
               </a>
-              <a href="mailto:support@mip.com" className="block font-sans text-sm text-white/60 hover:text-brand-gold transition-colors">
+              <a href="mailto:support@mip.com" className="block font-primary text-sm text-white/60 hover:text-brand-gold transition-colors">
                 support@mip.com
               </a>
             </div>
@@ -136,11 +136,11 @@ export default function Footer() {
           {/* Link columns */}
           {footerSections.map((section) => (
             <div key={section.title}>
-              <h5 className="font-sans text-[10px] tracking-[0.25em] uppercase text-white font-semibold mb-6">{section.title}</h5>
+              <h5 className="font-primary text-[10px] tracking-[0.25em] uppercase text-white font-semibold mb-6">{section.title}</h5>
               <ul className="space-y-3.5">
                 {section.links.map((l) => (
                   <li key={l.label}>
-                    <Link href={l.href} className="font-sans text-sm text-white/60 hover:text-brand-gold transition-colors">
+                    <Link href={l.href} className="font-primary text-sm text-white/60 hover:text-brand-gold transition-colors">
                       {l.label}
                     </Link>
                   </li>
@@ -153,7 +153,7 @@ export default function Footer() {
 
       {/* ── Bottom bar ── */}
       <div className="border-t border-white/10">
-        <div className="max-w-[1920px] mx-auto px-5 md:px-8 py-4 flex flex-col md:flex-row items-center justify-between gap-2 text-[11px] font-sans text-white/35">
+        <div className="max-w-[1920px] mx-auto px-5 md:px-8 py-4 flex flex-col md:flex-row items-center justify-between gap-2 text-[11px] font-primary text-white/35">
           <p>&copy; {new Date().getFullYear()} MIP Jewellers. All Rights Reserved.</p>
           <div className="flex gap-4">
             <a href="#" className="hover:text-white/60 transition-colors">Privacy</a>

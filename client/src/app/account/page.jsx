@@ -120,21 +120,21 @@ function AccountDashboardContent() {
               <User className="w-6 h-6 text-brand-gold" strokeWidth={1.5} />
             </div>
 
-            <span className="font-sans text-[10px] tracking-[0.3em] uppercase text-brand-gold font-bold block mb-2">MIP Customer Portal</span>
+            <span className="font-primary text-[10px] tracking-[0.3em] uppercase text-brand-gold font-bold block mb-2">MIP Customer Portal</span>
             <h1 className="font-secondary text-2xl md:text-3xl text-brand-brown mb-3">Welcome to MIP</h1>
-            <p className="font-sans text-xs text-gray-500 leading-relaxed mb-8">
+            <p className="font-primary text-xs text-gray-500 leading-relaxed mb-8">
               Sign in to view your bespoke orders, track active package deliveries, and access your curated wishlist of luxury jewellery pieces.
             </p>
 
             <button
               onClick={() => openAuthModal()}
-              className="w-full bg-brand-gold hover:bg-brand-gold-light text-brand-brown py-4 font-sans text-xs font-bold tracking-[0.2em] uppercase transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer animate-shimmer"
+              className="w-full bg-brand-gold hover:bg-brand-gold-light text-brand-brown py-4 font-primary text-xs font-bold tracking-[0.2em] uppercase transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer animate-shimmer"
             >
               <Lock className="w-3.5 h-3.5" /> Sign In to Portal
             </button>
 
             <div className="mt-8 pt-5 border-t border-gray-100">
-              <span className="text-[10px] text-gray-400 block font-sans">
+              <span className="text-[10px] text-gray-400 block font-primary">
                 New to MIP? Registration is quick and seamless during sign-in.
               </span>
             </div>
@@ -151,20 +151,20 @@ function AccountDashboardContent() {
         {/* Banner header */}
         <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-brand-gold/10">
           <div>
-            <span className="font-sans text-[10px] tracking-[0.3em] uppercase text-brand-gold font-bold block mb-2">
+            <span className="font-primary text-[10px] tracking-[0.3em] uppercase text-brand-gold font-bold block mb-2">
               Welcome Back
             </span>
             <h1 className="font-secondary text-3xl md:text-5xl text-brand-brown tracking-wide">
               {user.name}
             </h1>
-            <p className="font-sans text-xs text-gray-400 mt-2 flex items-center gap-1">
+            <p className="font-primary text-xs text-gray-400 mt-2 flex items-center gap-1">
               <Mail className="w-3.5 h-3.5 text-brand-gold" /> {user.email}
             </p>
           </div>
           
           <button
-            onClick={logout}
-            className="flex items-center gap-1.5 font-sans text-[10px] font-bold tracking-widest text-red-500 hover:text-red-700 transition-colors uppercase border border-red-200/50 hover:bg-red-50/50 bg-white px-4 py-2.5 shrink-0 self-start md:self-auto cursor-pointer"
+            onClick={() => { logout(); router.push('/'); }}
+            className="flex items-center gap-1.5 font-primary text-[10px] font-bold tracking-widest text-red-500 hover:text-red-700 transition-colors uppercase border border-red-200/50 hover:bg-red-50/50 bg-white px-4 py-2.5 shrink-0 self-start md:self-auto cursor-pointer"
           >
             <LogOut className="w-3.5 h-3.5" /> Sign Out
           </button>
@@ -177,7 +177,7 @@ function AccountDashboardContent() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="mb-6 bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs px-4 py-3 flex items-center gap-2 font-sans font-medium"
+              className="mb-6 bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs px-4 py-3 flex items-center gap-2 font-primary font-medium"
             >
               <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600" />
               {profileSuccessMsg}
@@ -201,7 +201,7 @@ function AccountDashboardContent() {
                 <button
                   key={tab.id}
                   onClick={() => handleTabChange(tab.id)}
-                  className={`w-full flex items-center justify-between p-4 font-sans text-xs tracking-wider uppercase font-semibold transition-all cursor-pointer ${
+                  className={`w-full flex items-center justify-between p-4 font-primary text-xs tracking-wider uppercase font-semibold transition-all cursor-pointer ${
                     isSelected 
                       ? 'bg-brand-brown text-white shadow-md' 
                       : 'bg-white text-brand-brown hover:bg-bg-cream hover:text-brand-gold border border-brand-gold/10'
@@ -229,7 +229,7 @@ function AccountDashboardContent() {
                     {!isEditingProfile && (
                       <button
                         onClick={() => setIsEditingProfile(true)}
-                        className="flex items-center gap-1.5 font-sans text-[10px] font-bold tracking-widest text-brand-gold hover:text-brand-brown transition-colors uppercase cursor-pointer"
+                        className="flex items-center gap-1.5 font-primary text-[10px] font-bold tracking-widest text-brand-gold hover:text-brand-brown transition-colors uppercase cursor-pointer"
                       >
                         <Edit3 className="w-3.5 h-3.5" /> Edit Profile
                       </button>
@@ -246,18 +246,18 @@ function AccountDashboardContent() {
                         </div>
                         <div>
                           <span className="text-[9px] tracking-widest text-gray-400 uppercase font-bold block mb-1">Email Address</span>
-                          <p className="font-sans text-sm text-gray-700">{user.email}</p>
+                          <p className="font-primary text-sm text-gray-700">{user.email}</p>
                         </div>
                         <div>
                           <span className="text-[9px] tracking-widest text-gray-400 uppercase font-bold block mb-1">Mobile Phone</span>
-                          <p className="font-sans text-sm text-gray-700">{user.phone || 'Not provided'}</p>
+                          <p className="font-primary text-sm text-gray-700">{user.phone || 'Not provided'}</p>
                         </div>
                       </div>
 
                       <div className="space-y-4">
                         <div>
                           <span className="text-[9px] tracking-widest text-gray-400 uppercase font-bold block mb-1">Primary Shipping Address</span>
-                          <p className="font-sans text-sm text-gray-700 leading-relaxed">
+                          <p className="font-primary text-sm text-gray-700 leading-relaxed">
                             {(() => {
                               const addr = user.addresses?.find(a => a.isDefault) || user.addresses?.[0];
                               if (!addr) return 'Not provided';
@@ -267,7 +267,7 @@ function AccountDashboardContent() {
                         </div>
                         <div>
                           <span className="text-[9px] tracking-widest text-gray-400 uppercase font-bold block mb-1">Pincode</span>
-                          <p className="font-sans text-sm text-gray-700">
+                          <p className="font-primary text-sm text-gray-700">
                             {(user.addresses?.find(a => a.isDefault) || user.addresses?.[0])?.pincode || 'Not provided'}
                           </p>
                         </div>
@@ -289,7 +289,7 @@ function AccountDashboardContent() {
                             required
                             value={editName}
                             onChange={(e) => setEditName(e.target.value)}
-                            className="w-full text-xs px-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-sans"
+                            className="w-full text-xs px-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-primary"
                           />
                         </div>
                         
@@ -300,7 +300,7 @@ function AccountDashboardContent() {
                             required
                             value={editPhone}
                             onChange={(e) => setEditPhone(e.target.value)}
-                            className="w-full text-xs px-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-sans"
+                            className="w-full text-xs px-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-primary"
                           />
                         </div>
                       </div>
@@ -312,7 +312,7 @@ function AccountDashboardContent() {
                           rows={3}
                           value={editAddress}
                           onChange={(e) => setEditAddress(e.target.value)}
-                          className="w-full text-xs px-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-sans resize-none"
+                          className="w-full text-xs px-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-primary resize-none"
                         />
                       </div>
 
@@ -326,7 +326,7 @@ function AccountDashboardContent() {
                             maxLength={6}
                             value={editPincode}
                             onChange={(e) => setEditPincode(e.target.value)}
-                            className="w-full text-xs px-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-sans"
+                            className="w-full text-xs px-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-primary"
                           />
                         </div>
                       </div>
@@ -334,14 +334,14 @@ function AccountDashboardContent() {
                       <div className="flex gap-3 pt-2">
                         <button
                           type="submit"
-                          className="bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white py-3 px-6 font-sans text-xs font-semibold tracking-wider uppercase transition-colors cursor-pointer"
+                          className="bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white py-3 px-6 font-primary text-xs font-semibold tracking-wider uppercase transition-colors cursor-pointer"
                         >
                           Save Changes
                         </button>
                         <button
                           type="button"
                           onClick={() => setIsEditingProfile(false)}
-                          className="bg-white border border-gray-200 text-gray-500 hover:bg-gray-50 py-3 px-6 font-sans text-xs font-semibold tracking-wider uppercase transition-colors cursor-pointer"
+                          className="bg-white border border-gray-200 text-gray-500 hover:bg-gray-50 py-3 px-6 font-primary text-xs font-semibold tracking-wider uppercase transition-colors cursor-pointer"
                         >
                           Cancel
                         </button>
@@ -364,12 +364,12 @@ function AccountDashboardContent() {
                         <ShoppingBag className="w-6 h-6 text-brand-gold" strokeWidth={1.5} />
                       </div>
                       <h3 className="font-secondary text-lg text-brand-brown mb-1">No Orders Found</h3>
-                      <p className="font-sans text-xs text-gray-400 max-w-xs mx-auto leading-relaxed mb-6">
+                      <p className="font-primary text-xs text-gray-400 max-w-xs mx-auto leading-relaxed mb-6">
                         You have not placed any orders yet. Add beautiful items to your shopping cart to begin.
                       </p>
                       <Link
                         href="/collections"
-                        className="inline-block bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white font-sans text-[10px] font-bold tracking-widest uppercase px-6 py-3 transition-colors shadow-xs"
+                        className="inline-block bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white font-primary text-[10px] font-bold tracking-widest uppercase px-6 py-3 transition-colors shadow-xs"
                       >
                         Shop Now
                       </Link>
@@ -390,25 +390,25 @@ function AccountDashboardContent() {
                             <div className="bg-bg-cream/40 p-4 border-b border-brand-gold/10 flex flex-wrap justify-between items-center gap-4 text-xs">
                               <div className="flex flex-wrap gap-x-6 gap-y-2">
                                 <div>
-                                  <span className="text-[9px] text-gray-400 font-sans block uppercase font-bold">Order ID</span>
+                                  <span className="text-[9px] text-gray-400 font-primary block uppercase font-bold">Order ID</span>
                                   <span className="font-mono font-bold text-brand-brown">{order.id}</span>
                                 </div>
                                 <div>
-                                  <span className="text-[9px] text-gray-400 font-sans block uppercase font-bold">Placed On</span>
-                                  <span className="font-sans text-gray-700 font-medium">{order.date}</span>
+                                  <span className="text-[9px] text-gray-400 font-primary block uppercase font-bold">Placed On</span>
+                                  <span className="font-primary text-gray-700 font-medium">{order.date}</span>
                                 </div>
                                 <div>
-                                  <span className="text-[9px] text-gray-400 font-sans block uppercase font-bold">Payment Method</span>
-                                  <span className="font-sans text-gray-700 font-semibold uppercase">{order.paymentMethod === 'cod' ? 'COD' : 'Online'}</span>
+                                  <span className="text-[9px] text-gray-400 font-primary block uppercase font-bold">Payment Method</span>
+                                  <span className="font-primary text-gray-700 font-semibold uppercase">{order.paymentMethod === 'cod' ? 'COD' : 'Online'}</span>
                                 </div>
                               </div>
                               
                               <div className="flex items-center gap-3">
-                                <span className={`px-2.5 py-1 rounded-full font-sans text-[9px] font-bold uppercase border ${badgeStyle}`}>
+                                <span className={`px-2.5 py-1 rounded-full font-primary text-[9px] font-bold uppercase border ${badgeStyle}`}>
                                   {order.status}
                                 </span>
                                 <div className="text-right">
-                                  <span className="text-[9px] text-gray-400 font-sans block uppercase font-bold">Grand Total</span>
+                                  <span className="text-[9px] text-gray-400 font-primary block uppercase font-bold">Grand Total</span>
                                   <span className="font-secondary text-sm text-brand-brown font-bold">{formatPrice(order.total)}</span>
                                 </div>
                               </div>
@@ -425,7 +425,7 @@ function AccountDashboardContent() {
                                     <h4 className="font-secondary text-sm text-brand-brown font-bold truncate leading-snug">
                                       {item.name}
                                     </h4>
-                                    <div className="flex flex-wrap gap-x-2.5 gap-y-0.5 mt-1 text-[10px] font-sans text-gray-400">
+                                    <div className="flex flex-wrap gap-x-2.5 gap-y-0.5 mt-1 text-[10px] font-primary text-gray-400">
                                       <span><strong>Metal:</strong> {item.metal}</span>
                                       <span>•</span>
                                       <span><strong>Weight:</strong> {item.weight}</span>
@@ -460,12 +460,12 @@ function AccountDashboardContent() {
                         <Heart className="w-6 h-6 text-brand-gold" strokeWidth={1.5} />
                       </div>
                       <h3 className="font-secondary text-lg text-brand-brown mb-1">Your Favourites List is Empty</h3>
-                      <p className="font-sans text-xs text-gray-400 max-w-xs mx-auto leading-relaxed mb-6">
+                      <p className="font-primary text-xs text-gray-400 max-w-xs mx-auto leading-relaxed mb-6">
                         Explore our jewellery collections and click the Heart icon on any product page to curate your favourites list here.
                       </p>
                       <Link
                         href="/collections"
-                        className="inline-block bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white font-sans text-[10px] font-bold tracking-widest uppercase px-6 py-3 transition-colors shadow-xs"
+                        className="inline-block bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white font-primary text-[10px] font-bold tracking-widest uppercase px-6 py-3 transition-colors shadow-xs"
                       >
                         Explore Collections
                       </Link>
@@ -501,7 +501,7 @@ function AccountDashboardContent() {
                             {/* Product Info */}
                             <div className="p-4 flex-1 flex flex-col justify-between">
                               <div className="mb-4">
-                                <span className="font-sans text-[8px] tracking-[0.2em] uppercase text-brand-gold font-bold block mb-1">
+                                <span className="font-primary text-[8px] tracking-[0.2em] uppercase text-brand-gold font-bold block mb-1">
                                   {item.metal}
                                 </span>
                                 <Link 
@@ -510,14 +510,14 @@ function AccountDashboardContent() {
                                 >
                                   {item.name}
                                 </Link>
-                                <span className="text-[10px] text-gray-400 font-sans tracking-wide mt-1 block">Weight: {item.weight}</span>
+                                <span className="text-[10px] text-gray-400 font-primary tracking-wide mt-1 block">Weight: {item.weight}</span>
                                 <span className="font-secondary text-sm text-brand-brown font-semibold block mt-1.5">{formatPrice(item.price)}</span>
                               </div>
 
                               <button
                                 onClick={() => handleQuickAdd(item)}
                                 disabled={isAdded}
-                                className={`w-full font-sans text-[10px] font-bold tracking-[0.18em] uppercase py-2.5 flex items-center justify-center gap-1.5 transition-all duration-300 border cursor-pointer ${
+                                className={`w-full font-primary text-[10px] font-bold tracking-[0.18em] uppercase py-2.5 flex items-center justify-center gap-1.5 transition-all duration-300 border cursor-pointer ${
                                   isAdded 
                                     ? 'bg-emerald-600 border-emerald-600 text-white' 
                                     : 'bg-brand-brown border-brand-brown hover:bg-brand-gold hover:border-brand-gold hover:text-brand-brown text-white'

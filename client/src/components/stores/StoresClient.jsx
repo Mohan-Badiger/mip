@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -131,7 +131,7 @@ export default function StoresClient() {
   const currentStatus = getStoreStatus();
 
   return (
-    <div className="bg-bg-cream min-h-screen text-text-dark font-sans relative pb-16">
+    <div className="bg-bg-cream min-h-screen text-text-dark font-primary relative pb-16">
       
       {/* Premium Header Banner */}
       <div className="relative overflow-hidden border-b border-brand-brown/10 py-12 md:py-20 text-center bg-brand-brown">
@@ -146,13 +146,13 @@ export default function StoresClient() {
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1.5px,_transparent_1.5px),_linear-gradient(90deg,_rgba(255,255,255,0.03)_1.5px,_transparent_1.5px)] bg-[size:30px_30px]" />
 
         <div className="max-w-4xl mx-auto px-4 relative z-10">
-          <span className="font-sans text-[10px] tracking-[0.4em] uppercase text-brand-gold-light font-bold block mb-3">
+          <span className="font-primary text-[10px] tracking-[0.4em] uppercase text-brand-gold-light font-bold block mb-3">
             Our Showrooms
           </span>
           <h1 className="font-secondary text-4xl md:text-6xl text-white tracking-wide mb-4 leading-tight">
             Flagship & Locations
           </h1>
-          <p className="font-sans text-gray-200 text-sm md:text-base max-w-xl mx-auto leading-relaxed">
+          <p className="font-primary text-gray-200 text-sm md:text-base max-w-xl mx-auto leading-relaxed">
             Experience our legacy of pure craftsmanship. Visit us in Banahatti to discover our heritage gold collections and modern masterpieces.
           </p>
         </div>
@@ -161,7 +161,7 @@ export default function StoresClient() {
       {/* Breadcrumbs */}
       <div className="bg-white border-b border-gray-100 z-30 shadow-xs">
         <div className="max-w-[1920px] mx-auto px-4 md:px-8 py-3.5 flex items-center justify-between">
-          <nav className="text-[11px] font-sans text-gray-400 tracking-wide">
+          <nav className="text-[11px] font-primary text-gray-400 tracking-wide">
             <ol className="flex items-center gap-2">
               <li><Link href="/" className="hover:text-brand-gold transition-colors">Home</Link></li>
               <li className="text-gray-300">/</li>
@@ -169,7 +169,7 @@ export default function StoresClient() {
             </ol>
           </nav>
           
-          <div className="text-[11px] font-sans text-gray-400 tracking-wide hidden sm:block">
+          <div className="text-[11px] font-primary text-gray-400 tracking-wide hidden sm:block">
             Banahatti, Karnataka (587311)
           </div>
         </div>
@@ -225,7 +225,7 @@ export default function StoresClient() {
                     
                     <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
                       <div>
-                        <span className="inline-block font-sans text-[8px] tracking-[0.2em] uppercase font-bold bg-brand-gold/10 text-brand-gold px-2 py-0.5 rounded-none mb-2">
+                        <span className="inline-block font-primary text-[8px] tracking-[0.2em] uppercase font-bold bg-brand-gold/10 text-brand-gold px-2 py-0.5 rounded-none mb-2">
                           {ACTIVE_STORE.tag}
                         </span>
                         <h2 className="font-secondary text-2xl md:text-3xl text-brand-brown leading-snug">
@@ -240,7 +240,7 @@ export default function StoresClient() {
                     </div>
 
                     {/* Contact Details */}
-                    <div className="space-y-4 font-sans text-xs border-b border-gray-100 pb-6 mb-6">
+                    <div className="space-y-4 font-primary text-xs border-b border-gray-100 pb-6 mb-6">
                       <div className="flex gap-3 items-start group">
                         <MapPin className="w-5 h-5 text-brand-gold shrink-0 mt-0.5" strokeWidth={1.5} />
                         <div className="space-y-1">
@@ -285,14 +285,14 @@ export default function StoresClient() {
                         href="https://maps.google.com/?q=M+I+Pattar+and+Sons+Jewellers+Banahatti"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-1 flex items-center justify-center gap-2 font-sans text-xs tracking-[0.18em] uppercase font-bold text-brand-brown hover:text-brand-gold transition-colors py-3.5 px-4 border border-gray-200 rounded-none bg-white shadow-xs hover:border-brand-gold/40"
+                        className="flex-1 flex items-center justify-center gap-2 font-primary text-xs tracking-[0.18em] uppercase font-bold text-brand-brown hover:text-brand-gold transition-colors py-3.5 px-4 border border-gray-200 rounded-none bg-white shadow-xs hover:border-brand-gold/40"
                       >
                         <Navigation className="w-4 h-4" /> Get Directions
                       </a>
 
                       <button
                         onClick={() => setIsBookingOpen(true)}
-                        className="flex-1 flex items-center justify-center gap-2 font-sans text-xs tracking-[0.18em] uppercase font-bold text-white bg-brand-brown hover:bg-brand-gold hover:text-brand-brown py-3.5 px-4 rounded-none transition-all duration-300 shadow-md cursor-pointer"
+                        className="flex-1 flex items-center justify-center gap-2 font-primary text-xs tracking-[0.18em] uppercase font-bold text-white bg-brand-brown hover:bg-brand-gold hover:text-brand-brown py-3.5 px-4 rounded-none transition-all duration-300 shadow-md cursor-pointer"
                       >
                         <Calendar className="w-4 h-4" /> Book VIP Visit
                       </button>
@@ -310,17 +310,17 @@ export default function StoresClient() {
                 >
                   {/* Upcoming Store Teaser Card - Boxy Design */}
                   <div className="bg-brand-brown text-white rounded-none border border-brand-gold/20 p-6 md:p-8 shadow-md relative overflow-hidden">
-                    <span className="inline-block font-sans text-[8px] tracking-[0.25em] uppercase font-bold bg-brand-gold/20 text-brand-gold px-2.5 py-1 rounded-none mb-3 border border-brand-gold/30">
+                    <span className="inline-block font-primary text-[8px] tracking-[0.25em] uppercase font-bold bg-brand-gold/20 text-brand-gold px-2.5 py-1 rounded-none mb-3 border border-brand-gold/30">
                       {UPCOMING_STORE.tag}
                     </span>
                     <h2 className="font-secondary text-2xl md:text-3xl text-brand-gold tracking-wide leading-snug mb-3">
                       {UPCOMING_STORE.name}
                     </h2>
-                    <p className="font-sans text-xs text-gray-300 leading-relaxed mb-6">
+                    <p className="font-primary text-xs text-gray-300 leading-relaxed mb-6">
                       Our new expansion showroom in the Extension Area of Banahatti will feature architectural grandeur, custom diamond view lounges, and a digital showroom experience. Opening shortly.
                     </p>
 
-                    <div className="space-y-3 font-sans text-xs text-gray-300 border-t border-white/10 pt-5 mb-2">
+                    <div className="space-y-3 font-primary text-xs text-gray-300 border-t border-white/10 pt-5 mb-2">
                       <div className="flex gap-3 items-center">
                         <MapPin className="w-4 h-4 text-brand-gold shrink-0" strokeWidth={1.5} />
                         <span>{UPCOMING_STORE.address}</span>
@@ -338,7 +338,7 @@ export default function StoresClient() {
                       <Mail className="w-5 h-5 text-brand-gold" />
                       VIP Launch Invitation
                     </h3>
-                    <p className="font-sans text-xs text-gray-400 mb-6 leading-relaxed">
+                    <p className="font-primary text-xs text-gray-400 mb-6 leading-relaxed">
                       Enter your email to receive a private VIP invitation to our grand launching ceremony and first access to launch collections.
                     </p>
 
@@ -359,7 +359,7 @@ export default function StoresClient() {
                         <button
                           type="submit"
                           disabled={isNotifying}
-                          className="w-full bg-brand-brown text-white hover:bg-brand-gold hover:text-brand-brown transition-all duration-300 font-sans tracking-[0.2em] uppercase font-bold text-[11px] py-3.5 rounded-none flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-75"
+                          className="w-full bg-brand-brown text-white hover:bg-brand-gold hover:text-brand-brown transition-all duration-300 font-primary tracking-[0.2em] uppercase font-bold text-[11px] py-3.5 rounded-none flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-75"
                         >
                           {isNotifying ? (
                             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-none animate-spin" />
@@ -381,7 +381,7 @@ export default function StoresClient() {
                           <Check className="w-5 h-5 text-emerald-600" strokeWidth={2.5} />
                         </div>
                         <h4 className="font-secondary text-sm text-brand-brown font-bold mb-1">Successfully Registered!</h4>
-                        <p className="font-sans text-[11px] text-gray-500 leading-normal">
+                        <p className="font-primary text-[11px] text-gray-500 leading-normal">
                           Thank you for registering. An confirmation invite request has been queued for your email address.
                         </p>
                       </motion.div>
@@ -404,7 +404,7 @@ export default function StoresClient() {
                     <h3 className="font-secondary text-base md:text-lg text-brand-brown tracking-wide">
                       Showroom Navigation Map
                     </h3>
-                    <p className="text-[10px] text-gray-400 font-sans tracking-wide">
+                    <p className="text-[10px] text-gray-400 font-primary tracking-wide">
                       Verified Google Maps location for M.I. Pattar & Sons Jewellers
                     </p>
                   </div>
@@ -441,7 +441,7 @@ export default function StoresClient() {
               <div className="mt-4 border border-brand-gold/15 bg-bg-cream/30 p-3.5 rounded-none flex items-center justify-between gap-4 shrink-0">
                 <div className="flex items-center gap-2">
                   <MapPin className="w-4 h-4 text-brand-gold shrink-0" />
-                  <span className="text-[11px] text-gray-500 font-medium font-sans truncate max-w-xs md:max-w-md">
+                  <span className="text-[11px] text-gray-500 font-medium font-primary truncate max-w-xs md:max-w-md">
                     {ACTIVE_STORE.address}
                   </span>
                 </div>
@@ -499,9 +499,9 @@ export default function StoresClient() {
                 {!bookingSuccess ? (
                   <>
                     <div className="mb-6">
-                      <span className="font-sans text-[9px] tracking-[0.25em] uppercase font-bold text-brand-gold">VIP Concierge Service</span>
+                      <span className="font-primary text-[9px] tracking-[0.25em] uppercase font-bold text-brand-gold">VIP Concierge Service</span>
                       <h3 className="font-secondary text-2xl text-brand-brown mt-1">Book Showroom Visit</h3>
-                      <p className="font-sans text-xs text-gray-400 mt-1">
+                      <p className="font-primary text-xs text-gray-400 mt-1">
                         Scheduling for: <span className="text-brand-brown font-semibold">{ACTIVE_STORE.name}</span>
                       </p>
                     </div>
@@ -517,7 +517,7 @@ export default function StoresClient() {
                             value={bookingName}
                             onChange={(e) => setBookingName(e.target.value)}
                             placeholder="Enter your full name"
-                            className="w-full text-xs pl-9 pr-4 py-3 border border-gray-200 rounded-none focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-sans"
+                            className="w-full text-xs pl-9 pr-4 py-3 border border-gray-200 rounded-none focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-primary"
                           />
                           <User className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
                         </div>
@@ -534,7 +534,7 @@ export default function StoresClient() {
                               value={bookingPhone}
                               onChange={(e) => setBookingPhone(e.target.value)}
                               placeholder="Phone number"
-                              className="w-full text-xs pl-9 pr-4 py-3 border border-gray-200 rounded-none focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-sans"
+                              className="w-full text-xs pl-9 pr-4 py-3 border border-gray-200 rounded-none focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-primary"
                             />
                             <Phone className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
                           </div>
@@ -549,7 +549,7 @@ export default function StoresClient() {
                               value={bookingEmail}
                               onChange={(e) => setBookingEmail(e.target.value)}
                               placeholder="your@email.com"
-                              className="w-full text-xs pl-9 pr-4 py-3 border border-gray-200 rounded-none focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-sans"
+                              className="w-full text-xs pl-9 pr-4 py-3 border border-gray-200 rounded-none focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-primary"
                             />
                             <Mail className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
                           </div>
@@ -564,7 +564,7 @@ export default function StoresClient() {
                           onChange={(e) => setBookingMessage(e.target.value)}
                           rows={3}
                           placeholder="Enter any specific requirements, design preferences or questions..."
-                          className="w-full text-xs px-3 py-3 border border-gray-200 rounded-none focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-sans resize-none"
+                          className="w-full text-xs px-3 py-3 border border-gray-200 rounded-none focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-primary resize-none"
                         />
                       </div>
 
@@ -578,7 +578,7 @@ export default function StoresClient() {
                             min={new Date().toISOString().split('T')[0]} // Disable past dates
                             value={bookingDate}
                             onChange={(e) => setBookingDate(e.target.value)}
-                            className="w-full text-xs px-3 py-3 border border-gray-200 rounded-none focus:outline-none focus:border-brand-gold text-text-dark bg-white font-sans"
+                            className="w-full text-xs px-3 py-3 border border-gray-200 rounded-none focus:outline-none focus:border-brand-gold text-text-dark bg-white font-primary"
                           />
                         </div>
 
@@ -587,7 +587,7 @@ export default function StoresClient() {
                           <select
                             value={bookingTime}
                             onChange={(e) => setBookingTime(e.target.value)}
-                            className="w-full text-xs px-3 py-3 border border-gray-200 rounded-none focus:outline-none focus:border-brand-gold text-text-dark bg-white font-sans"
+                            className="w-full text-xs px-3 py-3 border border-gray-200 rounded-none focus:outline-none focus:border-brand-gold text-text-dark bg-white font-primary"
                           >
                             <option value="10:30 AM">10:30 AM - 11:30 AM</option>
                             <option value="12:00 PM">12:00 PM - 01:00 PM</option>
@@ -603,7 +603,7 @@ export default function StoresClient() {
                       <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full bg-brand-brown text-white hover:bg-brand-gold hover:text-brand-brown transition-all duration-300 font-sans tracking-[0.2em] uppercase font-bold text-[11px] py-3.5 rounded-none flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-75"
+                        className="w-full bg-brand-brown text-white hover:bg-brand-gold hover:text-brand-brown transition-all duration-300 font-primary tracking-[0.2em] uppercase font-bold text-[11px] py-3.5 rounded-none flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-75"
                       >
                         {isSubmitting ? (
                           <>
@@ -630,7 +630,7 @@ export default function StoresClient() {
                       <Check className="w-8 h-8 text-emerald-600" strokeWidth={3} />
                     </div>
 
-                    <span className="font-sans text-[9px] tracking-[0.25em] uppercase font-bold text-emerald-600">Consultation Scheduled</span>
+                    <span className="font-primary text-[9px] tracking-[0.25em] uppercase font-bold text-emerald-600">Consultation Scheduled</span>
                     <h3 className="font-secondary text-2xl text-brand-brown mt-1">Visit Request Confirmed!</h3>
 
                     <div className="my-6 bg-bg-cream/60 p-4 rounded-none border border-gray-100 space-y-2 text-xs text-left max-w-sm mx-auto">
@@ -644,13 +644,13 @@ export default function StoresClient() {
                       </div>
                     </div>
 
-                    <p className="font-sans text-xs text-gray-400 max-w-xs mx-auto leading-relaxed mb-6">
+                    <p className="font-primary text-xs text-gray-400 max-w-xs mx-auto leading-relaxed mb-6">
                       A confirmation email and SMS have been dispatched with appointment instructions. Our showroom manager will contact you to finalize custom requirements.
                     </p>
 
                     <button
                       onClick={closeBookingModal}
-                      className="px-6 py-2.5 bg-brand-brown text-white hover:bg-brand-gold hover:text-brand-brown transition-all duration-300 font-sans tracking-[0.18em] uppercase font-bold text-[10px] rounded-none shadow-sm cursor-pointer"
+                      className="px-6 py-2.5 bg-brand-brown text-white hover:bg-brand-gold hover:text-brand-brown transition-all duration-300 font-primary tracking-[0.18em] uppercase font-bold text-[10px] rounded-none shadow-sm cursor-pointer"
                     >
                       Done
                     </button>

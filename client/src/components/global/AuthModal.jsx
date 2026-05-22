@@ -117,8 +117,6 @@ export default function AuthModal() {
         closeAuthModal();
         if (authModalRedirectTab) {
           router.push(`/account?tab=${authModalRedirectTab}`);
-        } else {
-          router.push('/account');
         }
       }, 1000);
     } else {
@@ -243,8 +241,6 @@ export default function AuthModal() {
           closeAuthModal();
           if (authModalRedirectTab) {
             router.push(`/account?tab=${authModalRedirectTab}`);
-          } else {
-            router.push('/account');
           }
         }, 1000);
       }
@@ -282,8 +278,6 @@ export default function AuthModal() {
         closeAuthModal();
         if (authModalRedirectTab) {
           router.push(`/account?tab=${authModalRedirectTab}`);
-        } else {
-          router.push('/account');
         }
       }, 1000);
     } else {
@@ -336,18 +330,18 @@ export default function AuthModal() {
                   <div className="w-12 h-12 bg-bg-cream border border-brand-gold/15 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Sparkles className="w-5 h-5 text-brand-gold" />
                   </div>
-                  <span className="font-sans text-[9px] tracking-[0.3em] uppercase text-brand-gold font-bold block mb-1">
+                  <span className="font-primary text-[9px] tracking-[0.3em] uppercase text-brand-gold font-bold block mb-1">
                     MIP Customer Portal
                   </span>
                   <h2 className="font-secondary text-2xl text-brand-brown">Curate Your Moments</h2>
-                  <p className="font-sans text-[11px] text-gray-400 mt-1 max-w-[280px] mx-auto leading-normal">
+                  <p className="font-primary text-[11px] text-gray-400 mt-1 max-w-[280px] mx-auto leading-normal">
                     Enter your email address to sign in or start your luxury savings journey.
                   </p>
                 </div>
 
                 <form onSubmit={handleEmailSubmit} className="space-y-4">
                   {error && (
-                    <div className="bg-red-50 border border-red-100 text-red-600 text-xs px-3 py-2.5 font-sans font-medium">
+                    <div className="bg-red-50 border border-red-100 text-red-600 text-xs px-3 py-2.5 font-primary font-medium">
                       {error}
                     </div>
                   )}
@@ -363,7 +357,7 @@ export default function AuthModal() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="your.email@domain.com"
-                        className="w-full text-xs pl-10 pr-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-sans"
+                        className="w-full text-xs pl-10 pr-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-primary"
                       />
                       <Mail className="absolute left-3 w-4 h-4 text-gray-400" />
                     </div>
@@ -371,7 +365,7 @@ export default function AuthModal() {
 
                   <button
                     type="submit"
-                    className="w-full bg-brand-gold hover:bg-brand-gold-light text-brand-brown font-sans text-xs font-bold tracking-[0.2em] py-3.5 uppercase transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer animate-shimmer"
+                    className="w-full bg-brand-gold hover:bg-brand-gold-light text-brand-brown font-primary text-xs font-bold tracking-[0.2em] py-3.5 uppercase transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer animate-shimmer"
                   >
                     Continue
                   </button>
@@ -388,10 +382,10 @@ export default function AuthModal() {
                 className="py-12 flex flex-col items-center justify-center text-center"
               >
                 <Loader2 className="w-10 h-10 text-brand-gold animate-spin mb-4" />
-                <span className="font-sans text-[10px] tracking-[0.25em] uppercase font-bold text-brand-gold block">
+                <span className="font-primary text-[10px] tracking-[0.25em] uppercase font-bold text-brand-gold block">
                   Secure Verification
                 </span>
-                <p className="font-sans text-xs text-gray-400 mt-1">
+                <p className="font-primary text-xs text-gray-400 mt-1">
                   Checking registry records...
                 </p>
               </motion.div>
@@ -407,23 +401,23 @@ export default function AuthModal() {
                 <div className="mb-6">
                   <button
                     onClick={() => setStep('email')}
-                    className="flex items-center gap-1.5 text-gray-400 hover:text-brand-brown text-[10px] font-bold tracking-wider uppercase font-sans cursor-pointer mb-3"
+                    className="flex items-center gap-1.5 text-gray-400 hover:text-brand-brown text-[10px] font-bold tracking-wider uppercase font-primary cursor-pointer mb-3"
                     disabled={isLoading}
                   >
                     <ArrowLeft className="w-3.5 h-3.5" /> Back
                   </button>
-                  <span className="font-sans text-[9px] tracking-[0.3em] uppercase text-brand-gold font-bold block mb-1">
+                  <span className="font-primary text-[9px] tracking-[0.3em] uppercase text-brand-gold font-bold block mb-1">
                     Member Found
                   </span>
                   <h2 className="font-secondary text-2xl text-brand-brown">Welcome Back</h2>
-                  <p className="font-sans text-[11px] text-gray-400 mt-1 truncate">
+                  <p className="font-primary text-[11px] text-gray-400 mt-1 truncate">
                     Signing in as <strong>{email}</strong>
                   </p>
                 </div>
 
                 <form onSubmit={handleLoginSubmit} className="space-y-4">
                   {error && (
-                    <div className="bg-red-50 border border-red-100 text-red-600 text-xs px-3 py-2.5 font-sans font-medium">
+                    <div className="bg-red-50 border border-red-100 text-red-600 text-xs px-3 py-2.5 font-primary font-medium">
                       {error}
                     </div>
                   )}
@@ -433,7 +427,7 @@ export default function AuthModal() {
                       <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mb-3 animate-bounce border border-emerald-100">
                         <Check className="w-6 h-6 text-emerald-600" strokeWidth={3} />
                       </div>
-                      <span className="font-sans text-[10px] tracking-wider uppercase font-bold">Authenticated</span>
+                      <span className="font-primary text-[10px] tracking-wider uppercase font-bold">Authenticated</span>
                     </div>
                   ) : (
                     <>
@@ -449,14 +443,14 @@ export default function AuthModal() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="••••••••"
-                            className="w-full text-xs pl-10 pr-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-sans"
+                            className="w-full text-xs pl-10 pr-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-primary"
                             disabled={isLoading}
                           />
                           <Lock className="absolute left-3 w-4 h-4 text-gray-400" />
                         </div>
                       </div>
 
-                      <div className="flex justify-between items-center text-[10px] font-sans px-0.5">
+                      <div className="flex justify-between items-center text-[10px] font-primary px-0.5">
                         <button
                           type="button"
                           disabled={isLoading}
@@ -478,7 +472,7 @@ export default function AuthModal() {
                       <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full bg-brand-gold hover:bg-brand-gold-light text-brand-brown font-sans text-xs font-bold tracking-[0.2em] py-3.5 uppercase transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer animate-shimmer"
+                        className="w-full bg-brand-gold hover:bg-brand-gold-light text-brand-brown font-primary text-xs font-bold tracking-[0.2em] py-3.5 uppercase transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer animate-shimmer"
                       >
                         {isLoading ? (
                           <>
@@ -504,23 +498,23 @@ export default function AuthModal() {
                 <div className="mb-5">
                   <button
                     onClick={() => setStep('email')}
-                    className="flex items-center gap-1.5 text-gray-400 hover:text-brand-brown text-[10px] font-bold tracking-wider uppercase font-sans cursor-pointer mb-2"
+                    className="flex items-center gap-1.5 text-gray-400 hover:text-brand-brown text-[10px] font-bold tracking-wider uppercase font-primary cursor-pointer mb-2"
                     disabled={isLoading}
                   >
                     <ArrowLeft className="w-3.5 h-3.5" /> Back
                   </button>
-                  <span className="font-sans text-[9px] tracking-[0.3em] uppercase text-brand-gold font-bold block mb-1">
+                  <span className="font-primary text-[9px] tracking-[0.3em] uppercase text-brand-gold font-bold block mb-1">
                     New Member Account
                   </span>
                   <h2 className="font-secondary text-2xl text-brand-brown">Create Account</h2>
-                  <p className="font-sans text-[11px] text-gray-400 mt-1 truncate">
+                  <p className="font-primary text-[11px] text-gray-400 mt-1 truncate">
                     Registering with email <strong>{email}</strong>
                   </p>
                 </div>
 
                 <form onSubmit={handleRegisterSubmit} className="space-y-3.5 max-h-[360px] overflow-y-auto pr-1">
                   {error && (
-                    <div className="bg-red-50 border border-red-100 text-red-600 text-xs px-3 py-2.5 font-sans font-medium">
+                    <div className="bg-red-50 border border-red-100 text-red-600 text-xs px-3 py-2.5 font-primary font-medium">
                       {error}
                     </div>
                   )}
@@ -530,7 +524,7 @@ export default function AuthModal() {
                       <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mb-3 animate-bounce border border-emerald-100">
                         <Check className="w-6 h-6 text-emerald-600" strokeWidth={3} />
                       </div>
-                      <span className="font-sans text-[10px] tracking-wider uppercase font-bold">Registered Successfully</span>
+                      <span className="font-primary text-[10px] tracking-wider uppercase font-bold">Registered Successfully</span>
                     </div>
                   ) : (
                     <>
@@ -545,7 +539,7 @@ export default function AuthModal() {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="Your full name"
-                            className="w-full text-xs pl-10 pr-3 py-2.5 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-sans"
+                            className="w-full text-xs pl-10 pr-3 py-2.5 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-primary"
                             disabled={isLoading}
                           />
                           <User className="absolute left-3 w-3.5 h-3.5 text-gray-400" />
@@ -563,7 +557,7 @@ export default function AuthModal() {
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
                             placeholder="Your mobile phone"
-                            className="w-full text-xs pl-10 pr-3 py-2.5 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-sans"
+                            className="w-full text-xs pl-10 pr-3 py-2.5 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-primary"
                             disabled={isLoading}
                           />
                           <Phone className="absolute left-3 w-3.5 h-3.5 text-gray-400" />
@@ -581,7 +575,7 @@ export default function AuthModal() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="Create security password (min 6 chars)"
-                            className="w-full text-xs pl-10 pr-3 py-2.5 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-sans"
+                            className="w-full text-xs pl-10 pr-3 py-2.5 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-primary"
                             disabled={isLoading}
                           />
                           <Lock className="absolute left-3 w-3.5 h-3.5 text-gray-400" />
@@ -598,7 +592,7 @@ export default function AuthModal() {
                           className="w-3.5 h-3.5 text-brand-brown border-gray-300 rounded-xs focus:ring-brand-gold cursor-pointer mt-0.5"
                           disabled={isLoading}
                         />
-                        <label htmlFor="privacyPolicy" className="text-[10px] text-gray-500 font-sans cursor-pointer leading-tight select-none">
+                        <label htmlFor="privacyPolicy" className="text-[10px] text-gray-500 font-primary cursor-pointer leading-tight select-none">
                           I agree to the <a href="#" className="text-brand-brown hover:text-brand-gold underline font-semibold transition-colors">Privacy Policy</a>
                         </label>
                       </div>
@@ -606,7 +600,7 @@ export default function AuthModal() {
                       <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full bg-brand-gold hover:bg-brand-gold-light text-brand-brown font-sans text-xs font-bold tracking-[0.2em] py-3.5 uppercase transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer animate-shimmer pt-2.5"
+                        className="w-full bg-brand-gold hover:bg-brand-gold-light text-brand-brown font-primary text-xs font-bold tracking-[0.2em] py-3.5 uppercase transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer animate-shimmer pt-2.5"
                       >
                         {isLoading ? (
                           <>
@@ -638,23 +632,23 @@ export default function AuthModal() {
                         setStep('login');
                       }
                     }}
-                    className="flex items-center gap-1.5 text-gray-400 hover:text-brand-brown text-[10px] font-bold tracking-wider uppercase font-sans cursor-pointer mb-2"
+                    className="flex items-center gap-1.5 text-gray-400 hover:text-brand-brown text-[10px] font-bold tracking-wider uppercase font-primary cursor-pointer mb-2"
                     disabled={isLoading}
                   >
                     <ArrowLeft className="w-3.5 h-3.5" /> Back
                   </button>
-                  <span className="font-sans text-[9px] tracking-[0.3em] uppercase text-brand-gold font-bold block mb-1">
+                  <span className="font-primary text-[9px] tracking-[0.3em] uppercase text-brand-gold font-bold block mb-1">
                     Security Passcode
                   </span>
                   <h2 className="font-secondary text-2xl text-brand-brown">Verify Identity</h2>
-                  <p className="font-sans text-[11px] text-gray-400 mt-1">
+                  <p className="font-primary text-[11px] text-gray-400 mt-1">
                     We've sent a 6-digit verification code to <strong>{email}</strong>.
                   </p>
                 </div>
 
                 <form onSubmit={handleOtpSubmit} className="space-y-4">
                   {error && (
-                    <div className="bg-red-50 border border-red-100 text-red-600 text-xs px-3 py-2.5 font-sans font-medium">
+                    <div className="bg-red-50 border border-red-100 text-red-600 text-xs px-3 py-2.5 font-primary font-medium">
                       {error}
                     </div>
                   )}
@@ -664,7 +658,7 @@ export default function AuthModal() {
                       <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mb-3 animate-bounce border border-emerald-100">
                         <Check className="w-6 h-6 text-emerald-600" strokeWidth={3} />
                       </div>
-                      <span className="font-sans text-[10px] tracking-wider uppercase font-bold">Verified Successfully</span>
+                      <span className="font-primary text-[10px] tracking-wider uppercase font-bold">Verified Successfully</span>
                     </div>
                   ) : (
                     <>
@@ -690,7 +684,7 @@ export default function AuthModal() {
                       <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full bg-brand-gold hover:bg-brand-gold-light text-brand-brown font-sans text-xs font-bold tracking-[0.2em] py-3.5 uppercase transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer animate-shimmer"
+                        className="w-full bg-brand-gold hover:bg-brand-gold-light text-brand-brown font-primary text-xs font-bold tracking-[0.2em] py-3.5 uppercase transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer animate-shimmer"
                       >
                         {isLoading ? (
                           <>
@@ -714,18 +708,18 @@ export default function AuthModal() {
                 exit={{ opacity: 0, x: -20 }}
               >
                 <div className="mb-5">
-                  <span className="font-sans text-[9px] tracking-[0.3em] uppercase text-brand-gold font-bold block mb-1">
+                  <span className="font-primary text-[9px] tracking-[0.3em] uppercase text-brand-gold font-bold block mb-1">
                     Secure Account
                   </span>
                   <h2 className="font-secondary text-2xl text-brand-brown">Reset Password</h2>
-                  <p className="font-sans text-[11px] text-gray-400 mt-1">
+                  <p className="font-primary text-[11px] text-gray-400 mt-1">
                     Create a new secure password for <strong>{email}</strong>.
                   </p>
                 </div>
 
                 <form onSubmit={handleResetPasswordSubmit} className="space-y-3.5">
                   {error && (
-                    <div className="bg-red-50 border border-red-100 text-red-600 text-xs px-3 py-2.5 font-sans font-medium">
+                    <div className="bg-red-50 border border-red-100 text-red-600 text-xs px-3 py-2.5 font-primary font-medium">
                       {error}
                     </div>
                   )}
@@ -735,7 +729,7 @@ export default function AuthModal() {
                       <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mb-3 animate-bounce border border-emerald-100">
                         <Check className="w-6 h-6 text-emerald-600" strokeWidth={3} />
                       </div>
-                      <span className="font-sans text-[10px] tracking-wider uppercase font-bold">Password Updated</span>
+                      <span className="font-primary text-[10px] tracking-wider uppercase font-bold">Password Updated</span>
                     </div>
                   ) : (
                     <>
@@ -750,7 +744,7 @@ export default function AuthModal() {
                             value={newPassword}
                             onChange={(e) => setNewPassword(e.target.value)}
                             placeholder="Minimum 6 characters"
-                            className="w-full text-xs pl-10 pr-3 py-2.5 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-sans"
+                            className="w-full text-xs pl-10 pr-3 py-2.5 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-primary"
                             disabled={isLoading}
                           />
                           <Lock className="absolute left-3 w-3.5 h-3.5 text-gray-400" />
@@ -768,7 +762,7 @@ export default function AuthModal() {
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             placeholder="Re-enter password"
-                            className="w-full text-xs pl-10 pr-3 py-2.5 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-sans"
+                            className="w-full text-xs pl-10 pr-3 py-2.5 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-primary"
                             disabled={isLoading}
                           />
                           <Lock className="absolute left-3 w-3.5 h-3.5 text-gray-400" />
@@ -778,7 +772,7 @@ export default function AuthModal() {
                       <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full bg-brand-gold hover:bg-brand-gold-light text-brand-brown font-sans text-xs font-bold tracking-[0.2em] py-3.5 uppercase transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer animate-shimmer pt-2.5"
+                        className="w-full bg-brand-gold hover:bg-brand-gold-light text-brand-brown font-primary text-xs font-bold tracking-[0.2em] py-3.5 uppercase transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer animate-shimmer pt-2.5"
                       >
                         {isLoading ? (
                           <>

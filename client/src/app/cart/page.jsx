@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from 'react';
 import Link from 'next/link';
@@ -299,7 +299,7 @@ export default function CartPage() {
           
           {/* Header Banner */}
           <div className="mb-10 text-center md:text-left">
-            <span className="font-sans text-[10px] tracking-[0.3em] uppercase text-brand-gold font-bold block mb-2">
+            <span className="font-primary text-[10px] tracking-[0.3em] uppercase text-brand-gold font-bold block mb-2">
               Your Selection
             </span>
             <h1 className="font-secondary text-3xl md:text-5xl text-brand-brown tracking-wide">
@@ -315,12 +315,12 @@ export default function CartPage() {
                   <ShoppingBag className="w-8 h-8 text-brand-gold" strokeWidth={1.5} />
                 </div>
                 <h2 className="font-secondary text-2xl text-brand-brown mb-3">Your Cart is Empty</h2>
-                <p className="font-sans text-xs text-gray-400 max-w-sm mx-auto leading-relaxed mb-8">
+                <p className="font-primary text-xs text-gray-400 max-w-sm mx-auto leading-relaxed mb-8">
                   Browse our handpicked collections of pure 22KT gold necklaces, diamond rings, and masterwork earrings to start your selection.
                 </p>
                 <Link 
                   href="/collections"
-                  className="inline-block bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white font-sans text-xs font-semibold tracking-[0.2em] uppercase px-8 py-4 transition-all duration-300 shadow-md"
+                  className="inline-block bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white font-primary text-xs font-semibold tracking-[0.2em] uppercase px-8 py-4 transition-all duration-300 shadow-md"
                 >
                   Browse Collections
                 </Link>
@@ -342,7 +342,7 @@ export default function CartPage() {
                           <h4 className="font-secondary text-xs text-brand-brown truncate group-hover:text-brand-gold transition-colors font-bold">
                             {p.name}
                           </h4>
-                          <span className="text-[10px] text-gray-400 font-sans tracking-wide mt-0.5">{p.metal} · {p.weight}</span>
+                          <span className="text-[10px] text-gray-400 font-primary tracking-wide mt-0.5">{p.metal} · {p.weight}</span>
                           <span className="text-xs text-brand-brown font-semibold mt-1">{formatPrice(p.price)}</span>
                         </div>
                       </Link>
@@ -358,7 +358,7 @@ export default function CartPage() {
               {/* Left Column: Cart items */}
               <div className="lg:col-span-8 space-y-4">
                 <div className="bg-white border border-brand-gold/15 p-4 md:p-6 shadow-xs">
-                  <div className="hidden md:grid grid-cols-12 gap-4 pb-4 border-b border-gray-100 text-[10px] font-sans tracking-widest text-gray-400 uppercase font-bold">
+                  <div className="hidden md:grid grid-cols-12 gap-4 pb-4 border-b border-gray-100 text-[10px] font-primary tracking-widest text-gray-400 uppercase font-bold">
                     <div className="col-span-6">Product Details</div>
                     <div className="col-span-2 text-center">Price</div>
                     <div className="col-span-2 text-center">Quantity</div>
@@ -378,7 +378,7 @@ export default function CartPage() {
                             <Link href={`/products/${item.product.slug}`} className="font-secondary text-sm md:text-base text-brand-brown hover:text-brand-gold transition-colors block font-bold leading-snug">
                               {item.product.name}
                             </Link>
-                            <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1.5 text-[10px] font-sans text-gray-400">
+                            <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1.5 text-[10px] font-primary text-gray-400">
                               <span><strong>Metal:</strong> {item.product.metal}</span>
                               <span>•</span>
                               <span><strong>Weight:</strong> {item.product.weight}</span>
@@ -391,7 +391,7 @@ export default function CartPage() {
                             </div>
                             <button 
                               onClick={() => removeFromCart(item.product.id)}
-                              className="mt-3 flex items-center gap-1.5 text-red-500 hover:text-red-700 transition-colors text-[10px] tracking-wider uppercase font-bold font-sans cursor-pointer"
+                              className="mt-3 flex items-center gap-1.5 text-red-500 hover:text-red-700 transition-colors text-[10px] tracking-wider uppercase font-bold font-primary cursor-pointer"
                             >
                               <Trash2 className="w-3.5 h-3.5" /> Remove
                             </button>
@@ -400,8 +400,8 @@ export default function CartPage() {
 
                         {/* Price Column */}
                         <div className="col-span-2 text-left md:text-center">
-                          <span className="md:hidden text-[10px] text-gray-400 font-sans block mb-0.5">Unit Price:</span>
-                          <span className="font-sans text-xs md:text-sm text-gray-700 font-medium">
+                          <span className="md:hidden text-[10px] text-gray-400 font-primary block mb-0.5">Unit Price:</span>
+                          <span className="font-primary text-xs md:text-sm text-gray-700 font-medium">
                             {formatPrice(item.product.price)}
                           </span>
                         </div>
@@ -417,7 +417,7 @@ export default function CartPage() {
                             >
                               <Minus className="w-3 h-3" />
                             </button>
-                            <span className="px-3 font-sans text-xs font-semibold text-brand-brown min-w-[24px] text-center">
+                            <span className="px-3 font-primary text-xs font-semibold text-brand-brown min-w-[24px] text-center">
                               {item.quantity}
                             </span>
                             <button 
@@ -432,7 +432,7 @@ export default function CartPage() {
 
                         {/* Subtotal Total price */}
                         <div className="col-span-2 text-left md:text-right">
-                          <span className="md:hidden text-[10px] text-gray-400 font-sans block mb-0.5">Subtotal:</span>
+                          <span className="md:hidden text-[10px] text-gray-400 font-primary block mb-0.5">Subtotal:</span>
                           <span className="font-secondary text-sm text-brand-brown font-bold">
                             {formatPrice(item.product.price * item.quantity)}
                           </span>
@@ -454,8 +454,8 @@ export default function CartPage() {
                     <div key={idx} className="bg-white border border-brand-gold/10 p-4 flex items-start gap-3 shadow-xs">
                       <badge.icon className="w-6 h-6 text-brand-gold shrink-0 mt-0.5" strokeWidth={1.5} />
                       <div>
-                        <h4 className="font-sans text-[11px] tracking-wider uppercase font-bold text-brand-brown mb-0.5">{badge.title}</h4>
-                        <p className="font-sans text-[10px] text-gray-400 leading-normal">{badge.desc}</p>
+                        <h4 className="font-primary text-[11px] tracking-wider uppercase font-bold text-brand-brown mb-0.5">{badge.title}</h4>
+                        <p className="font-primary text-[10px] text-gray-400 leading-normal">{badge.desc}</p>
                       </div>
                     </div>
                   ))}
@@ -472,7 +472,7 @@ export default function CartPage() {
                     Order Summary
                   </h3>
 
-                  <div className="space-y-3 font-sans text-xs border-b border-gray-100 pb-5 mb-5">
+                  <div className="space-y-3 font-primary text-xs border-b border-gray-100 pb-5 mb-5">
                     <div className="flex justify-between text-gray-500">
                       <span>Subtotal ({cartItems.reduce((acc, cur) => acc + cur.quantity, 0)} Items)</span>
                       <span className="font-semibold text-gray-700">{formatPrice(cartTotal)}</span>
@@ -519,24 +519,24 @@ export default function CartPage() {
                           value={promoCode}
                           onChange={(e) => setPromoCode(e.target.value)}
                           placeholder="e.g. WELCOME10"
-                          className="flex-1 text-xs border border-gray-200 px-3 py-2.5 focus:outline-none focus:border-brand-gold uppercase text-text-dark bg-bg-cream/20 font-sans"
+                          className="flex-1 text-xs border border-gray-200 px-3 py-2.5 focus:outline-none focus:border-brand-gold uppercase text-text-dark bg-bg-cream/20 font-primary"
                         />
                         <button
                           type="submit"
-                          className="bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white transition-colors px-4 py-2.5 text-xs font-semibold tracking-wider font-sans uppercase cursor-pointer"
+                          className="bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white transition-colors px-4 py-2.5 text-xs font-semibold tracking-wider font-primary uppercase cursor-pointer"
                         >
                           Apply
                         </button>
                       </div>
                       {promoError && <p className="text-red-500 text-[10px] mt-1.5 font-medium">{promoError}</p>}
-                      <span className="text-[9px] text-gray-400 block mt-1.5 font-sans">Use <strong>WELCOME10</strong> (10% Off) or <strong>MIPGOLD</strong> (₹1,500 Off on orders above ₹10k)</span>
+                      <span className="text-[9px] text-gray-400 block mt-1.5 font-primary">Use <strong>WELCOME10</strong> (10% Off) or <strong>MIPGOLD</strong> (₹1,500 Off on orders above ₹10k)</span>
                     </form>
                   )}
 
                   {/* Checkout Button */}
                   <button 
                     onClick={handleProceedToCheckout}
-                    className="w-full bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white py-4 font-sans text-xs font-semibold tracking-[0.2em] uppercase transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white py-4 font-primary text-xs font-semibold tracking-[0.2em] uppercase transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <Lock className="w-3.5 h-3.5" /> Proceed to Checkout
                   </button>
@@ -588,7 +588,7 @@ export default function CartPage() {
                     <div className="mb-6 flex items-center gap-2">
                       <Lock className="w-5 h-5 text-brand-gold shrink-0" />
                       <div>
-                        <span className="font-sans text-[9px] tracking-[0.25em] uppercase font-bold text-brand-gold block">Secure Order Portal</span>
+                        <span className="font-primary text-[9px] tracking-[0.25em] uppercase font-bold text-brand-gold block">Secure Order Portal</span>
                         <h3 className="font-secondary text-2xl text-brand-brown leading-tight">Complete Your Order</h3>
                       </div>
                     </div>
@@ -604,7 +604,7 @@ export default function CartPage() {
                           value={checkoutName}
                           onChange={(e) => setCheckoutName(e.target.value)}
                           placeholder="Your full name"
-                          className="w-full text-xs px-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-sans"
+                          className="w-full text-xs px-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-primary"
                         />
                       </div>
 
@@ -618,7 +618,7 @@ export default function CartPage() {
                             value={checkoutPhone}
                             onChange={(e) => setCheckoutPhone(e.target.value)}
                             placeholder="Mobile number"
-                            className="w-full text-xs px-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-sans"
+                            className="w-full text-xs px-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-primary"
                           />
                         </div>
 
@@ -630,7 +630,7 @@ export default function CartPage() {
                             value={checkoutEmail}
                             onChange={(e) => setCheckoutEmail(e.target.value)}
                             placeholder="your@email.com"
-                            className="w-full text-xs px-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-sans"
+                            className="w-full text-xs px-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-primary"
                           />
                         </div>
                       </div>
@@ -644,7 +644,7 @@ export default function CartPage() {
                           value={checkoutAddress}
                           onChange={(e) => setCheckoutAddress(e.target.value)}
                           placeholder="Complete shipping address..."
-                          className="w-full text-xs px-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-sans resize-none"
+                          className="w-full text-xs px-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-primary resize-none"
                         />
                       </div>
 
@@ -660,7 +660,7 @@ export default function CartPage() {
                             value={checkoutPincode}
                             onChange={(e) => setCheckoutPincode(e.target.value)}
                             placeholder="e.g. 587311"
-                            className="w-full text-xs px-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-sans"
+                            className="w-full text-xs px-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-primary"
                           />
                         </div>
 
@@ -669,7 +669,7 @@ export default function CartPage() {
                           <select
                             value={paymentMethod}
                             onChange={(e) => setPaymentMethod(e.target.value)}
-                            className="w-full text-xs px-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-white font-sans"
+                            className="w-full text-xs px-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-white font-primary"
                           >
                             <option value="cod">Cash on Delivery (COD)</option>
                             <option value="card">Net Banking / Card / UPI</option>
@@ -682,7 +682,7 @@ export default function CartPage() {
                         <button
                           type="submit"
                           disabled={isSubmittingOrder}
-                          className="w-full bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white py-4 font-sans text-xs font-semibold tracking-[0.2em] uppercase transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-75"
+                          className="w-full bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white py-4 font-primary text-xs font-semibold tracking-[0.2em] uppercase transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-75"
                         >
                           {isSubmittingOrder ? (
                             <>
@@ -710,7 +710,7 @@ export default function CartPage() {
                       <Check className="w-8 h-8 text-emerald-600" strokeWidth={3} />
                     </div>
 
-                    <span className="font-sans text-[9px] tracking-[0.25em] uppercase font-bold text-emerald-600">Order Confirmed</span>
+                    <span className="font-primary text-[9px] tracking-[0.25em] uppercase font-bold text-emerald-600">Order Confirmed</span>
                     <h3 className="font-secondary text-2xl text-brand-brown mt-1">Thank You For Your Purchase!</h3>
                     
                     <div className="my-6 bg-bg-cream/60 p-4 border border-gray-100 space-y-2 text-xs text-left max-w-sm mx-auto">
@@ -723,13 +723,13 @@ export default function CartPage() {
                       </div>
                     </div>
 
-                    <p className="font-sans text-xs text-gray-400 max-w-xs mx-auto leading-relaxed mb-6">
+                    <p className="font-primary text-xs text-gray-400 max-w-xs mx-auto leading-relaxed mb-6">
                       Your order has been recorded securely. An insured shipping confirmation containing packaging guidelines and invoice has been dispatched to {checkoutEmail}.
                     </p>
 
                     <button
                       onClick={closeCheckoutModal}
-                      className="px-8 py-3.5 bg-brand-brown text-white hover:bg-brand-gold hover:text-brand-brown transition-all duration-300 font-sans tracking-[0.18em] uppercase font-bold text-[10px] shadow-md cursor-pointer"
+                      className="px-8 py-3.5 bg-brand-brown text-white hover:bg-brand-gold hover:text-brand-brown transition-all duration-300 font-primary tracking-[0.18em] uppercase font-bold text-[10px] shadow-md cursor-pointer"
                     >
                       Continue Shopping
                     </button>

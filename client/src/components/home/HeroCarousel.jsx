@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
@@ -145,7 +145,7 @@ export default function HeroCarousel() {
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.25, duration: 0.6 }}
-                    className={`font-sans text-[10px] md:text-xs tracking-[0.25em] uppercase font-semibold ${slide.tagColor}`}
+                    className={`font-primary text-[10px] md:text-xs tracking-[0.25em] uppercase font-semibold ${slide.tagColor}`}
                   >
                     {slide.tag}
                   </motion.span>
@@ -166,7 +166,7 @@ export default function HeroCarousel() {
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.45, duration: 0.6 }}
-                    className={`font-sans text-xs sm:text-sm md:text-base leading-relaxed ${slide.subtitleColor}`}
+                    className={`font-primary text-xs sm:text-sm md:text-base leading-relaxed ${slide.subtitleColor}`}
                     style={{ whiteSpace: 'pre-line' }}
                   >
                     {slide.title}
@@ -190,7 +190,7 @@ export default function HeroCarousel() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.55, duration: 0.55 }}
                     href="#"
-                    className={`mt-1 md:mt-2 inline-block font-sans text-[10px] md:text-xs font-semibold tracking-[0.2em] uppercase pb-0.5 border-b
+                    className={`mt-1 md:mt-2 inline-block font-primary text-[10px] md:text-xs font-semibold tracking-[0.2em] uppercase pb-0.5 border-b
                     ${slide.textColor === 'text-white'
                         ? 'border-white/70 text-white hover:border-white'
                         : 'border-brand-gold text-brand-brown hover:text-brand-gold'}
@@ -236,7 +236,7 @@ export default function HeroCarousel() {
         </div>
 
         {/* T&C */}
-        <p className="text-center text-[9px] md:text-[10px] text-gray-400 font-sans tracking-wider pb-1">*T&amp;C apply</p>
+        <p className="text-center text-[9px] md:text-[10px] text-gray-400 font-primary tracking-wider pb-1">*T&amp;C apply</p>
       </div>
     </div>
   );

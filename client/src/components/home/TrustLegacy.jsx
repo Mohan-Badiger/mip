@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import React from 'react';
 import FadeInUp from '@/components/global/FadeInUp';
 
@@ -13,14 +13,14 @@ export default function TrustLegacy() {
             <h2 className="font-secondary text-3xl md:text-5xl text-brand-brown leading-tight mb-6">
               MIP Jewellers – <br className="hidden md:inline" />A Choice You Can Trust
             </h2>
-            <p className="font-sans text-brand-brown text-sm md:text-base leading-relaxed font-semibold max-w-md">
+            <p className="font-primary text-brand-brown text-sm md:text-base leading-relaxed font-semibold max-w-md">
               {"At MIP Jewellers, Trust is our Foundation. Choosing MIP is not merely selecting jewellery; it's making a conscious decision to entrust your moments and milestones to a brand with a rich legacy of trust and integrity."}
             </p>
           </FadeInUp>
         </div>
 
         {/* Right Column - Descriptive details */}
-        <div className="lg:col-span-7 font-sans text-gray-500 text-sm md:text-base leading-relaxed space-y-6">
+        <div className="lg:col-span-7 font-primary text-gray-500 text-sm md:text-base leading-relaxed space-y-6">
           <FadeInUp delay={0.1}>
             <p>
               We have existed since 1925. Need we say more? Would it have been possible without the unwavering trust of generations? Since our inception in 1925, MIP Jewellers has withstood the test of time. A lot has changed over the years, but one thing remains the same: our dedication to purity, quality, authenticity and excellence in every piece we craft. And, we stand behind all our creations.

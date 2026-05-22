@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -20,12 +20,12 @@ export default function ShopByGender() {
         <FadeInUp>
           <div className="flex items-end justify-between mb-6 md:mb-10">
             <div>
-              <p className="font-sans text-[10px] tracking-[0.3em] uppercase text-brand-gold mb-2">Browse By</p>
+              <p className="font-primary text-[10px] tracking-[0.3em] uppercase text-brand-gold mb-2">Browse By</p>
               <h2 className="font-secondary text-3xl md:text-4xl text-brand-brown">Shop By Gender</h2>
             </div>
             <Link
               href="/collections"
-              className="hidden md:inline-flex items-center gap-1.5 font-sans text-[11px] tracking-[0.15em] uppercase text-brand-brown hover:text-brand-gold transition-colors pb-px border-b border-brand-gold/50"
+              className="hidden md:inline-flex items-center gap-1.5 font-primary text-[11px] tracking-[0.15em] uppercase text-brand-brown hover:text-brand-gold transition-colors pb-px border-b border-brand-gold/50"
             >
               View All <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
@@ -54,7 +54,7 @@ export default function ShopByGender() {
                   <div className="absolute inset-0 bg-linear-to-t from-brand-brown/60 via-brand-brown/0 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-500" />
 
                   {/* Bottom-of-image "Shop" pill — visible on desktop hover */}
-                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 hidden md:flex items-center gap-1 bg-white/90 backdrop-blur-sm text-brand-brown font-sans text-[9px] tracking-[0.2em] uppercase px-3 py-1.5 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 hidden md:flex items-center gap-1 bg-white/90 backdrop-blur-sm text-brand-brown font-primary text-[9px] tracking-[0.2em] uppercase px-3 py-1.5 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
                     Shop {item.label} <ArrowUpRight className="w-3 h-3" />
                   </div>
 
@@ -68,7 +68,7 @@ export default function ShopByGender() {
                 <div className="hidden md:flex justify-between items-center px-1">
                   <div>
                     <p className="font-secondary text-xl text-brand-brown group-hover:text-brand-gold transition-colors">{item.label}</p>
-                    <p className="font-sans text-[10px] text-gray-400 tracking-widest uppercase mt-0.5">{item.sub}</p>
+                    <p className="font-primary text-[10px] text-gray-400 tracking-widest uppercase mt-0.5">{item.sub}</p>
                   </div>
                   <ArrowUpRight className="w-4 h-4 text-gray-300 group-hover:text-brand-gold group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300" />
                 </div>
@@ -82,7 +82,7 @@ export default function ShopByGender() {
         <div className="mt-6 text-center md:hidden">
           <Link
             href="/collections"
-            className="inline-flex items-center gap-1.5 font-sans text-xs tracking-[0.15em] uppercase text-brand-brown hover:text-brand-gold transition-colors border-b border-brand-gold pb-px"
+            className="inline-flex items-center gap-1.5 font-primary text-xs tracking-[0.15em] uppercase text-brand-brown hover:text-brand-gold transition-colors border-b border-brand-gold pb-px"
           >
             View All Collections <ArrowUpRight className="w-3.5 h-3.5" />
           </Link>
