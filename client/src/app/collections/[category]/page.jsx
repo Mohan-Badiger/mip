@@ -21,52 +21,61 @@ function FilterPanel({ selectedMetals, setSelectedMetals, selectedStones, setSel
   return (
     <div className="space-y-8">
       <div>
-        <h3 className="font-sans text-[10px] tracking-[0.2em] uppercase text-brand-brown font-semibold mb-4">Metal</h3>
+        <h3 className="font-primary text-[10px] tracking-[0.2em] uppercase text-brand-brown font-semibold mb-4">Metal</h3>
         <ul className="space-y-2.5">
           {METALS.map((m) => (
             <li key={m}>
               <label className="flex items-center gap-2.5 cursor-pointer group">
                 <input type="checkbox" checked={selectedMetals.includes(m)} onChange={() => toggle(selectedMetals, setSelectedMetals, m)} className="accent-brand-gold w-3.5 h-3.5" />
-                <span className="font-sans text-sm text-gray-600 group-hover:text-brand-brown transition-colors">{m}</span>
+                <span className="font-primary text-sm text-gray-600 group-hover:text-brand-brown transition-colors">{m}</span>
               </label>
             </li>
           ))}
         </ul>
       </div>
       <div>
-        <h3 className="font-sans text-[10px] tracking-[0.2em] uppercase text-brand-brown font-semibold mb-4">Price</h3>
+        <h3 className="font-primary text-[10px] tracking-[0.2em] uppercase text-brand-brown font-semibold mb-4">Price</h3>
         <ul className="space-y-2.5">
           {PRICE_RANGES.map((r) => (
             <li key={r.label}>
               <label className="flex items-center gap-2.5 cursor-pointer group">
                 <input type="radio" name="price" checked={selectedPrice?.label === r.label} onChange={() => setSelectedPrice(selectedPrice?.label === r.label ? null : r)} className="accent-brand-gold w-3.5 h-3.5" />
-                <span className="font-sans text-sm text-gray-600 group-hover:text-brand-brown transition-colors">{r.label}</span>
+                <span className="font-primary text-sm text-gray-600 group-hover:text-brand-brown transition-colors">{r.label}</span>
               </label>
             </li>
           ))}
         </ul>
       </div>
       <div>
-        <h3 className="font-sans text-[10px] tracking-[0.2em] uppercase text-brand-brown font-semibold mb-4">Stone</h3>
+        <h3 className="font-primary text-[10px] tracking-[0.2em] uppercase text-brand-brown font-semibold mb-4">Stone</h3>
         <ul className="space-y-2.5">
           {STONES.map((s) => (
             <li key={s}>
               <label className="flex items-center gap-2.5 cursor-pointer group">
                 <input type="checkbox" checked={selectedStones.includes(s)} onChange={() => toggle(selectedStones, setSelectedStones, s)} className="accent-brand-gold w-3.5 h-3.5" />
-                <span className="font-sans text-sm text-gray-600 group-hover:text-brand-brown transition-colors">{s}</span>
+                <span className="font-primary text-sm text-gray-600 group-hover:text-brand-brown transition-colors">{s}</span>
               </label>
             </li>
           ))}
         </ul>
       </div>
       {(selectedMetals.length > 0 || selectedStones.length > 0 || selectedPrice) && (
-        <button onClick={() => { setSelectedMetals([]); setSelectedStones([]); setSelectedPrice(null); }} className="font-sans text-xs text-brand-gold underline underline-offset-2 tracking-wide hover:text-brand-brown transition-colors">
+        <button onClick={() => { setSelectedMetals([]); setSelectedStones([]); setSelectedPrice(null); }} className="font-primary text-xs text-brand-gold underline underline-offset-2 tracking-wide hover:text-brand-brown transition-colors">
           Clear all filters
         </button>
       )}
     </div>
   );
 }
+
+const HERO_IMAGES = {
+  earrings: '/images/hero_slide_1.png',
+  bangles: '/images/category_bangles_1779203423031.png',
+  chains: '/images/luxury_gold_hero_1779199654262.png',
+  rings: '/images/modern_diamonds_1779199687171.png',
+  'coins-bars': '/images/hero_slide_3.png',
+  necklaces: '/images/hero_slide_4.png',
+};
 
 export default function CategoryPage({ params }) {
   const { category } = React.use(params);
@@ -119,23 +128,48 @@ export default function CategoryPage({ params }) {
 
   if (!cat) return <PageLayout><div className="flex items-center justify-center min-h-[50vh]"><p className="font-secondary text-2xl text-brand-brown">Category not found</p></div></PageLayout>;
 
+  const heroImage = HERO_IMAGES[category] || cat.image || '/images/exquisite_model_1779203407757.png';
+
   return (
     <PageLayout>
-      <div className="bg-bg-cream border-b border-gray-100 py-10 md:py-14 text-center">
-        <p className="font-sans text-[10px] tracking-[0.3em] uppercase text-brand-gold mb-2">MIP Jewellers</p>
-        <h1 className="font-secondary text-4xl md:text-5xl text-brand-brown tracking-wide">{cat.label}</h1>
-        <p className="font-sans text-gray-500 text-sm mt-2">{cat.description}</p>
-      </div>
-
+      {/* Breadcrumb Navigation - Moved Above Hero */}
       <nav className="max-w-[1920px] mx-auto px-4 md:px-16 py-4">
-        <ol className="flex items-center gap-2 text-[11px] font-sans text-gray-400 tracking-wide">
+        <ol className="flex items-center gap-2 text-[11px] font-primary text-gray-400 tracking-wide">
           <li><Link href="/" className="hover:text-brand-gold transition-colors">Home</Link></li>
           <li className="text-gray-300">/</li>
           <li><Link href="/collections" className="hover:text-brand-gold transition-colors">Collections</Link></li>
           <li className="text-gray-300">/</li>
-          <li className="text-brand-brown">{cat.label}</li>
+          <li className="text-brand-brown font-medium">{cat.label}</li>
         </ol>
       </nav>
+
+      {/* Hero Banner */}
+      <div className="relative bg-[#0F0E0C] overflow-hidden h-[180px] sm:h-[220px] md:h-[260px] lg:h-[300px] flex items-center border-b border-gray-900 mb-8">
+        {/* Right side background image */}
+        <div className="absolute right-0 top-0 bottom-0 w-full md:w-[60%] lg:w-[50%] h-full">
+          <Image
+            src={heroImage}
+            alt={cat.label}
+            fill
+            priority
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-cover object-center transition-transform duration-[2s] ease-out hover:scale-105"
+          />
+          {/* Gradient fade to seamlessly blend with the left dark background */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0F0E0C] via-[#0F0E0C]/80 to-transparent" />
+        </div>
+
+        {/* Left side text content */}
+        <div className="relative z-10 max-w-[1920px] mx-auto px-4 md:px-16 w-full flex flex-col items-start text-left">
+          <p className="font-primary text-[10px] tracking-[0.3em] uppercase text-brand-gold mb-1.5 md:mb-2">MIP Jewellers</p>
+          <h1 className="font-secondary text-3xl md:text-4xl lg:text-5xl text-white tracking-wide leading-tight">
+            {cat.label}
+          </h1>
+          <p className="font-primary text-gray-300 text-xs md:text-sm mt-1.5 md:mt-2.5 max-w-[240px] sm:max-w-sm md:max-w-md lg:max-w-lg leading-relaxed">
+            {cat.description}
+          </p>
+        </div>
+      </div>
 
       <div className="max-w-[1920px] mx-auto px-4 md:px-16 pb-20">
         <div className="flex gap-12">
@@ -144,12 +178,12 @@ export default function CategoryPage({ params }) {
           </aside>
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
-              <p className="font-sans text-xs text-gray-400 tracking-wide">{filtered.length} items</p>
+              <p className="font-primary text-xs text-gray-400 tracking-wide">{filtered.length} items</p>
               <div className="flex items-center gap-4">
-                <button onClick={() => setFilterOpen(true)} className="md:hidden flex items-center gap-1.5 font-sans text-xs text-brand-brown tracking-wider">
+                <button onClick={() => setFilterOpen(true)} className="md:hidden flex items-center gap-1.5 font-primary text-xs text-brand-brown tracking-wider">
                   <SlidersHorizontal className="w-4 h-4" /> Filters
                 </button>
-                <select value={sort} onChange={(e) => setSort(e.target.value)} className="font-sans text-xs text-brand-brown bg-transparent border-b border-brand-gold/40 pb-0.5 focus:outline-none cursor-pointer">
+                <select value={sort} onChange={(e) => setSort(e.target.value)} className="font-primary text-xs text-brand-brown bg-transparent border-b border-brand-gold/40 pb-0.5 focus:outline-none cursor-pointer">
                   {SORT_OPTIONS.map((o) => <option key={o}>{o}</option>)}
                 </select>
               </div>
@@ -177,7 +211,7 @@ export default function CategoryPage({ params }) {
                     <Link href={`/products/${product.slug}`}>
                       <div className="relative aspect-square w-full overflow-hidden bg-gray-50 mb-3">
                         <Image src={product.image} alt={product.name} fill sizes="(max-width: 768px) 50vw, 33vw" className="object-cover transition-transform duration-[1.4s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-105" />
-                        {product.tag && <span className="absolute top-2 left-2 font-sans text-[9px] tracking-widest uppercase bg-brand-brown text-white px-2 py-0.5">{product.tag}</span>}
+                        {product.tag && <span className="absolute top-2 left-2 font-primary text-[9px] tracking-widest uppercase bg-brand-brown text-white px-2 py-0.5">{product.tag}</span>}
                         <button onClick={(e) => { e.preventDefault(); toggleWishlist(product); }} className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center bg-white/80 opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Wishlist">
                           <Heart className={`w-4 h-4 ${authMounted && isWishlisted(product.id) ? 'fill-brand-brown text-brand-brown' : 'text-brand-brown'}`} />
                         </button>
@@ -185,8 +219,8 @@ export default function CategoryPage({ params }) {
                       <h3 className="font-secondary text-base md:text-lg text-brand-brown mb-1 flex items-center gap-1 group-hover:text-brand-gold transition-colors">
                         {product.name} <ArrowUpRight className="w-3.5 h-3.5 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity" />
                       </h3>
-                      <p className="font-sans text-[10px] text-gray-400 tracking-wider uppercase mb-1">{product.metal} · {product.weight}</p>
-                      <p className="font-sans text-sm text-brand-brown font-medium">{formatPrice(product.price)}</p>
+                      <p className="font-primary text-[10px] text-gray-400 tracking-wider uppercase mb-1">{product.metal} · {product.weight}</p>
+                      <p className="font-primary text-sm text-brand-brown font-medium">{formatPrice(product.price)}</p>
                     </Link>
                   </div>
                 ))}
@@ -208,7 +242,7 @@ export default function CategoryPage({ params }) {
               <FilterPanel {...{ selectedMetals, setSelectedMetals, selectedStones, setSelectedStones, selectedPrice, setSelectedPrice, toggle }} />
             </div>
             <div className="px-6 py-4 border-t border-gray-100">
-              <button onClick={() => setFilterOpen(false)} className="w-full bg-brand-brown text-white font-sans text-xs font-semibold tracking-widest uppercase py-3">
+              <button onClick={() => setFilterOpen(false)} className="w-full bg-brand-brown text-white font-primary text-xs font-semibold tracking-widest uppercase py-3">
                 Show {filtered.length} Results
               </button>
             </div>
