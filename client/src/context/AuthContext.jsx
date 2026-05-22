@@ -12,48 +12,6 @@ const AuthContext = createContext(undefined);
 //   pincode: '587311'
 // };
 
-const DEFAULT_ORDERS = [
-  {
-    id: 'MIP-ORD-581924',
-    date: '2026-05-10',
-    items: [
-      {
-        id: 'e1',
-        name: 'Lotus Diamond Drops',
-        price: 28500,
-        quantity: 1,
-        weight: '3.2g',
-        metal: '18KT Gold',
-        image: '/images/product_earrings_1.png'
-      }
-    ],
-    subtotal: 28500,
-    discount: 2850,
-    total: 25650,
-    status: 'Delivered',
-    paymentMethod: 'card'
-  },
-  {
-    id: 'MIP-ORD-472091',
-    date: '2026-04-18',
-    items: [
-      {
-        id: 'r3',
-        name: 'Plain Band Ring',
-        price: 14200,
-        quantity: 2,
-        weight: '3.8g',
-        metal: '22KT Gold',
-        image: '/images/modern_diamonds_1779199687171.png'
-      }
-    ],
-    subtotal: 28400,
-    discount: 0,
-    total: 28400,
-    status: 'Delivered',
-    paymentMethod: 'cod'
-  }
-];
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -80,7 +38,7 @@ export function AuthProvider({ children }) {
       
       const storedOrders = localStorage.getItem('mip_user_orders');
       const storedWishlist = localStorage.getItem('mip_user_wishlist');
-      setOrders(storedOrders ? JSON.parse(storedOrders) : DEFAULT_ORDERS);
+      setOrders(storedOrders ? JSON.parse(storedOrders) : []);
       setWishlist(storedWishlist ? JSON.parse(storedWishlist) : []);
       setIsMounted(true);
     }
@@ -141,8 +99,37 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const updateProfile = (updatedDetails) => {
-    setUser((prev) => (prev ? { ...prev, ...updatedDetails } : null));
+  const updateProfile = async (updatedDetails) => {
+    try {
+      // Parse address string into structured fields for the API
+      let primaryAddress = null;
+      if (updatedDetails.address && updatedDetails.pincode) {
+        const addressParts = updatedDetails.address.split(',');
+        const state = addressParts[addressParts.length - 1]?.trim() || '';
+        const city = addressParts[addressParts.length - 2]?.trim() || '';
+        const street = addressParts.slice(0, addressParts.length - 2).join(',').trim() || updatedDetails.address;
+        primaryAddress = { street, city, state, pincode: updatedDetails.pincode };
+      }
+
+      const res = await fetch('/api/v1/auth/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: updatedDetails.name,
+          phone: updatedDetails.phone,
+          primaryAddress
+        })
+      });
+      const data = await res.json();
+      if (data.success && data.user) {
+        setUser(data.user);
+        return { success: true };
+      } else {
+        return { success: false, error: data.error || 'Profile update failed' };
+      }
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
   };
 
   const addOrder = (newOrder) => {

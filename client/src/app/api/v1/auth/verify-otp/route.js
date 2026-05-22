@@ -1,10 +1,34 @@
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import dbConnect from '@/backend/config/dbConnect';
 import User from '@/backend/models/User';
 import Otp from '@/backend/models/Otp';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_jwt_secret_token_key';
+
+// In-memory rate limiter: max 5 OTP verification attempts per email per hour
+const rateLimitMap = new Map();
+const MAX_ATTEMPTS = 5;
+const WINDOW_MS = 60 * 60 * 1000; // 1 hour
+
+function checkRateLimit(email) {
+  const now = Date.now();
+  const entry = rateLimitMap.get(email);
+  if (!entry || now - entry.windowStart > WINDOW_MS) {
+    rateLimitMap.set(email, { count: 1, windowStart: now });
+    return true;
+  }
+  if (entry.count >= MAX_ATTEMPTS) {
+    return false;
+  }
+  entry.count += 1;
+  return true;
+}
+
+function resetRateLimit(email) {
+  rateLimitMap.delete(email);
+}
 
 export async function POST(req) {
   try {
@@ -18,6 +42,14 @@ export async function POST(req) {
     const normalizedEmail = email.trim().toLowerCase();
     const otpTrimmed = otp.trim();
 
+    // Rate limiting: max 5 failed attempts per email per hour
+    if (!checkRateLimit(normalizedEmail)) {
+      return NextResponse.json(
+        { error: 'Too many verification attempts. Please request a new passcode after 1 hour.' },
+        { status: 429 }
+      );
+    }
+
     // Find the OTP document in the database that is not expired
     const otpRecord = await Otp.findOne({
       email: normalizedEmail,
@@ -29,6 +61,9 @@ export async function POST(req) {
     if (!otpRecord) {
       return NextResponse.json({ error: 'Invalid or expired verification passcode' }, { status: 400 });
     }
+
+    // Reset rate limit on successful match
+    resetRateLimit(normalizedEmail);
 
     let user = null;
 

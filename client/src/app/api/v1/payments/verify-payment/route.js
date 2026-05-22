@@ -24,7 +24,9 @@ export async function POST(req) {
     const key_secret = process.env.RAZORPAY_KEY_SECRET;
     let isVerified = false;
 
-    if (key_secret && !razorpayOrderId.startsWith('order_mock_')) {
+    if (key_secret) {
+      // Production / test mode: ALWAYS verify the cryptographic signature.
+      // Mock-prefix orders are only allowed when no key_secret is configured.
       if (!razorpaySignature) {
         return NextResponse.json({ error: 'Missing Razorpay signature' }, { status: 400 });
       }
@@ -34,9 +36,12 @@ export async function POST(req) {
         .digest('hex');
 
       isVerified = generatedSignature === razorpaySignature;
-    } else {
-      // Automatic success for mock orders in local development
+    } else if (razorpayOrderId.startsWith('order_mock_')) {
+      // Development-only: allow mock orders when no Razorpay credentials are configured
       isVerified = true;
+    } else {
+      // No key configured and not a mock order — reject
+      return NextResponse.json({ error: 'Payment gateway not configured' }, { status: 503 });
     }
 
     if (!isVerified) {

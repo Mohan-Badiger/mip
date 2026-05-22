@@ -27,6 +27,7 @@ const ProductSchema = new mongoose.Schema({
   gemstones: [GemstoneSchema],
   
   stock: { type: Number, required: true, default: 1 },
+  tag: { type: String, trim: true }, // e.g. 'New Arrival', 'Bestseller', 'Limited Edition'
   isActive: { type: Boolean, default: true, index: true }
 }, { timestamps: true });
 

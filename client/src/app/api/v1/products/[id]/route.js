@@ -8,7 +8,7 @@ import { authenticate } from '@/backend/middlewares/authMiddleware';
 export async function GET(req, { params }) {
   try {
     await dbConnect();
-    const { id } = params;
+    const { id } = await params;
 
     let product = null;
     
@@ -52,7 +52,7 @@ export async function PUT(req, { params }) {
       return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
-    const { id } = params;
+    const { id } = await params;
     const body = await req.json();
 
     let product = null;
@@ -91,7 +91,7 @@ export async function DELETE(req, { params }) {
       return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     let product = null;
     if (id.match(/^[0-9a-fA-F]{24}$/)) {

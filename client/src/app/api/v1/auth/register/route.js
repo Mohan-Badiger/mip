@@ -33,13 +33,7 @@ export async function POST(req) {
       email: email.toLowerCase(),
       phone,
       password: hashedPassword,
-      addresses: pincode ? [{
-        street: 'Shipping Address Detail',
-        city: 'City',
-        state: 'State',
-        pincode: pincode,
-        isDefault: true
-      }] : []
+      addresses: []
     });
 
     await user.save();

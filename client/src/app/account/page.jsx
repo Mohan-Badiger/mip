@@ -55,11 +55,12 @@ function AccountDashboardContent() {
   // Set local state when editing is opened or user changes
   useEffect(() => {
     if (user) {
+      const defaultAddr = user.addresses?.find(a => a.isDefault) || user.addresses?.[0];
       setTimeout(() => {
         setEditName(user.name || '');
         setEditPhone(user.phone || '');
-        setEditAddress(user.address || '');
-        setEditPincode(user.pincode || '');
+        setEditAddress(defaultAddr ? `${defaultAddr.street}, ${defaultAddr.city}, ${defaultAddr.state}` : '');
+        setEditPincode(defaultAddr?.pincode || '');
       }, 0);
     }
   }, [user, isEditingProfile]);
@@ -69,17 +70,21 @@ function AccountDashboardContent() {
     router.replace(`/account?tab=${tabName}`, { scroll: false });
   };
 
-  const handleProfileSubmit = (e) => {
+  const handleProfileSubmit = async (e) => {
     e.preventDefault();
-    updateProfile({
+    const result = await updateProfile({
       name: editName,
       phone: editPhone,
       address: editAddress,
       pincode: editPincode
     });
     setIsEditingProfile(false);
-    setProfileSuccessMsg('Profile details updated successfully.');
-    setTimeout(() => setProfileSuccessMsg(''), 3000);
+    if (!result || result.success) {
+      setProfileSuccessMsg('Profile details updated successfully.');
+    } else {
+      setProfileSuccessMsg(`Update failed: ${result.error}`);
+    }
+    setTimeout(() => setProfileSuccessMsg(''), 4000);
   };
 
   const handleQuickAdd = (product) => {
@@ -252,11 +257,19 @@ function AccountDashboardContent() {
                       <div className="space-y-4">
                         <div>
                           <span className="text-[9px] tracking-widest text-gray-400 uppercase font-bold block mb-1">Primary Shipping Address</span>
-                          <p className="font-sans text-sm text-gray-700 leading-relaxed">{user.address || 'Not provided'}</p>
+                          <p className="font-sans text-sm text-gray-700 leading-relaxed">
+                            {(() => {
+                              const addr = user.addresses?.find(a => a.isDefault) || user.addresses?.[0];
+                              if (!addr) return 'Not provided';
+                              return `${addr.street}, ${addr.city}, ${addr.state}`;
+                            })()}
+                          </p>
                         </div>
                         <div>
                           <span className="text-[9px] tracking-widest text-gray-400 uppercase font-bold block mb-1">Pincode</span>
-                          <p className="font-sans text-sm text-gray-700">{user.pincode || 'Not provided'}</p>
+                          <p className="font-sans text-sm text-gray-700">
+                            {(user.addresses?.find(a => a.isDefault) || user.addresses?.[0])?.pincode || 'Not provided'}
+                          </p>
                         </div>
                         <div className="pt-2">
                           <span className="bg-bg-cream text-brand-gold text-[9px] tracking-widest uppercase font-bold px-2.5 py-1 inline-block">

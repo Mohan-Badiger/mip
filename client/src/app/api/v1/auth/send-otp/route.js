@@ -5,6 +5,23 @@ import User from '@/backend/models/User';
 import Otp from '@/backend/models/Otp';
 import { sendOtpEmail } from '@/backend/services/emailService';
 
+// Rate limiter: max 3 OTP sends per email per 15 minutes
+const sendRateLimitMap = new Map();
+const MAX_SENDS = 3;
+const SEND_WINDOW_MS = 15 * 60 * 1000;
+
+function checkSendRateLimit(email) {
+  const now = Date.now();
+  const entry = sendRateLimitMap.get(email);
+  if (!entry || now - entry.windowStart > SEND_WINDOW_MS) {
+    sendRateLimitMap.set(email, { count: 1, windowStart: now });
+    return true;
+  }
+  if (entry.count >= MAX_SENDS) return false;
+  entry.count += 1;
+  return true;
+}
+
 export async function POST(req) {
   try {
     await dbConnect();
@@ -15,6 +32,14 @@ export async function POST(req) {
     }
 
     const normalizedEmail = email.trim().toLowerCase();
+
+    // Rate limiting: max 3 OTP sends per email per 15 minutes
+    if (!checkSendRateLimit(normalizedEmail)) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please wait 15 minutes before requesting another passcode.' },
+        { status: 429 }
+      );
+    }
 
     // Verify context based on type
     if (type === 'register') {

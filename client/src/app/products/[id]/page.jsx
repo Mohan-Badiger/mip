@@ -106,7 +106,7 @@ export default function ProductPage({ params }) {
         <div className="flex items-center justify-center min-h-[50vh]">
           <div className="text-center">
             <p className="font-secondary text-3xl text-brand-brown mb-4">Product not found</p>
-            <Link href="/collections" className="font-sans text-sm text-brand-gold underline">Browse Collections</Link>
+            <Link href="/collections" className="font-primary text-sm text-brand-gold underline">Browse Collections</Link>
           </div>
         </div>
       </PageLayout>
@@ -123,7 +123,7 @@ export default function ProductPage({ params }) {
     <PageLayout>
       {/* Breadcrumb */}
       <nav className="max-w-[1920px] mx-auto px-4 md:px-16 py-4 border-b border-gray-100">
-        <ol className="flex items-center gap-2 text-[11px] font-sans text-gray-400 tracking-wide">
+        <ol className="flex items-center gap-2 text-[11px] font-primary text-gray-400 tracking-wide">
           <li><Link href="/" className="hover:text-brand-gold transition-colors">Home</Link></li>
           <li className="text-gray-300">/</li>
           <li><Link href="/collections" className="hover:text-brand-gold transition-colors">Collections</Link></li>
@@ -143,7 +143,7 @@ export default function ProductPage({ params }) {
             <div className="relative aspect-square w-full bg-gray-50 overflow-hidden">
               <Image src={product.image} alt={product.name} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" priority />
               {product.tag && (
-                <span className="absolute top-4 left-4 font-sans text-[9px] tracking-widest uppercase bg-brand-brown text-white px-2.5 py-1">
+                <span className="absolute top-4 left-4 font-primary text-[9px] tracking-widest uppercase bg-brand-brown text-white px-2.5 py-1">
                   {product.tag}
                 </span>
               )}
@@ -160,13 +160,13 @@ export default function ProductPage({ params }) {
 
           {/* Right: Product Info */}
           <div className="flex flex-col">
-            <p className="font-sans text-[10px] tracking-[0.25em] uppercase text-brand-gold mb-2">{cat?.label}</p>
+            <p className="font-primary text-[10px] tracking-[0.25em] uppercase text-brand-gold mb-2">{cat?.label}</p>
             <h1 className="font-secondary text-2xl md:text-3xl lg:text-4xl text-brand-brown leading-tight mb-2">{product.name}</h1>
 
             {/* Price */}
             <div className="flex items-end gap-3 mb-4">
               <p className="font-secondary text-2xl md:text-3xl text-brand-brown">{formatPrice(product.price)}</p>
-              <p className="font-sans text-xs text-gray-400 pb-1 tracking-wide">incl. of all taxes</p>
+              <p className="font-primary text-xs text-gray-400 pb-1 tracking-wide">incl. of all taxes</p>
             </div>
 
             {/* Key details */}
@@ -177,8 +177,8 @@ export default function ProductPage({ params }) {
                 { label: 'Stone', value: product.stone || '—' },
               ].map(({ label, value }) => (
                 <div key={label} className="text-center border-r border-gray-100 last:border-r-0">
-                  <p className="font-sans text-[9px] tracking-[0.2em] uppercase text-gray-400 mb-1">{label}</p>
-                  <p className="font-secondary text-sm text-brand-brown">{value}</p>
+                  <p className="font-primary text-[9px] tracking-[0.2em] uppercase text-gray-400 mb-1">{label}</p>
+                  <p className="font-primary text-sm text-brand-brown">{value}</p>
                 </div>
               ))}
             </div>
@@ -188,11 +188,10 @@ export default function ProductPage({ params }) {
               <button
                 onClick={handleAddToCart}
                 disabled={added}
-                className={`flex-1 transition-all duration-300 font-sans text-xs font-semibold tracking-[0.2em] uppercase py-4 flex items-center justify-center gap-2 cursor-pointer ${
-                  added 
-                    ? 'bg-emerald-600 text-white' 
-                    : 'bg-brand-brown hover:bg-brand-gold text-white'
-                }`}
+                className={`flex-1 transition-all duration-300 font-primary text-xs font-semibold tracking-[0.2em] uppercase py-4 flex items-center justify-center gap-2 cursor-pointer ${added
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-brand-brown hover:bg-brand-gold text-white'
+                  }`}
               >
                 {added ? (
                   <>
@@ -222,7 +221,7 @@ export default function ProductPage({ params }) {
               ].map(({ icon: Icon, label }) => (
                 <div key={label} className="flex flex-col items-center gap-1.5 p-3 bg-bg-cream text-center">
                   <Icon className="w-4 h-4 text-brand-gold" strokeWidth={1.5} />
-                  <span className="font-sans text-[9px] tracking-wide text-gray-500 uppercase">{label}</span>
+                  <span className="font-primary text-[9px] tracking-wide text-gray-500 uppercase">{label}</span>
                 </div>
               ))}
             </div>
@@ -234,15 +233,15 @@ export default function ProductPage({ params }) {
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`font-sans text-[10px] tracking-[0.15em] uppercase py-3 border-b-2 transition-colors ${activeTab === tab ? 'border-brand-gold text-brand-brown' : 'border-transparent text-gray-400 hover:text-brand-brown'}`}
+                    className={`font-primary text-[10px] tracking-[0.15em] uppercase py-3 border-b-2 transition-colors ${activeTab === tab ? 'border-brand-gold text-brand-brown' : 'border-transparent text-gray-400 hover:text-brand-brown'}`}
                   >
                     {tab}
                   </button>
                 ))}
               </div>
-              <div className="py-5 font-sans text-sm text-gray-500 leading-relaxed">
+              <div className="py-5 font-primary text-sm text-gray-500 leading-relaxed">
                 {activeTab === 'details' && (
-                  <p>This exquisitely crafted {product.name} from MIP Jewellers exemplifies our commitment to quality. Handcrafted by master artisans, it blends timeless tradition with contemporary elegance. Perfect for daily wear or special occasions.</p>
+                  <p>This exquisitely crafted {product.name} from MIP Jewellers exemplifies our commitment to quality. Handcrafted by master artiprimary, it blends timeless tradition with contemporary elegance. Perfect for daily wear or special occasions.</p>
                 )}
                 {activeTab === 'specifications' && (
                   <ul className="space-y-2">
@@ -264,17 +263,17 @@ export default function ProductPage({ params }) {
 
             {/* FAQs */}
             <div className="border-t border-gray-100 pt-5">
-              <h3 className="font-sans text-[10px] tracking-[0.2em] uppercase text-brand-brown font-semibold mb-4">FAQs</h3>
+              <h3 className="font-primary text-[10px] tracking-[0.2em] uppercase text-brand-brown font-semibold mb-4">FAQs</h3>
               {faqs.map((faq, i) => (
                 <div key={i} className="border-b border-gray-100">
                   <button
                     onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                    className="w-full flex justify-between items-center py-3 font-sans text-sm text-brand-brown text-left"
+                    className="w-full flex justify-between items-center py-3 font-primary text-sm text-brand-brown text-left"
                   >
                     {faq.q}
                     {openFaq === i ? <ChevronUp className="w-4 h-4 text-brand-gold shrink-0" /> : <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />}
                   </button>
-                  {openFaq === i && <p className="pb-3 font-sans text-sm text-gray-500 leading-relaxed">{faq.a}</p>}
+                  {openFaq === i && <p className="pb-3 font-primary text-sm text-gray-500 leading-relaxed">{faq.a}</p>}
                 </div>
               ))}
             </div>
@@ -296,7 +295,7 @@ export default function ProductPage({ params }) {
                   <h3 className="font-secondary text-base text-brand-brown group-hover:text-brand-gold transition-colors flex items-center gap-1">
                     {p.name} <ArrowUpRight className="w-3 h-3 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </h3>
-                  <p className="font-sans text-xs text-gray-400 mt-0.5">{formatPrice(p.price)}</p>
+                  <p className="font-primary text-xs text-gray-400 mt-0.5">{formatPrice(p.price)}</p>
                 </Link>
               ))}
             </div>

@@ -193,18 +193,6 @@ export async function sendOtpEmail(email, otp, type) {
 </html>
   `;
 
-  // Write to public folder for mock viewing/testing locally
-  try {
-    const mockEmailDir = path.join(process.cwd(), 'public', 'mock-emails');
-    if (!fs.existsSync(mockEmailDir)) {
-      fs.mkdirSync(mockEmailDir, { recursive: true });
-    }
-    fs.writeFileSync(path.join(mockEmailDir, 'last-otp-email.html'), html);
-    console.log(`[MOCK EMAIL] OTP email output saved to public/mock-emails/last-otp-email.html`);
-  } catch (err) {
-    console.warn('[MOCK EMAIL] Failed to write mock email html file:', err.message);
-  }
-
   // Attempt sending via SMTP if settings are provided
   if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
     try {
@@ -227,8 +215,25 @@ export async function sendOtpEmail(email, otp, type) {
       console.log(`[SMTP] Successfully sent OTP email to: ${email}`);
     } catch (err) {
       console.error(`[SMTP] Failed to send OTP email: ${err.message}`);
+      // Fallback: write mock file so dev can retrieve OTP
+      try {
+        const mockEmailDir = path.join(process.cwd(), 'public', 'mock-emails');
+        if (!fs.existsSync(mockEmailDir)) fs.mkdirSync(mockEmailDir, { recursive: true });
+        fs.writeFileSync(path.join(mockEmailDir, 'last-otp-email.html'), html);
+      } catch {}
     }
   } else {
+    // No SMTP configured: write mock file for local development testing
+    try {
+      const mockEmailDir = path.join(process.cwd(), 'public', 'mock-emails');
+      if (!fs.existsSync(mockEmailDir)) {
+        fs.mkdirSync(mockEmailDir, { recursive: true });
+      }
+      fs.writeFileSync(path.join(mockEmailDir, 'last-otp-email.html'), html);
+      console.log(`[MOCK EMAIL] OTP email output saved to public/mock-emails/last-otp-email.html`);
+    } catch (err) {
+      console.warn('[MOCK EMAIL] Failed to write mock email html file:', err.message);
+    }
     console.log(`[MOCK EMAIL] SMTP credentials not set. Code: ${otp}. View at: http://localhost:3000/mock-emails/last-otp-email.html`);
   }
 }

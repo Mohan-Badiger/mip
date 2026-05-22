@@ -90,12 +90,13 @@ export default function CartPage() {
   // Auto-fill checkout fields if user is logged in
   React.useEffect(() => {
     if (isCheckoutOpen && isLoggedIn && user) {
+      const defaultAddr = user.addresses?.find(a => a.isDefault) || user.addresses?.[0];
       setTimeout(() => {
         setCheckoutName(user.name || '');
         setCheckoutPhone(user.phone || '');
         setCheckoutEmail(user.email || '');
-        setCheckoutAddress(user.address || '');
-        setCheckoutPincode(user.pincode || '');
+        setCheckoutAddress(defaultAddr ? `${defaultAddr.street}, ${defaultAddr.city}, ${defaultAddr.state}` : '');
+        setCheckoutPincode(defaultAddr?.pincode || '');
       }, 0);
     }
   }, [isCheckoutOpen, isLoggedIn, user]);
