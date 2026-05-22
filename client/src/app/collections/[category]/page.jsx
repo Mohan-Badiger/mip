@@ -1,8 +1,9 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Heart, SlidersHorizontal, X, ArrowUpRight } from 'lucide-react';
+import { Heart, SlidersHorizontal, X, ArrowUpRight, ChevronDown } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import PageLayout from '@/components/global/PageLayout';
 import { getCategoryBySlug, formatPrice } from '@/lib/products';
 import { useAuth } from '@/context/AuthContext';
@@ -15,7 +16,7 @@ const PRICE_RANGES = [
   { label: '₹50,000–₹1,00,000', min: 50000, max: 100000 },
   { label: 'Above ₹1,00,000', min: 100000, max: Infinity },
 ];
-const SORT_OPTIONS = ['Featured', 'Price: Low to High', 'Price: High to Low', 'Newest'];
+const SORT_OPTIONS = ['Featured', 'Low to High', 'High to Low', 'Newest'];
 
 function FilterPanel({ selectedMetals, setSelectedMetals, selectedStones, setSelectedStones, selectedPrice, setSelectedPrice, toggle }) {
   return (
@@ -88,7 +89,20 @@ export default function CategoryPage({ params }) {
   const [selectedPrice, setSelectedPrice] = useState(null);
   const [sort, setSort] = useState('Featured');
   const [filterOpen, setFilterOpen] = useState(false);
+  const [sortOpen, setSortOpen] = useState(false);
+  const sortDropdownRef = useRef(null);
   const { toggleWishlist, isWishlisted, isMounted: authMounted } = useAuth();
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (sortDropdownRef.current && !sortDropdownRef.current.contains(event.target)) {
+        setSortOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const toggle = (arr, setArr, val) => setArr(arr.includes(val) ? arr.filter((v) => v !== val) : [...arr, val]);
 
@@ -124,7 +138,7 @@ export default function CategoryPage({ params }) {
     .filter((p) => selectedMetals.length === 0 || selectedMetals.includes(p.metal))
     .filter((p) => selectedStones.length === 0 || (p.stone && selectedStones.includes(p.stone)))
     .filter((p) => !selectedPrice || (p.price >= selectedPrice.min && p.price < selectedPrice.max))
-    .sort((a, b) => sort === 'Price: Low to High' ? a.price - b.price : sort === 'Price: High to Low' ? b.price - a.price : 0);
+    .sort((a, b) => sort === 'Low to High' ? a.price - b.price : sort === 'High to Low' ? b.price - a.price : 0);
 
   if (!cat) return <PageLayout><div className="flex items-center justify-center min-h-[50vh]"><p className="font-secondary text-2xl text-brand-brown">Category not found</p></div></PageLayout>;
 
@@ -133,7 +147,7 @@ export default function CategoryPage({ params }) {
   return (
     <PageLayout>
       {/* Breadcrumb Navigation - Moved Above Hero */}
-      <nav className="max-w-[1920px] mx-auto px-4 md:px-16 py-4">
+      <nav className="max-w-[1920px] mx-auto px-4 md:px-16 pt-[26px] pb-4 md:pt-7 md:pb-4">
         <ol className="flex items-center gap-2 text-[11px] font-primary text-gray-400 tracking-wide">
           <li><Link href="/" className="hover:text-brand-gold transition-colors">Home</Link></li>
           <li className="text-gray-300">/</li>
@@ -183,9 +197,46 @@ export default function CategoryPage({ params }) {
                 <button onClick={() => setFilterOpen(true)} className="md:hidden flex items-center gap-1.5 font-primary text-xs text-brand-brown tracking-wider">
                   <SlidersHorizontal className="w-4 h-4" /> Filters
                 </button>
-                <select value={sort} onChange={(e) => setSort(e.target.value)} className="font-primary text-xs text-brand-brown bg-transparent border-b border-brand-gold/40 pb-0.5 focus:outline-none cursor-pointer">
-                  {SORT_OPTIONS.map((o) => <option key={o}>{o}</option>)}
-                </select>
+                
+                {/* Premium Custom Dropdown Filter */}
+                <div className="relative" ref={sortDropdownRef}>
+                  <button
+                    onClick={() => setSortOpen(!sortOpen)}
+                    className="flex items-center gap-1.5 font-primary text-xs text-brand-brown tracking-wider bg-transparent border-b border-brand-gold/40 pb-0.5 focus:outline-none cursor-pointer"
+                  >
+                    <span>{sort}</span>
+                    <ChevronDown className={`w-3.5 h-3.5 text-brand-gold transition-transform duration-200 ${sortOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  <AnimatePresence>
+                    {sortOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 5 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute right-0 mt-2.5 w-48 bg-white border border-brand-gold/20 shadow-[0_10px_30px_rgba(78,54,41,0.06)] py-1.5 z-40 rounded-none text-left font-primary"
+                      >
+                        {SORT_OPTIONS.map((option) => (
+                          <button
+                            key={option}
+                            onClick={() => {
+                              setSort(option);
+                              setSortOpen(false);
+                            }}
+                            className={`w-full text-left px-4 py-2.5 text-xs transition-all duration-200 cursor-pointer ${
+                              sort === option
+                                ? 'bg-bg-cream font-semibold text-brand-gold'
+                                : 'text-gray-600 hover:bg-bg-cream/60 hover:text-brand-brown'
+                            }`}
+                          >
+                            {option}
+                          </button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               </div>
             </div>
             {loading ? (

@@ -12,7 +12,7 @@ export default function CollectionsPage() {
   return (
     <PageLayout>
       {/* Breadcrumb - Moved Above Hero */}
-      <nav className="max-w-[1920px] mx-auto px-4 md:px-16 py-4">
+      <nav className="max-w-[1920px] mx-auto px-4 md:px-16 pt-[26px] pb-4 md:pt-7 md:pb-4">
         <ol className="flex items-center gap-2 text-[11px] font-primary text-gray-400 tracking-wide">
           <li><Link href="/" className="hover:text-brand-gold transition-colors">Home</Link></li>
           <li className="text-gray-300">/</li>
