@@ -58,7 +58,7 @@ export default function AboutPage() {
             </h2>
             <div className="font-sans text-gray-500 text-sm md:text-base leading-relaxed space-y-4">
               <p>In 1925, our founder walked into a small workshop in Kerala with a single conviction: jewellery should be pure, beautiful, and honestly priced. Nearly a century later, that conviction remains the heartbeat of MIP Jewellers.</p>
-              <p>What began as a single store has grown into one of South India's most trusted jewellery destinations — with thousands of designs, dozens of showrooms, and millions of happy families who have chosen MIP for their most precious moments.</p>
+              <p>{"What began as a single store has grown into one of South India's most trusted jewellery destinations — with thousands of designs, dozens of showrooms, and millions of happy families who have chosen MIP for their most precious moments."}</p>
               <p>We have existed since 1925. Need we say more? Would it have been possible without the unwavering trust of generations?</p>
             </div>
           </div>
