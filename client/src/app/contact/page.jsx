@@ -20,7 +20,7 @@ export default function ContactPage() {
     <PageLayout>
       {/* Header */}
       <div className="bg-bg-cream border-b border-gray-100 py-10 md:py-16 text-center">
-        <p className="font-sans text-[10px] tracking-[0.3em] uppercase text-brand-gold mb-2">We're Here For You</p>
+        <p className="font-sans text-[10px] tracking-[0.3em] uppercase text-brand-gold mb-2">{"We're Here For You"}</p>
         <h1 className="font-secondary text-4xl md:text-5xl text-brand-brown tracking-wide">Contact Us</h1>
         <p className="font-sans text-gray-500 text-sm mt-3">Reach out for anything — our team responds within 24 hours.</p>
       </div>
@@ -41,9 +41,9 @@ export default function ContactPage() {
           <div className="lg:col-span-1 space-y-8">
             <div>
               <p className="font-sans text-[10px] tracking-[0.3em] uppercase text-brand-gold mb-4">Get In Touch</p>
-              <h2 className="font-secondary text-2xl md:text-3xl text-brand-brown mb-6 leading-tight">Let's Talk Jewellery</h2>
+              <h2 className="font-secondary text-2xl md:text-3xl text-brand-brown mb-6 leading-tight">{"Let's Talk Jewellery"}</h2>
               <p className="font-sans text-sm text-gray-500 leading-relaxed">
-                Whether you have a question about our collections, need help with an order, or want to plan your dream jewellery — we're just a message away.
+                {"Whether you have a question about our collections, need help with an order, or want to plan your dream jewellery — we're just a message away."}
               </p>
             </div>
 
