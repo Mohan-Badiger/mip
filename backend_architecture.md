@@ -579,6 +579,18 @@ The backend handles client requests via RESTful routes. The tables below map res
 | **Reviews** | `/api/v1/reviews` | `POST`| Authenticated | Review write-up (Verified Purchase) |
 | **Locator** | `/api/v1/stores` | `GET` | Public | Store locations with geospatial distance |
 
+### Implementation Checklist
+- [x] Create database connection utility (`dbConnect.js`)
+- [x] Implement Mongoose models (`User`, `Product`, `Category`, `GoldRate`, `Cart`, `Order`, `Store`)
+- [x] Implement core backend services and middleware (`pricingService.js`, `authMiddleware.js`)
+- [x] Implement Authentication API route handlers (`/api/v1/auth`)
+- [x] Implement Gold Rates API route handler (`/api/v1/gold-rates`)
+- [x] Implement Products search/list and details API route handlers (`/api/v1/products`)
+- [x] Implement Shopping Cart persistence API route handler (`/api/v1/cart`)
+- [x] Implement Store Locator geospatial query API route handler (`/api/v1/stores`)
+- [x] Implement Payments order creation and validation API route handlers (`/api/v1/payments`)
+- [x] Validate compilation and resolve ESLint errors.
+
 ### Store Locator Geospatial Querying
 The store model stores GeoJSON locations to return nearby showrooms based on user coordinates.
 

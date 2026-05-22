@@ -9,13 +9,18 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
     "framer-motion": "^12.39.0",
+    "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.16.0",
+    "mongoose": "^9.6.2",
     "next": "16.2.6",
+    "razorpay": "^2.9.6",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "tailwind-merge": "^3.6.0"
+    "tailwind-merge": "^3.6.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
