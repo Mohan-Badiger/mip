@@ -1,10 +1,11 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Heart, SlidersHorizontal, X, ArrowUpRight } from 'lucide-react';
 import PageLayout from '@/components/global/PageLayout';
-import { getProductsByCategory, getCategoryBySlug, formatPrice } from '@/lib/products';
+import { getCategoryBySlug, formatPrice } from '@/lib/products';
+import { useAuth } from '@/context/AuthContext';
 
 const METALS = ['22KT Gold', '18KT Gold', '24KT Gold', 'Silver'];
 const STONES = ['Diamond', 'Ruby', 'Pearl', 'Emerald'];
@@ -70,18 +71,47 @@ function FilterPanel({ selectedMetals, setSelectedMetals, selectedStones, setSel
 export default function CategoryPage({ params }) {
   const { category } = React.use(params);
   const cat = getCategoryBySlug(category);
-  const allProducts = getProductsByCategory(category);
+  const [productsList, setProductsList] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const [selectedMetals, setSelectedMetals] = useState([]);
   const [selectedStones, setSelectedStones] = useState([]);
   const [selectedPrice, setSelectedPrice] = useState(null);
   const [sort, setSort] = useState('Featured');
   const [filterOpen, setFilterOpen] = useState(false);
-  const [wishlist, setWishlist] = useState([]);
+  const { toggleWishlist, isWishlisted, isMounted: authMounted } = useAuth();
 
   const toggle = (arr, setArr, val) => setArr(arr.includes(val) ? arr.filter((v) => v !== val) : [...arr, val]);
 
-  const filtered = allProducts
+  useEffect(() => {
+    async function loadProducts() {
+      try {
+        const res = await fetch(`/api/v1/products?category=${category}&limit=100`);
+        const data = await res.json();
+        if (data.success && Array.isArray(data.products)) {
+          const mapped = data.products.map(p => ({
+            id: p._id,
+            slug: p.slug,
+            name: p.name,
+            image: p.images[0] || '/images/placeholder.png',
+            price: p.pricing?.finalPrice || p.price,
+            weight: p.metalWeight + 'g',
+            metal: `${p.metalPurity} ${p.metalType.charAt(0).toUpperCase() + p.metalType.slice(1)}`,
+            stone: p.gemstones && p.gemstones[0] ? (p.gemstones[0].type.charAt(0).toUpperCase() + p.gemstones[0].type.slice(1)) : null,
+            tag: p.tag || (p.stock < 3 ? 'Low Stock' : null)
+          }));
+          setProductsList(mapped);
+        }
+      } catch (err) {
+        console.error('Failed to load products:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadProducts();
+  }, [category]);
+
+  const filtered = productsList
     .filter((p) => selectedMetals.length === 0 || selectedMetals.includes(p.metal))
     .filter((p) => selectedStones.length === 0 || (p.stone && selectedStones.includes(p.stone)))
     .filter((p) => !selectedPrice || (p.price >= selectedPrice.min && p.price < selectedPrice.max))
@@ -124,7 +154,18 @@ export default function CategoryPage({ params }) {
                 </select>
               </div>
             </div>
-            {filtered.length === 0 ? (
+            {loading ? (
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 gap-y-10">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div key={i} className="animate-pulse">
+                    <div className="aspect-square w-full bg-gray-100 mb-3" />
+                    <div className="h-4 bg-gray-100 w-2/3 mb-2" />
+                    <div className="h-3 bg-gray-100 w-1/2 mb-2" />
+                    <div className="h-4 bg-gray-100 w-1/3" />
+                  </div>
+                ))}
+              </div>
+            ) : filtered.length === 0 ? (
               <div className="text-center py-20">
                 <p className="font-secondary text-2xl text-gray-300 mb-4">No products found</p>
                 <button onClick={() => { setSelectedMetals([]); setSelectedStones([]); setSelectedPrice(null); }} className="font-sans text-sm text-brand-gold underline">Clear filters</button>
@@ -137,8 +178,8 @@ export default function CategoryPage({ params }) {
                       <div className="relative aspect-square w-full overflow-hidden bg-gray-50 mb-3">
                         <Image src={product.image} alt={product.name} fill sizes="(max-width: 768px) 50vw, 33vw" className="object-cover transition-transform duration-[1.4s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-105" />
                         {product.tag && <span className="absolute top-2 left-2 font-sans text-[9px] tracking-widest uppercase bg-brand-brown text-white px-2 py-0.5">{product.tag}</span>}
-                        <button onClick={(e) => { e.preventDefault(); toggle(wishlist, setWishlist, product.id); }} className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center bg-white/80 opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Wishlist">
-                          <Heart className={`w-4 h-4 ${wishlist.includes(product.id) ? 'fill-brand-brown text-brand-brown' : 'text-brand-brown'}`} />
+                        <button onClick={(e) => { e.preventDefault(); toggleWishlist(product); }} className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center bg-white/80 opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Wishlist">
+                          <Heart className={`w-4 h-4 ${authMounted && isWishlisted(product.id) ? 'fill-brand-brown text-brand-brown' : 'text-brand-brown'}`} />
                         </button>
                       </div>
                       <h3 className="font-secondary text-base md:text-lg text-brand-brown mb-1 flex items-center gap-1 group-hover:text-brand-gold transition-colors">

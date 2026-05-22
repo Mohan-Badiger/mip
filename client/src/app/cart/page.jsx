@@ -23,7 +23,7 @@ export default function CartPage() {
     clearCart 
   } = useCart();
 
-  const { user, isLoggedIn, addOrder } = useAuth();
+  const { user, isLoggedIn, addOrder, openAuthModal } = useAuth();
 
   const [promoCode, setPromoCode] = useState('');
   const [appliedPromo, setAppliedPromo] = useState(null); // { code, discount }
@@ -72,6 +72,21 @@ export default function CartPage() {
   const discountAmount = appliedPromo ? appliedPromo.discount : 0;
   const finalTotal = Math.max(0, cartTotal - discountAmount);
 
+  // Load Razorpay script dynamically
+  React.useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      try {
+        document.body.removeChild(script);
+      } catch {
+        // Ignore if already removed
+      }
+    };
+  }, []);
+
   // Auto-fill checkout fields if user is logged in
   React.useEffect(() => {
     if (isCheckoutOpen && isLoggedIn && user) {
@@ -85,39 +100,168 @@ export default function CartPage() {
     }
   }, [isCheckoutOpen, isLoggedIn, user]);
 
+  const handleProceedToCheckout = () => {
+    if (!isLoggedIn) {
+      openAuthModal();
+    } else {
+      setIsCheckoutOpen(true);
+    }
+  };
+
   // 2. Checkout
-  const handleCheckoutSubmit = (e) => {
+  const handleCheckoutSubmit = async (e) => {
     e.preventDefault();
     setIsSubmittingOrder(true);
 
-    setTimeout(() => {
-      const orderId = 'MIP-ORD-' + Math.floor(100000 + Math.random() * 900000);
-      
-      const newOrder = {
-        id: orderId,
-        items: cartItems.map(item => ({
-          id: item.product.id,
-          name: item.product.name,
-          price: item.product.price,
-          quantity: item.quantity,
-          weight: item.product.weight || '3.2g',
-          metal: item.product.metal || '18KT Gold',
-          image: item.product.image
-        })),
-        subtotal: cartTotal,
-        discount: discountAmount,
-        total: finalTotal,
-        paymentMethod: paymentMethod
+    try {
+      // Split the address field to populate street, city, state
+      const addressParts = checkoutAddress.split(',');
+      const city = addressParts[addressParts.length - 2]?.trim() || 'Banahatti';
+      const state = addressParts[addressParts.length - 1]?.trim() || 'Karnataka';
+      const street = addressParts.slice(0, addressParts.length - 2).join(',').trim() || checkoutAddress;
+
+      const shippingAddress = {
+        street,
+        city,
+        state,
+        pincode: checkoutPincode
       };
 
-      addOrder(newOrder);
+      // Create Order on Backend
+      const orderRes = await fetch('/api/v1/payments/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shippingAddress })
+      });
+      const orderData = await orderRes.json();
 
-      setGeneratedOrderId(orderId);
+      if (!orderRes.ok || !orderData.success) {
+        alert(orderData.error || 'Failed to initialize order on the backend');
+        setIsSubmittingOrder(false);
+        return;
+      }
+
+      const { razorpayOrderId, orderId } = orderData;
+
+      // In local dev/mock, or for COD, we can verify immediately
+      if (paymentMethod === 'cod' || razorpayOrderId.startsWith('order_mock_') || !window.Razorpay) {
+        // Complete mock/COD payment verification
+        const verifyRes = await fetch('/api/v1/payments/verify-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            razorpayOrderId,
+            razorpayPaymentId: 'pay_mock_' + Math.floor(100000 + Math.random() * 900000),
+            razorpaySignature: 'mock_sig_dev'
+          })
+        });
+        const verifyData = await verifyRes.json();
+
+        if (verifyRes.ok && verifyData.success) {
+          // Sync with Local Auth context orders
+          const newOrder = {
+            id: orderId,
+            items: cartItems.map(item => ({
+              id: item.product.id,
+              name: item.product.name,
+              price: item.product.price,
+              quantity: item.quantity,
+              weight: item.product.weight || '—',
+              metal: item.product.metal || '—',
+              image: item.product.image
+            })),
+            subtotal: cartTotal,
+            discount: discountAmount,
+            total: finalTotal,
+            paymentMethod: paymentMethod
+          };
+          addOrder(newOrder);
+
+          setGeneratedOrderId(orderId);
+          setIsSubmittingOrder(false);
+          setOrderSuccess(true);
+          clearCart();
+          setAppliedPromo(null);
+        } else {
+          alert(verifyData.error || 'Payment verification failed');
+          setIsSubmittingOrder(false);
+        }
+      } else {
+        // Razorpay payment integration logic
+        const options = {
+          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_mock',
+          amount: orderData.amount,
+          currency: orderData.currency,
+          name: 'MIP Jewellers',
+          description: 'Secure Luxury Checkout',
+          order_id: razorpayOrderId,
+          handler: async function (response) {
+            try {
+              const verifyRes = await fetch('/api/v1/payments/verify-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  razorpayOrderId: response.razorpay_order_id,
+                  razorpayPaymentId: response.razorpay_payment_id,
+                  razorpaySignature: response.razorpay_signature
+                })
+              });
+              const verifyData = await verifyRes.json();
+              if (verifyRes.ok && verifyData.success) {
+                const newOrder = {
+                  id: orderId,
+                  items: cartItems.map(item => ({
+                    id: item.product.id,
+                    name: item.product.name,
+                    price: item.product.price,
+                    quantity: item.quantity,
+                    weight: item.product.weight || '—',
+                    metal: item.product.metal || '—',
+                    image: item.product.image
+                  })),
+                  subtotal: cartTotal,
+                  discount: discountAmount,
+                  total: finalTotal,
+                  paymentMethod: paymentMethod
+                };
+                addOrder(newOrder);
+
+                setGeneratedOrderId(orderId);
+                setOrderSuccess(true);
+                clearCart();
+                setAppliedPromo(null);
+              } else {
+                alert(verifyData.error || 'Payment verification failed');
+              }
+            } catch (err) {
+              console.error(err);
+              alert('Error verifying payment');
+            } finally {
+              setIsSubmittingOrder(false);
+            }
+          },
+          prefill: {
+            name: checkoutName,
+            email: checkoutEmail,
+            contact: checkoutPhone
+          },
+          theme: {
+            color: '#8c6239'
+          },
+          modal: {
+            ondismiss: function () {
+              setIsSubmittingOrder(false);
+            }
+          }
+        };
+        const rzp = new window.Razorpay(options);
+        rzp.open();
+      }
+    } catch (err) {
+      console.error('Checkout error:', err);
+      alert(err.message || 'Checkout failed');
       setIsSubmittingOrder(false);
-      setOrderSuccess(true);
-      clearCart();
-      setAppliedPromo(null);
-    }, 1800);
+    }
   };
 
   const closeCheckoutModal = () => {
@@ -390,7 +534,7 @@ export default function CartPage() {
 
                   {/* Checkout Button */}
                   <button 
-                    onClick={() => setIsCheckoutOpen(true)}
+                    onClick={handleProceedToCheckout}
                     className="w-full bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white py-4 font-sans text-xs font-semibold tracking-[0.2em] uppercase transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <Lock className="w-3.5 h-3.5" /> Proceed to Checkout

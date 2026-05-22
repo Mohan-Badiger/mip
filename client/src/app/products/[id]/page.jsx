@@ -6,11 +6,14 @@ import { Heart, ShoppingBag, Shield, RotateCcw, Truck, ChevronDown, ChevronUp, A
 import PageLayout from '@/components/global/PageLayout';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
-import { getProductById, getProductsByCategory, formatPrice, getCategoryBySlug } from '@/lib/products';
+import { formatPrice } from '@/lib/products';
 
 export default function ProductPage({ params }) {
   const { id } = React.use(params);
-  const product = getProductById(id);
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [related, setRelated] = useState([]);
+  const [cat, setCat] = useState(null);
   const [activeTab, setActiveTab] = useState('details');
   const { toggleWishlist, isWishlisted, isMounted: authMounted } = useAuth();
   const wishlisted = authMounted && product ? isWishlisted(product.id) : false;
@@ -18,12 +21,84 @@ export default function ProductPage({ params }) {
   const { addToCart } = useCart();
   const [added, setAdded] = useState(false);
 
+  React.useEffect(() => {
+    async function loadProduct() {
+      try {
+        const res = await fetch(`/api/v1/products/${id}`);
+        const data = await res.json();
+        if (data.success && data.product) {
+          const p = data.product;
+          const mapped = {
+            id: p._id,
+            slug: p.slug,
+            name: p.name,
+            image: p.images[0] || '/images/placeholder.png',
+            price: p.pricing?.finalPrice || p.price,
+            weight: p.metalWeight + 'g',
+            metal: `${p.metalPurity} ${p.metalType.charAt(0).toUpperCase() + p.metalType.slice(1)}`,
+            stone: p.gemstones && p.gemstones[0] ? (p.gemstones[0].type.charAt(0).toUpperCase() + p.gemstones[0].type.slice(1)) : null,
+            tag: p.tag || (p.stock < 3 ? 'Low Stock' : null),
+            category: p.category.slug || p.category,
+            description: p.description
+          };
+          setProduct(mapped);
+          setCat({
+            slug: p.category.slug || p.category,
+            label: p.category.name || p.category
+          });
+
+          // Fetch related products (same category, different ID)
+          const relRes = await fetch(`/api/v1/products?category=${p.category.slug || p.category}&limit=5`);
+          const relData = await relRes.json();
+          if (relData.success && Array.isArray(relData.products)) {
+            const mappedRel = relData.products
+              .filter(item => item._id !== p._id)
+              .slice(0, 4)
+              .map(item => ({
+                id: item._id,
+                slug: item.slug,
+                name: item.name,
+                image: item.images[0] || '/images/placeholder.png',
+                price: item.pricing?.finalPrice || item.price
+              }));
+            setRelated(mappedRel);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load product:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadProduct();
+  }, [id]);
+
   const handleAddToCart = () => {
     if (!product) return;
     addToCart(product, 1);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
+
+  if (loading) {
+    return (
+      <PageLayout>
+        <div className="max-w-[1920px] mx-auto px-4 md:px-16 py-8 md:py-12 animate-pulse">
+          <div className="h-4 bg-gray-100 w-1/4 mb-6" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16">
+            <div className="aspect-square bg-gray-100 w-full" />
+            <div className="space-y-6">
+              <div className="h-4 bg-gray-100 w-1/3 animate-pulse" />
+              <div className="h-8 bg-gray-100 w-2/3 animate-pulse" />
+              <div className="h-6 bg-gray-100 w-1/4 animate-pulse" />
+              <div className="h-20 bg-gray-100 w-full animate-pulse" />
+              <div className="h-12 bg-gray-100 w-1/2 animate-pulse" />
+            </div>
+          </div>
+        </div>
+      </PageLayout>
+    );
+  }
 
   if (!product) {
     return (
@@ -37,9 +112,6 @@ export default function ProductPage({ params }) {
       </PageLayout>
     );
   }
-
-  const related = getProductsByCategory(product.category).filter((p) => p.id !== product.id).slice(0, 4);
-  const cat = getCategoryBySlug(product.category);
 
   const faqs = [
     { q: 'Is this BIS Hallmarked?', a: 'Yes. All MIP gold jewellery is 916 BIS Hallmarked, guaranteeing purity and authenticity.' },

@@ -16,6 +16,7 @@
     "lucide-react": "^1.16.0",
     "mongoose": "^9.6.2",
     "next": "16.2.6",
+    "nodemailer": "^8.0.7",
     "razorpay": "^2.9.6",
     "react": "19.2.4",
     "react-dom": "19.2.4",
