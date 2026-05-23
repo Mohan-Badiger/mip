@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Heart, SlidersHorizontal, X, ArrowUpRight, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PageLayout from '@/components/global/PageLayout';
+import JewelryLoader from '@/components/global/JewelryLoader';
 import { getCategoryBySlug, formatPrice } from '@/lib/products';
 import { useAuth } from '@/context/AuthContext';
 
@@ -240,15 +241,8 @@ export default function CategoryPage({ params }) {
               </div>
             </div>
             {loading ? (
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 gap-y-10">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="animate-pulse">
-                    <div className="aspect-square w-full bg-gray-100 mb-3" />
-                    <div className="h-4 bg-gray-100 w-2/3 mb-2" />
-                    <div className="h-3 bg-gray-100 w-1/2 mb-2" />
-                    <div className="h-4 bg-gray-100 w-1/3" />
-                  </div>
-                ))}
+              <div className="flex flex-col items-center justify-center py-20 min-h-[40vh] w-full">
+                <JewelryLoader size="lg" label="Loading category collection..." />
               </div>
             ) : filtered.length === 0 ? (
               <div className="text-center py-20">

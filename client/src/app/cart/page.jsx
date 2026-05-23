@@ -1,11 +1,11 @@
-﻿"use client";
+"use client";
 
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { 
-  Trash2, Plus, Minus, ShoppingBag, 
-  ShieldCheck, Truck, RotateCcw, Check, Lock, X
+import {
+  Trash2, Plus, Minus, ShoppingBag,
+  ShieldCheck, Truck, RotateCcw, Check, Lock, X, Heart
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PageLayout from '@/components/global/PageLayout';
@@ -14,21 +14,21 @@ import { useAuth } from '@/context/AuthContext';
 import { formatPrice, products } from '@/lib/products';
 
 export default function CartPage() {
-  const { 
-    cartItems, 
-    isMounted, 
-    updateQuantity, 
-    removeFromCart, 
-    cartTotal, 
-    clearCart 
+  const {
+    cartItems,
+    isMounted,
+    updateQuantity,
+    removeFromCart,
+    cartTotal,
+    clearCart
   } = useCart();
 
-  const { user, isLoggedIn, addOrder, openAuthModal } = useAuth();
+  const { user, isLoggedIn, addOrder, openAuthModal, toggleWishlist, isWishlisted } = useAuth();
 
   const [promoCode, setPromoCode] = useState('');
   const [appliedPromo, setAppliedPromo] = useState(null); // { code, discount }
   const [promoError, setPromoError] = useState('');
-  
+
   // Checkout Modal State
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [checkoutName, setCheckoutName] = useState('');
@@ -296,10 +296,10 @@ export default function CartPage() {
     <PageLayout>
       <div className="bg-bg-cream min-h-screen py-10 md:py-16 text-text-dark">
         <div className="max-w-[1400px] mx-auto px-4 md:px-8">
-          
+
           {/* Header Banner */}
           <div className="mb-10 text-center md:text-left">
-            <span className="font-primary text-[10px] tracking-[0.3em] uppercase text-brand-gold font-bold block mb-2">
+            <span className="font-primary text-[10px] tracking-[0.3em] uppercase text-brand-gold font-semibold block mb-2">
               Your Selection
             </span>
             <h1 className="font-secondary text-3xl md:text-5xl text-brand-brown tracking-wide">
@@ -318,7 +318,7 @@ export default function CartPage() {
                 <p className="font-primary text-xs text-gray-400 max-w-sm mx-auto leading-relaxed mb-8">
                   Browse our handpicked collections of pure 22KT gold necklaces, diamond rings, and masterwork earrings to start your selection.
                 </p>
-                <Link 
+                <Link
                   href="/collections"
                   className="inline-block bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white font-primary text-xs font-semibold tracking-[0.2em] uppercase px-8 py-4 transition-all duration-300 shadow-md"
                 >
@@ -354,94 +354,149 @@ export default function CartPage() {
           ) : (
             /* Active Cart Grid */
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              
+
               {/* Left Column: Cart items */}
               <div className="lg:col-span-8 space-y-4">
-                <div className="bg-white border border-brand-gold/15 p-4 md:p-6 shadow-xs">
-                  <div className="hidden md:grid grid-cols-12 gap-4 pb-4 border-b border-gray-100 text-[10px] font-primary tracking-widest text-gray-400 uppercase font-bold">
-                    <div className="col-span-6">Product Details</div>
-                    <div className="col-span-2 text-center">Price</div>
-                    <div className="col-span-2 text-center">Quantity</div>
-                    <div className="col-span-2 text-right">Total</div>
-                  </div>
-
+                <div className="bg-white border border-gray-100 p-6 md:p-8">
                   <div className="divide-y divide-gray-100">
-                    {cartItems.map((item) => (
-                      <div key={item.product.id} className="grid grid-cols-1 md:grid-cols-12 gap-4 py-6 items-center">
-                        
-                        {/* Product info details */}
-                        <div className="col-span-6 flex gap-4 items-center">
-                          <div className="relative w-20 h-20 bg-bg-cream overflow-hidden border border-gray-100 shrink-0">
-                            <Image src={item.product.image} alt={item.product.name} fill className="object-cover" />
-                          </div>
-                          <div className="min-w-0">
-                            <Link href={`/products/${item.product.slug}`} className="font-secondary text-sm md:text-base text-brand-brown hover:text-brand-gold transition-colors block font-bold leading-snug">
-                              {item.product.name}
-                            </Link>
-                            <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1.5 text-[10px] font-primary text-gray-400">
-                              <span><strong>Metal:</strong> {item.product.metal}</span>
-                              <span>•</span>
-                              <span><strong>Weight:</strong> {item.product.weight}</span>
-                              {item.product.stone && (
-                                <>
-                                  <span>•</span>
-                                  <span><strong>Stone:</strong> {item.product.stone}</span>
-                                </>
-                              )}
-                            </div>
-                            <button 
-                              onClick={() => removeFromCart(item.product.id)}
-                              className="mt-3 flex items-center gap-1.5 text-red-500 hover:text-red-700 transition-colors text-[10px] tracking-wider uppercase font-bold font-primary cursor-pointer"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" /> Remove
-                            </button>
-                          </div>
-                        </div>
+                    {cartItems.map((item) => {
+                      const priceVal = item.product.price;
+                      const discountRate = 0.0354; // ~3.54% discount
+                      const originalPrice = Math.round(priceVal * (1 + discountRate));
+                      const savingsVal = originalPrice - priceVal;
+                      
+                      // Calculate dynamic delivery date: current date + 5 days
+                      const deliveryDate = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric'
+                      });
 
-                        {/* Price Column */}
-                        <div className="col-span-2 text-left md:text-center">
-                          <span className="md:hidden text-[10px] text-gray-400 font-primary block mb-0.5">Unit Price:</span>
-                          <span className="font-primary text-xs md:text-sm text-gray-700 font-medium">
-                            {formatPrice(item.product.price)}
-                          </span>
-                        </div>
-
-                        {/* Quantity controls */}
-                        <div className="col-span-2 flex justify-start md:justify-center">
-                          <div className="flex items-center border border-gray-200 bg-white">
-                            <button 
-                              onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                              className="p-2 hover:bg-gray-50 transition-colors cursor-pointer text-gray-500 hover:text-brand-brown disabled:opacity-50"
-                              disabled={item.quantity <= 1}
-                              aria-label="Decrease quantity"
-                            >
-                              <Minus className="w-3 h-3" />
-                            </button>
-                            <span className="px-3 font-primary text-xs font-semibold text-brand-brown min-w-[24px] text-center">
-                              {item.quantity}
-                            </span>
-                            <button 
-                              onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                              className="p-2 hover:bg-gray-50 transition-colors cursor-pointer text-gray-500 hover:text-brand-brown"
-                              aria-label="Increase quantity"
-                            >
-                              <Plus className="w-3 h-3" />
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Subtotal Total price */}
-                        <div className="col-span-2 text-left md:text-right">
-                          <span className="md:hidden text-[10px] text-gray-400 font-primary block mb-0.5">Subtotal:</span>
-                          <span className="font-secondary text-sm text-brand-brown font-bold">
-                            {formatPrice(item.product.price * item.quantity)}
-                          </span>
-                        </div>
-
-                      </div>
-                    ))}
+                       const rawWeight = item.product.weight || '1.810 g';
+                       const metalWeightVal = parseFloat(rawWeight) || 1.810;
+                       const grossWeightVal = metalWeightVal + 0.06; // slight addition for gross weight
+ 
+                       return (
+                         <div key={item.product.id} className="relative flex flex-col sm:flex-row gap-6 py-8 border-b border-gray-100 last:border-b-0 items-start group">
+                           
+                           {/* Absolute Remove Button for Modern Clean Luxury Look */}
+                           <button
+                             onClick={() => removeFromCart(item.product.id)}
+                             className="absolute top-8 right-0 p-1.5 text-gray-400 hover:text-red-650 transition-colors cursor-pointer hover:scale-105"
+                             aria-label="Remove item"
+                           >
+                             <X className="w-5 h-5 stroke-[1.5]" />
+                           </button>
+ 
+                           {/* Product Image */}
+                           <div className="relative w-28 h-28 sm:w-32 sm:h-32 bg-bg-cream/40 overflow-hidden border border-gray-100 shrink-0 shadow-3xs">
+                             <Image 
+                               src={item.product.image} 
+                               alt={item.product.name} 
+                               fill 
+                               className="object-cover hover:scale-102 transition-transform duration-500" 
+                             />
+                           </div>
+ 
+                           {/* Detail & Price Grid */}
+                           <div className="flex-1 flex flex-col justify-between min-h-[128px] w-full pr-8">
+                             
+                             {/* Product Info */}
+                             <div className="space-y-2">
+                               {/* SKU Code directly shown without "Item Code:" label */}
+                               <span className="font-mono text-xs tracking-wider text-gray-500 block">
+                                 {item.product.sku || '41363440'}
+                               </span>
+ 
+                               <Link 
+                                 href={`/products/${item.product.slug}`} 
+                                 className="font-secondary text-base md:text-lg text-brand-brown hover:text-brand-gold transition-colors block font-semibold leading-snug"
+                               >
+                                 {item.product.name}
+                               </Link>
+                               
+                               {/* Specifications Row - Made fonts slightly larger/clearer & modern layout */}
+                               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-xs font-primary text-gray-650">
+                                 <span>Purity: <strong className="text-brand-brown font-semibold">{item.product.metal?.split(' ')[0] || '22 KT'}</strong></span>
+                                 <span className="text-gray-300">•</span>
+                                 <span>Metal weight: <strong className="text-brand-brown font-semibold">{metalWeightVal.toFixed(3)} g</strong></span>
+                                 <span className="text-gray-300">•</span>
+                                 <span>Gross weight: <strong className="text-brand-brown font-semibold">{grossWeightVal.toFixed(3)} g</strong></span>
+                               </div>
+ 
+                               {/* Delivery Indicator - Clean and clear */}
+                               <p className="text-xs text-emerald-800 font-primary tracking-wide flex items-center gap-1.5 pt-1 font-medium">
+                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                 Delivery by <span className="font-semibold">{deliveryDate}</span>
+                               </p>
+                             </div>
+ 
+                             {/* Bottom row: Action Buttons (Favourite only, since Remove is at top right) and Price & Quantity */}
+                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 mt-4 border-t border-gray-50">
+                               
+                               {/* Favourite Button */}
+                               <button
+                                 onClick={() => toggleWishlist(item.product)}
+                                 className="flex items-center gap-2 text-gray-650 hover:text-brand-gold transition-colors text-xs tracking-wide uppercase font-semibold font-primary cursor-pointer w-fit"
+                               >
+                                 <Heart className={`w-4 h-4 ${isWishlisted(item.product.id) ? 'fill-brand-gold text-brand-gold' : 'text-gray-400'}`} />
+                                 <span>{isWishlisted(item.product.id) ? 'Wishlisted' : 'Favourite'}</span>
+                               </button>
+ 
+                               {/* Pricing & Quantity Stack */}
+                               <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto">
+                                 
+                                 {/* Quantity Controls */}
+                                 <div className="flex items-center border border-gray-200 bg-white">
+                                   <button
+                                     onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                                     className="p-2 hover:bg-gray-50 transition-colors cursor-pointer text-gray-500 hover:text-brand-brown disabled:opacity-50"
+                                     disabled={item.quantity <= 1}
+                                     aria-label="Decrease quantity"
+                                   >
+                                     <Minus className="w-3.5 h-3.5" />
+                                   </button>
+                                   <span className="px-3.5 font-primary text-xs font-semibold text-brand-brown min-w-[24px] text-center">
+                                     {item.quantity}
+                                   </span>
+                                   <button
+                                     onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                                     className="p-2 hover:bg-gray-50 transition-colors cursor-pointer text-gray-500 hover:text-brand-brown"
+                                     aria-label="Increase quantity"
+                                   >
+                                     <Plus className="w-3.5 h-3.5" />
+                                   </button>
+                                 </div>
+ 
+                                 {/* Price tags stack: unboxed, clean, and highly legible */}
+                                 <div className="text-right flex flex-col items-end">
+                                   <div className="flex items-baseline gap-2">
+                                     {originalPrice > priceVal && (
+                                       <span className="text-xs text-gray-400 line-through font-primary tracking-wide">
+                                         {formatPrice(originalPrice * item.quantity)}
+                                       </span>
+                                     )}
+                                     <span className="font-secondary text-base md:text-lg text-brand-brown font-bold leading-none tracking-wide">
+                                       {formatPrice(priceVal * item.quantity)}
+                                     </span>
+                                   </div>
+                                   {originalPrice > priceVal && (
+                                     <span className="text-xs font-semibold text-emerald-700 tracking-wide font-primary mt-1 block">
+                                       Save {formatPrice(savingsVal * item.quantity)}
+                                     </span>
+                                   )}
+                                 </div>
+ 
+                               </div>
+ 
+                             </div>
+ 
+                           </div>
+ 
+                         </div>
+                       );
+                    })}
                   </div>
-
                 </div>
 
                 {/* Trust badges footer */}
@@ -465,7 +520,7 @@ export default function CartPage() {
 
               {/* Right Column: Order Summary sticky */}
               <div className="lg:col-span-4 space-y-6">
-                
+
                 {/* Summary Card */}
                 <div className="bg-white border border-brand-gold/15 p-6 shadow-xs sticky top-36">
                   <h3 className="font-secondary text-lg text-brand-brown mb-5 border-b border-gray-100 pb-3">
@@ -534,7 +589,7 @@ export default function CartPage() {
                   )}
 
                   {/* Checkout Button */}
-                  <button 
+                  <button
                     onClick={handleProceedToCheckout}
                     className="w-full bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white py-4 font-primary text-xs font-semibold tracking-[0.2em] uppercase transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer"
                   >
@@ -594,7 +649,7 @@ export default function CartPage() {
                     </div>
 
                     <form onSubmit={handleCheckoutSubmit} className="space-y-4">
-                      
+
                       {/* Name */}
                       <div>
                         <label className="text-[10px] tracking-widest text-brand-brown uppercase font-bold block mb-1">Full Name</label>
@@ -712,7 +767,7 @@ export default function CartPage() {
 
                     <span className="font-primary text-[9px] tracking-[0.25em] uppercase font-bold text-emerald-600">Order Confirmed</span>
                     <h3 className="font-secondary text-2xl text-brand-brown mt-1">Thank You For Your Purchase!</h3>
-                    
+
                     <div className="my-6 bg-bg-cream/60 p-4 border border-gray-100 space-y-2 text-xs text-left max-w-sm mx-auto">
                       <p className="text-gray-500"><strong className="text-brand-brown">Customer:</strong> {checkoutName}</p>
                       <p className="text-gray-500"><strong className="text-brand-brown">Delivery Type:</strong> Insured Shipping</p>

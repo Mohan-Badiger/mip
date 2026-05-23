@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Heart, ShoppingBag, Shield, RotateCcw, Truck, ChevronDown, ChevronUp, ArrowUpRight, Check } from 'lucide-react';
 import PageLayout from '@/components/global/PageLayout';
+import JewelryLoader from '@/components/global/JewelryLoader';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { formatPrice } from '@/lib/products';
@@ -194,18 +195,8 @@ export default function ProductPage({ params }) {
   if (loading) {
     return (
       <PageLayout>
-        <div className="max-w-[1920px] mx-auto px-4 md:px-16 py-8 md:py-12 animate-pulse">
-          <div className="h-4 bg-gray-100 w-1/4 mb-6" />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16">
-            <div className="aspect-square bg-gray-100 w-full" />
-            <div className="space-y-6">
-              <div className="h-4 bg-gray-100 w-1/3 animate-pulse" />
-              <div className="h-8 bg-gray-100 w-2/3 animate-pulse" />
-              <div className="h-6 bg-gray-100 w-1/4 animate-pulse" />
-              <div className="h-20 bg-gray-100 w-full animate-pulse" />
-              <div className="h-12 bg-gray-100 w-1/2 animate-pulse" />
-            </div>
-          </div>
+        <div className="flex items-center justify-center min-h-[60vh] py-12 md:py-24">
+          <JewelryLoader size="lg" label="Revealing jewelry details..." />
         </div>
       </PageLayout>
     );
