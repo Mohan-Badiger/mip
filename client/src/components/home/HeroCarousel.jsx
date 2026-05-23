@@ -5,6 +5,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
+const MotionLink = motion(Link);
+
 const slides = [
   {
     id: 0,
@@ -190,20 +192,19 @@ export default function HeroCarousel() {
                   )}
 
                   {/* CTA */}
-                  <Link href={slide.href} passHref legacyBehavior>
-                    <motion.a
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.55, duration: 0.55 }}
-                      className={`mt-1 md:mt-2 inline-block font-primary text-[10px] md:text-xs font-semibold tracking-[0.2em] uppercase pb-0.5 border-b
-                      ${slide.textColor === 'text-white'
-                          ? 'border-white/70 text-white hover:border-white'
-                          : 'border-brand-gold text-brand-brown hover:text-brand-gold'}
-                      transition-colors duration-300`}
-                    >
-                      {slide.cta}
-                    </motion.a>
-                  </Link>
+                  <MotionLink
+                    href={slide.href}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.55, duration: 0.55 }}
+                    className={`mt-1 md:mt-2 inline-block font-primary text-[10px] md:text-xs font-semibold tracking-[0.2em] uppercase pb-0.5 border-b
+                    ${slide.textColor === 'text-white'
+                        ? 'border-white/70 text-white hover:border-white'
+                        : 'border-brand-gold text-brand-brown hover:text-brand-gold'}
+                    transition-colors duration-300`}
+                  >
+                    {slide.cta}
+                  </MotionLink>
                 </div>
               </div>
             </motion.div>
