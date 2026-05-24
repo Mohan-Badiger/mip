@@ -15,21 +15,32 @@ const DEFAULT_RATES = {
   }
 };
 
-export async function calculateLiveProductPrice(product) {
+export async function calculateLiveProductPrice(product, preloadedRates = null) {
   let liveRate = 0;
   
   try {
-    const rateRecord = await GoldRate.findOne({ 
-      metal: product.metalType, 
-      purity: product.metalPurity 
-    });
+    if (preloadedRates && Array.isArray(preloadedRates)) {
+      const rateRecord = preloadedRates.find(r => 
+        r.metal === product.metalType && 
+        r.purity === product.metalPurity
+      );
+      if (rateRecord) {
+        liveRate = rateRecord.pricePerGram;
+      }
+    }
     
-    if (rateRecord) {
-      liveRate = rateRecord.pricePerGram;
-    } else {
-      // Fallback to default index matrices if not initialized in database
-      const metalRates = DEFAULT_RATES[product.metalType];
-      liveRate = metalRates ? (metalRates[product.metalPurity] || 5000) : 5000;
+    if (liveRate === 0) {
+      const rateRecord = await GoldRate.findOne({ 
+        metal: product.metalType, 
+        purity: product.metalPurity 
+      });
+      if (rateRecord) {
+        liveRate = rateRecord.pricePerGram;
+      } else {
+        // Fallback to default index matrices if not initialized in database
+        const metalRates = DEFAULT_RATES[product.metalType];
+        liveRate = metalRates ? (metalRates[product.metalPurity] || 5000) : 5000;
+      }
     }
   } catch {
     const metalRates = DEFAULT_RATES[product.metalType];
@@ -59,9 +70,11 @@ export async function calculateLiveProductPrice(product) {
   return {
     rawMetalValue: Math.round(rawMetalValue),
     makingCharges: Math.round(makingCharges),
+    stoneValue: Math.round(gemstoneValue),
     gemstoneValue: Math.round(gemstoneValue),
     tax: Math.round(tax),
     finalPrice,
     liveRateUsed: liveRate
   };
 }
+

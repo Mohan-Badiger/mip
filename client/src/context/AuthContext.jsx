@@ -24,15 +24,21 @@ export function AuthProvider({ children }) {
   // Load session from backend me API on mount
   useEffect(() => {
     async function checkSession() {
-      try {
-        const res = await fetch('/api/v1/auth/me');
-        const data = await res.json();
-        if (data.success && data.user) {
-          setUser(data.user);
-        } else {
+      const isLoggedInHint = localStorage.getItem('mip_is_logged_in') === 'true';
+      if (isLoggedInHint) {
+        try {
+          const res = await fetch('/api/v1/auth/me');
+          const data = await res.json();
+          if (data.success && data.user) {
+            setUser(data.user);
+          } else {
+            setUser(null);
+            localStorage.setItem('mip_is_logged_in', 'false');
+          }
+        } catch {
           setUser(null);
         }
-      } catch {
+      } else {
         setUser(null);
       }
       
@@ -102,8 +108,8 @@ export function AuthProvider({ children }) {
   const updateProfile = async (updatedDetails) => {
     try {
       // Parse address string into structured fields for the API
-      let primaryAddress = null;
-      if (updatedDetails.address && updatedDetails.pincode) {
+      let primaryAddress = updatedDetails.primaryAddress || null;
+      if (!primaryAddress && updatedDetails.address && updatedDetails.pincode) {
         const addressParts = updatedDetails.address.split(',');
         const state = addressParts[addressParts.length - 1]?.trim() || '';
         const city = addressParts[addressParts.length - 2]?.trim() || '';
@@ -186,10 +192,14 @@ export function AuthProvider({ children }) {
 
   const sendOtp = async (email, type, payload = null) => {
     try {
+      const reqBody = { email, type };
+      if (payload) {
+        reqBody.payload = payload;
+      }
       const res = await fetch('/api/v1/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, type, payload })
+        body: JSON.stringify(reqBody)
       });
       const data = await res.json();
       return data;

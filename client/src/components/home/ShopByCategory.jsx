@@ -29,6 +29,7 @@ export default function ShopByCategory() {
                     src={cat.img}
                     alt={cat.name}
                     fill
+                    priority={idx < 4}
                     sizes="(max-width: 768px) 50vw, 16vw"
                     className="object-cover opacity-90 transition-transform duration-1000 group-hover:scale-110 group-hover:opacity-100"
                   />
@@ -53,7 +54,7 @@ export default function ShopByCategory() {
           ].map((gift, idx) => (
             <FadeInUp key={gift.title} delay={idx * 0.1}>
               <div className="group cursor-pointer">
-                <div className="relative h-[140px] md:h-[200px] w-full mb-3 md:mb-4 overflow-hidden bg-gray-900 rounded-sm">
+                <div className="relative h-[240px] sm:h-[320px] md:h-[200px] lg:h-[230px] w-full mb-3 md:mb-4 overflow-hidden bg-gray-900 rounded-sm">
                   <Image
                     src="/images/category_bangles_1779203423031.png"
                     alt={gift.title}
