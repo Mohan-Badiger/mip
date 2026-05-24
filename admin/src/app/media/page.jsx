@@ -1,6 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { Button } from "@/components/ui/button";
 import { Plus, Image as ImageIcon, Copy, Trash2, UploadCloud, Link as LinkIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -42,7 +44,13 @@ export default function MediaPage() {
         {mediaFiles.map((m) => (
           <Card key={m.name} className="overflow-hidden border-slate-100 flex flex-col justify-between hover:shadow-md transition-all duration-300">
             <div className="relative h-40 bg-slate-100 flex items-center justify-center overflow-hidden">
-              <img src={m.url} alt={m.name} className="w-full h-full object-cover" />
+              <Image 
+                src={m.url} 
+                alt={m.name} 
+                fill
+                sizes="(max-width: 768px) 50vw, 25vw"
+                className="object-cover" 
+              />
               <Badge className="absolute top-2 left-2 bg-slate-950/80 text-white text-[9px] uppercase tracking-wider">
                 {m.category}
               </Badge>
