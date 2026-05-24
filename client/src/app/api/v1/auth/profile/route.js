@@ -17,14 +17,17 @@ export async function PUT(req) {
 
     const { name, phone, primaryAddress } = await req.json();
 
-    const updateFields = {};
+    const existingUser = await User.findById(user._id);
+    if (!existingUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
 
     if (name && name.trim()) {
-      updateFields.name = name.trim();
+      existingUser.name = name.trim();
     }
 
     if (phone && phone.trim()) {
-      updateFields.phone = phone.trim();
+      existingUser.phone = phone.trim();
     }
 
     // Persist the primary address into the addresses array
@@ -38,7 +41,6 @@ export async function PUT(req) {
         return NextResponse.json({ error: 'Pincode must be exactly 6 digits' }, { status: 400 });
       }
 
-      const existingUser = await User.findById(user._id);
       const defaultIndex = existingUser.addresses.findIndex(a => a.isDefault);
 
       if (defaultIndex >= 0) {
@@ -47,38 +49,30 @@ export async function PUT(req) {
         existingUser.addresses[defaultIndex].city = city.trim();
         existingUser.addresses[defaultIndex].state = state.trim();
         existingUser.addresses[defaultIndex].pincode = pincode.trim();
-        await existingUser.save();
       } else {
-        // Insert a new default address
-        updateFields['$push'] = {
-          addresses: {
-            street: street.trim(),
-            city: city.trim(),
-            state: state.trim(),
-            pincode: pincode.trim(),
-            isDefault: true,
-            tag: 'home'
-          }
-        };
+        // Push a new default address
+        existingUser.addresses.push({
+          street: street.trim(),
+          city: city.trim(),
+          state: state.trim(),
+          pincode: pincode.trim(),
+          isDefault: true,
+          tag: 'home'
+        });
       }
     }
 
-    // Apply scalar updates (name, phone)
-    const updatedUser = await User.findByIdAndUpdate(
-      user._id,
-      { $set: updateFields },
-      { new: true, runValidators: true }
-    ).select('-password -refreshToken');
+    await existingUser.save();
 
     return NextResponse.json({
       success: true,
       user: {
-        id: updatedUser._id,
-        name: updatedUser.name,
-        email: updatedUser.email,
-        phone: updatedUser.phone,
-        role: updatedUser.role,
-        addresses: updatedUser.addresses
+        id: existingUser._id,
+        name: existingUser.name,
+        email: existingUser.email,
+        phone: existingUser.phone,
+        role: existingUser.role,
+        addresses: existingUser.addresses
       }
     });
   } catch (error) {

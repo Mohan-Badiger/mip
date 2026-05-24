@@ -94,12 +94,20 @@ export async function POST(req) {
     const key_id = process.env.RAZORPAY_KEY_ID;
     const key_secret = process.env.RAZORPAY_KEY_SECRET;
     let finalRazorpayOrderId = '';
+    let finalAmount = grandTotal * 100;
 
     if (key_id && key_secret) {
       try {
         const razorpay = new Razorpay({ key_id, key_secret });
+        
+        // Cap the amount in test mode to avoid transaction ceiling limits (e.g. ₹1,00,000)
+        const isTestKey = key_id.startsWith('rzp_test_');
+        if (isTestKey && grandTotal > 50000) {
+          finalAmount = 50000 * 100; // Cap to ₹50,000 in test mode so it passes standard limits
+        }
+
         const options = {
-          amount: grandTotal * 100, // Razorpay works in paise
+          amount: finalAmount, // Razorpay works in paise
           currency: 'INR',
           receipt: order._id.toString()
         };
@@ -123,7 +131,7 @@ export async function POST(req) {
       success: true,
       orderId: order._id,
       razorpayOrderId: finalRazorpayOrderId,
-      amount: grandTotal * 100,
+      amount: finalAmount,
       currency: 'INR',
       grandTotal
     });
