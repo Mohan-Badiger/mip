@@ -3,9 +3,11 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import Script from 'next/script';
 import {
   Trash2, Plus, Minus, ShoppingBag,
-  ShieldCheck, Truck, RotateCcw, Check, Lock, X, Heart
+  ShieldCheck, Truck, RotateCcw, Check, Lock, X, Heart, ChevronDown,
+  ChevronRight, CreditCard, MapPin, User as UserIcon, CheckCircle2, ChevronLeft
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PageLayout from '@/components/global/PageLayout';
@@ -31,15 +33,28 @@ export default function CartPage() {
 
   // Checkout Modal State
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [checkoutStep, setCheckoutStep] = useState(1); // 1 = Contact, 2 = Shipping, 3 = Payment & Review
+  const [addressMode, setAddressMode] = useState('saved'); // 'saved' or 'new'
+  const [selectedAddressIndex, setSelectedAddressIndex] = useState(0);
+
   const [checkoutName, setCheckoutName] = useState('');
   const [checkoutPhone, setCheckoutPhone] = useState('');
   const [checkoutEmail, setCheckoutEmail] = useState('');
-  const [checkoutAddress, setCheckoutAddress] = useState('');
+  const [checkoutAddress, setCheckoutAddress] = useState(''); // acts as street address line
+  const [checkoutArea, setCheckoutArea] = useState('');
+  const [checkoutCity, setCheckoutCity] = useState('');
+  const [checkoutState, setCheckoutState] = useState('');
+  const [checkoutCountry, setCheckoutCountry] = useState('India');
   const [checkoutPincode, setCheckoutPincode] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('cod'); // 'cod' or 'card'
+  const [isPaymentDropdownOpen, setIsPaymentDropdownOpen] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [generatedOrderId, setGeneratedOrderId] = useState('');
+  const [validationError, setValidationError] = useState('');
+  const [saveAddressChecked, setSaveAddressChecked] = useState(true);
+
 
   // 1. Promo codes
   const handleApplyPromo = (e) => {
@@ -90,16 +105,100 @@ export default function CartPage() {
   // Auto-fill checkout fields if user is logged in
   React.useEffect(() => {
     if (isCheckoutOpen && isLoggedIn && user) {
-      const defaultAddr = user.addresses?.find(a => a.isDefault) || user.addresses?.[0];
-      setTimeout(() => {
-        setCheckoutName(user.name || '');
-        setCheckoutPhone(user.phone || '');
-        setCheckoutEmail(user.email || '');
-        setCheckoutAddress(defaultAddr ? `${defaultAddr.street}, ${defaultAddr.city}, ${defaultAddr.state}` : '');
-        setCheckoutPincode(defaultAddr?.pincode || '');
-      }, 0);
+      setCheckoutName(user.name || '');
+      setCheckoutPhone(user.phone || '');
+      setCheckoutEmail(user.email || '');
+      
+      if (user.addresses && user.addresses.length > 0) {
+        setAddressMode('saved');
+        const defaultIdx = user.addresses.findIndex(a => a.isDefault);
+        const activeIdx = defaultIdx !== -1 ? defaultIdx : 0;
+        setSelectedAddressIndex(activeIdx);
+        
+        const activeAddr = user.addresses[activeIdx];
+        setCheckoutAddress(activeAddr.street || '');
+        setCheckoutArea(activeAddr.area || '');
+        setCheckoutCity(activeAddr.city || '');
+        setCheckoutState(activeAddr.state || '');
+        setCheckoutCountry(activeAddr.country || 'India');
+        setCheckoutPincode(activeAddr.pincode || '');
+      } else {
+        setAddressMode('new');
+        setCheckoutAddress('');
+        setCheckoutArea('');
+        setCheckoutCity('');
+        setCheckoutState('');
+        setCheckoutCountry('India');
+        setCheckoutPincode('');
+      }
+      setAcceptTerms(false);
+      setIsPaymentDropdownOpen(false);
+      setCheckoutStep(1);
     }
   }, [isCheckoutOpen, isLoggedIn, user]);
+
+  const handleSelectAddress = (index) => {
+    setSelectedAddressIndex(index);
+    const addr = user.addresses[index];
+    if (addr) {
+      setCheckoutAddress(addr.street || '');
+      setCheckoutArea(addr.area || '');
+      setCheckoutCity(addr.city || '');
+      setCheckoutState(addr.state || '');
+      setCheckoutCountry(addr.country || 'India');
+      setCheckoutPincode(addr.pincode || '');
+    }
+  };
+
+
+  const validateStep1 = () => {
+    setValidationError('');
+    if (!checkoutName.trim()) {
+      setValidationError('Please enter your full name.');
+      return false;
+    }
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(checkoutPhone.trim())) {
+      setValidationError('Please enter a valid 10-digit mobile number.');
+      return false;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(checkoutEmail.trim())) {
+      setValidationError('Please enter a valid email address.');
+      return false;
+    }
+    return true;
+  };
+
+  const validateStep2 = () => {
+    setValidationError('');
+    if (!checkoutAddress.trim()) {
+      setValidationError('Please enter your house/flat number and building.');
+      return false;
+    }
+    if (!checkoutArea.trim()) {
+      setValidationError('Please enter your street address or area details.');
+      return false;
+    }
+    if (!checkoutCity.trim()) {
+      setValidationError('Please enter your city.');
+      return false;
+    }
+    const pinRegex = /^[0-9]{6}$/;
+    if (!pinRegex.test(checkoutPincode.trim())) {
+      setValidationError('Please enter a valid 6-digit pincode.');
+      return false;
+    }
+    if (!checkoutState.trim()) {
+      setValidationError('Please enter your state.');
+      return false;
+    }
+    if (!checkoutCountry.trim()) {
+      setValidationError('Please enter your country.');
+      return false;
+    }
+    return true;
+  };
 
   const handleProceedToCheckout = () => {
     if (!isLoggedIn) {
@@ -109,22 +208,48 @@ export default function CartPage() {
     }
   };
 
+  const saveAddressIfChecked = async () => {
+    if (addressMode === 'new' && saveAddressChecked && isLoggedIn) {
+      try {
+        await updateProfile({
+          primaryAddress: {
+            street: checkoutAddress,
+            area: checkoutArea,
+            city: checkoutCity,
+            state: checkoutState,
+            pincode: checkoutPincode,
+            country: checkoutCountry
+          }
+        });
+      } catch (err) {
+        console.error("Failed to auto-save address:", err);
+      }
+    }
+  };
+
   // 2. Checkout
   const handleCheckoutSubmit = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
+    
+    // Final security check for validation
+    if (!validateStep1() || !validateStep2()) {
+      return;
+    }
+
+    if (!acceptTerms) {
+      setValidationError("Please accept the MIP Jewellers Terms of Service and Privacy Policy to proceed.");
+      setIsSubmittingOrder(false);
+      return;
+    }
     setIsSubmittingOrder(true);
 
     try {
-      // Split the address field to populate street, city, state
-      const addressParts = checkoutAddress.split(',');
-      const city = addressParts[addressParts.length - 2]?.trim() || 'Banahatti';
-      const state = addressParts[addressParts.length - 1]?.trim() || 'Karnataka';
-      const street = addressParts.slice(0, addressParts.length - 2).join(',').trim() || checkoutAddress;
-
       const shippingAddress = {
-        street,
-        city,
-        state,
+        street: checkoutAddress,
+        area: checkoutArea,
+        city: checkoutCity,
+        state: checkoutState,
+        country: checkoutCountry,
         pincode: checkoutPincode
       };
 
@@ -267,12 +392,17 @@ export default function CartPage() {
 
   const closeCheckoutModal = () => {
     setIsCheckoutOpen(false);
+    setValidationError('');
+    setCheckoutStep(1);
     if (orderSuccess) {
       setOrderSuccess(false);
       setCheckoutName('');
       setCheckoutPhone('');
       setCheckoutEmail('');
       setCheckoutAddress('');
+      setCheckoutArea('');
+      setCheckoutCity('');
+      setCheckoutState('');
       setCheckoutPincode('');
     }
   };
@@ -609,182 +739,618 @@ export default function CartPage() {
       {/* CHECKOUT FLOW SECURE DIALOG MODAL */}
       <AnimatePresence>
         {isCheckoutOpen && (
-          <div className="fixed inset-0 z-100 flex items-center justify-center px-4 overflow-y-auto">
+          <div className="fixed inset-0 z-100 overflow-y-auto flex items-start justify-center p-4 md:p-10 select-none">
             {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={closeCheckoutModal}
-              className="absolute inset-0 bg-black/60 backdrop-blur-xs"
+              className="absolute inset-0 bg-black/75 backdrop-blur-md"
             />
 
             {/* Modal Box */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              initial={{ opacity: 0, scale: 0.96, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              transition={{ duration: 0.3 }}
-              className="bg-white w-full max-w-lg border border-brand-gold/20 shadow-2xl relative z-10 overflow-hidden"
+              exit={{ opacity: 0, scale: 0.96, y: 20 }}
+              transition={{ type: "spring", duration: 0.5, bounce: 0.15 }}
+              className="bg-white w-full max-w-2xl border border-brand-gold/30 shadow-2xl relative z-10 overflow-hidden my-auto rounded-sm"
             >
-              {/* Header Accent */}
+              {/* Header Gold Gradient Accent */}
               <div className="h-1.5 bg-gradient-to-r from-brand-brown via-brand-gold to-brand-brown" />
 
+              {/* Backdrop Blur Overlay when submitting to Razorpay */}
+              <AnimatePresence>
+                {isSubmittingOrder && (
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 bg-white/70 backdrop-blur-md z-30 flex flex-col items-center justify-center p-6 text-center"
+                  >
+                    <div className="w-12 h-12 rounded-full border-2 border-brand-gold border-t-transparent animate-spin mb-4" />
+                    <span className="font-primary text-[10px] tracking-[0.25em] uppercase font-bold text-brand-brown">Securing Transaction...</span>
+                    <p className="font-primary text-[11px] text-gray-400 mt-1.5 max-w-[280px] leading-relaxed">
+                      Please complete the payment process in the secure Razorpay overlay.
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Close Button */}
               <button
                 onClick={closeCheckoutModal}
-                className="absolute right-4 top-5 text-gray-400 hover:text-text-dark transition-colors cursor-pointer"
+                className="absolute right-4 top-5 text-gray-400 hover:text-brand-gold hover:scale-105 transition-all cursor-pointer z-20"
+                aria-label="Close modal"
               >
                 <X className="w-5 h-5" />
               </button>
 
-              <div className="p-6 md:p-8">
+              <div className="p-6 md:p-10">
                 {!orderSuccess ? (
                   <>
-                    <div className="mb-6 flex items-center gap-2">
-                      <Lock className="w-5 h-5 text-brand-gold shrink-0" />
+                    {/* Secure Order Portal Header */}
+                    <div className="mb-8 flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-brand-gold/5 flex items-center justify-center">
+                        <Lock className="w-5 h-5 text-brand-gold" />
+                      </div>
                       <div>
-                        <span className="font-primary text-[9px] tracking-[0.25em] uppercase font-bold text-brand-gold block">Secure Order Portal</span>
-                        <h3 className="font-secondary text-2xl text-brand-brown leading-tight">Complete Your Order</h3>
+                        <span className="font-primary text-[9px] tracking-[0.25em] uppercase font-bold text-brand-gold block leading-none mb-1">
+                          Secure Order Portal
+                        </span>
+                        <h3 className="font-secondary text-2xl text-brand-brown leading-none">
+                          Luxury Checkout
+                        </h3>
                       </div>
                     </div>
 
-                    <form onSubmit={handleCheckoutSubmit} className="space-y-4">
-
-                      {/* Name */}
-                      <div>
-                        <label className="text-[10px] tracking-widest text-brand-brown uppercase font-bold block mb-1">Full Name</label>
-                        <input
-                          type="text"
-                          required
-                          value={checkoutName}
-                          onChange={(e) => setCheckoutName(e.target.value)}
-                          placeholder="Your full name"
-                          className="w-full text-xs px-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-primary"
-                        />
-                      </div>
-
-                      {/* Contact row */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-[10px] tracking-widest text-brand-brown uppercase font-bold block mb-1">Phone Number</label>
-                          <input
-                            type="tel"
-                            required
-                            value={checkoutPhone}
-                            onChange={(e) => setCheckoutPhone(e.target.value)}
-                            placeholder="Mobile number"
-                            className="w-full text-xs px-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-primary"
+                    {/* Step Stepper Indicator */}
+                    <div className="mb-10">
+                      <div className="flex items-center justify-between max-w-md mx-auto relative px-2">
+                        {/* Background connection line */}
+                        <div className="absolute top-4.5 left-6 right-6 h-[2px] bg-gray-100 -z-0">
+                          <div 
+                            className="h-full bg-brand-gold transition-all duration-500"
+                            style={{ width: checkoutStep === 1 ? '0%' : checkoutStep === 2 ? '50%' : '100%' }}
                           />
                         </div>
 
-                        <div>
-                          <label className="text-[10px] tracking-widest text-brand-brown uppercase font-bold block mb-1">Email Address</label>
-                          <input
-                            type="email"
-                            required
-                            value={checkoutEmail}
-                            onChange={(e) => setCheckoutEmail(e.target.value)}
-                            placeholder="your@email.com"
-                            className="w-full text-xs px-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-primary"
-                          />
-                        </div>
+                        {[
+                          { step: 1, label: 'Customer', icon: UserIcon },
+                          { step: 2, label: 'Shipping', icon: MapPin },
+                          { step: 3, label: 'Payment', icon: CreditCard }
+                        ].map((item) => {
+                          const Icon = item.icon;
+                          const isActive = checkoutStep === item.step;
+                          const isCompleted = checkoutStep > item.step;
+                          return (
+                            <div key={item.step} className="flex flex-col items-center z-10 relative">
+                              <div className={`w-9 h-9 rounded-full flex items-center justify-center border transition-all duration-300 bg-white
+                                ${isCompleted 
+                                  ? 'bg-brand-brown border-brand-brown text-white shadow-sm' 
+                                  : isActive 
+                                    ? 'border-brand-gold text-brand-gold shadow-md shadow-brand-gold/15 ring-4 ring-brand-gold/10' 
+                                    : 'border-gray-200 text-gray-400'}`}
+                              >
+                                {isCompleted ? <Check className="w-4 h-4 stroke-[2.5]" /> : <Icon className="w-4.5 h-4.5" />}
+                              </div>
+                              <span className={`text-[9px] uppercase tracking-[0.2em] font-bold mt-2.5 transition-colors duration-300
+                                ${isActive ? 'text-brand-brown font-bold' : 'text-gray-400'}`}
+                              >
+                                {item.label}
+                              </span>
+                            </div>
+                          );
+                        })}
                       </div>
+                    </div>
 
-                      {/* Delivery Address */}
-                      <div>
-                        <label className="text-[10px] tracking-widest text-brand-brown uppercase font-bold block mb-1">Delivery Address</label>
-                        <textarea
-                          required
-                          rows={2.5}
-                          value={checkoutAddress}
-                          onChange={(e) => setCheckoutAddress(e.target.value)}
-                          placeholder="Complete shipping address..."
-                          className="w-full text-xs px-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-primary resize-none"
-                        />
-                      </div>
+                    {/* Validation Error Message Box */}
+                    {validationError && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: -8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="p-4 bg-red-50/70 border-l-2 border-red-500 text-red-700 text-xs font-primary mb-6 flex items-start gap-2.5 rounded-xs"
+                      >
+                        <span className="font-bold uppercase tracking-wider shrink-0 mt-0.5">[!] Error:</span>
+                        <span className="font-medium leading-relaxed">{validationError}</span>
+                      </motion.div>
+                    )}
 
-                      {/* Pincode & Payment Method */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-[10px] tracking-widest text-brand-brown uppercase font-bold block mb-1">Pincode</label>
-                          <input
-                            type="text"
-                            required
-                            pattern="^[0-9]{6}$"
-                            maxLength={6}
-                            value={checkoutPincode}
-                            onChange={(e) => setCheckoutPincode(e.target.value)}
-                            placeholder="e.g. 587311"
-                            className="w-full text-xs px-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/20 font-primary"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="text-[10px] tracking-widest text-brand-brown uppercase font-bold block mb-1">Payment Method</label>
-                          <select
-                            value={paymentMethod}
-                            onChange={(e) => setPaymentMethod(e.target.value)}
-                            className="w-full text-xs px-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-white font-primary"
-                          >
-                            <option value="cod">Cash on Delivery (COD)</option>
-                            <option value="card">Net Banking / Card / UPI</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      {/* Submit */}
-                      <div className="pt-2">
-                        <button
-                          type="submit"
-                          disabled={isSubmittingOrder}
-                          className="w-full bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white py-4 font-primary text-xs font-semibold tracking-[0.2em] uppercase transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-75"
+                    {/* Step Contents */}
+                    <div className="min-h-[280px]">
+                      {checkoutStep === 1 && (
+                        <motion.div
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: 10 }}
+                          className="space-y-4"
                         >
-                          {isSubmittingOrder ? (
-                            <>
-                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                              <span>Securing Order...</span>
-                            </>
-                          ) : (
-                            <>
-                              <Check className="w-4 h-4" /> Place Order ({formatPrice(finalTotal)})
-                            </>
-                          )}
-                        </button>
-                      </div>
+                          <div>
+                            <label className="text-[10px] tracking-widest text-brand-brown uppercase font-bold block mb-1.5">Full Name</label>
+                            <input
+                              type="text"
+                              value={checkoutName}
+                              onChange={(e) => {
+                                setCheckoutName(e.target.value);
+                                if (validationError) setValidationError('');
+                              }}
+                              placeholder="Enter your full name"
+                              className="w-full text-xs px-4 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-primary tracking-wide transition-all"
+                            />
+                          </div>
 
-                    </form>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                              <label className="text-[10px] tracking-widest text-brand-brown uppercase font-bold block mb-1.5">Phone Number</label>
+                              <input
+                                type="tel"
+                                value={checkoutPhone}
+                                onChange={(e) => {
+                                  setCheckoutPhone(e.target.value);
+                                  if (validationError) setValidationError('');
+                                }}
+                                placeholder="10-digit mobile number"
+                                className="w-full text-xs px-4 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-primary tracking-wide transition-all"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="text-[10px] tracking-widest text-brand-brown uppercase font-bold block mb-1.5">Email Address</label>
+                              <input
+                                type="email"
+                                value={checkoutEmail}
+                                onChange={(e) => {
+                                  setCheckoutEmail(e.target.value);
+                                  if (validationError) setValidationError('');
+                                }}
+                                placeholder="yourname@domain.com"
+                                className="w-full text-xs px-4 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-primary tracking-wide transition-all"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="pt-8">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (validateStep1()) {
+                                  setCheckoutStep(2);
+                                }
+                              }}
+                              className="w-full bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white py-4 font-primary text-xs font-semibold tracking-[0.2em] uppercase transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                            >
+                              Continue to Shipping <ChevronRight className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+
+                      {checkoutStep === 2 && (
+                        <motion.div
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: 10 }}
+                          className="space-y-4"
+                        >
+                          {/* Saved Address selection header if user has registered addresses */}
+                          {user?.addresses && user.addresses.length > 0 && (
+                            <div className="grid grid-cols-2 gap-3 mb-5">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setAddressMode('saved');
+                                  setValidationError('');
+                                  if (user.addresses && user.addresses.length > 0) {
+                                    handleSelectAddress(0);
+                                  }
+                                }}
+                                className={`py-3 border text-[10px] font-primary tracking-widest uppercase transition-all flex items-center justify-center gap-2 cursor-pointer rounded-xs
+                                  ${addressMode === 'saved' 
+                                    ? 'border-brand-brown bg-brand-brown text-white font-bold' 
+                                    : 'border-gray-200 hover:border-brand-gold text-gray-550 bg-white'}`}
+                              >
+                                <UserIcon className="w-3.5 h-3.5" /> Saved Addresses
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setAddressMode('new');
+                                  setValidationError('');
+                                  setCheckoutAddress('');
+                                  setCheckoutArea('');
+                                  setCheckoutCity('');
+                                  setCheckoutState('');
+                                  setCheckoutPincode('');
+                                }}
+                                className={`py-3 border text-[10px] font-primary tracking-widest uppercase transition-all flex items-center justify-center gap-2 cursor-pointer rounded-xs
+                                  ${addressMode === 'new' 
+                                    ? 'border-brand-brown bg-brand-brown text-white font-bold' 
+                                    : 'border-gray-200 hover:border-brand-gold text-gray-550 bg-white'}`}
+                              >
+                                <Plus className="w-3.5 h-3.5" /> Add New Address
+                              </button>
+                            </div>
+                          )}
+
+                          {/* Address content options */}
+                          {addressMode === 'saved' && user?.addresses && user.addresses.length > 0 ? (
+                            <div className="space-y-3 max-h-[260px] overflow-y-auto pr-1">
+                              {user.addresses.map((addr, idx) => (
+                                <div
+                                  key={idx}
+                                  onClick={() => handleSelectAddress(idx)}
+                                  className={`p-4 border cursor-pointer relative transition-all duration-300 rounded-sm flex gap-3 items-start
+                                    ${selectedAddressIndex === idx
+                                      ? 'border-brand-gold bg-bg-cream/20 shadow-sm ring-1 ring-brand-gold/15' 
+                                      : 'border-gray-200 hover:border-gray-300 bg-white'}`}
+                                >
+                                  <MapPin className={`w-4 h-4 mt-0.5 shrink-0 ${selectedAddressIndex === idx ? 'text-brand-gold' : 'text-gray-400'}`} />
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1.5">
+                                      <span className="text-[9px] tracking-widest font-bold text-brand-gold uppercase bg-brand-gold/5 px-2 py-0.5 rounded-sm leading-none">
+                                        {addr.isDefault ? 'Default Address' : `Address #${idx + 1}`}
+                                      </span>
+                                    </div>
+                                    <p className="text-xs text-brand-brown font-semibold leading-relaxed">
+                                      {addr.street}
+                                    </p>
+                                    <p className="text-[11px] text-gray-555 mt-0.5 leading-normal">
+                                      {addr.area ? `${addr.area}, ` : ''}{addr.city}, {addr.state} - {addr.pincode}
+                                    </p>
+                                  </div>
+                                  {selectedAddressIndex === idx && (
+                                    <CheckCircle2 className="w-4.5 h-4.5 text-brand-gold fill-brand-gold/5 shrink-0 self-center" />
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            /* New Address Form Fields */
+                            <div className="space-y-4 animate-fadeIn">
+                              <div>
+                                <label className="text-[10px] tracking-widest text-brand-brown uppercase font-bold block mb-1">House, Flat, Apartment, Building No.</label>
+                                <input
+                                  type="text"
+                                  value={checkoutAddress}
+                                  onChange={(e) => {
+                                    setCheckoutAddress(e.target.value);
+                                    if (validationError) setValidationError('');
+                                  }}
+                                  placeholder="e.g. Penthouse A, Floor 14"
+                                  className="w-full text-xs px-4 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-primary"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="text-[10px] tracking-widest text-brand-brown uppercase font-bold block mb-1">Street Address, Landmark, Area</label>
+                                <input
+                                  type="text"
+                                  value={checkoutArea}
+                                  onChange={(e) => {
+                                    setCheckoutArea(e.target.value);
+                                    if (validationError) setValidationError('');
+                                  }}
+                                  placeholder="e.g. Mg Road, Opposite Royal Plaza"
+                                  className="w-full text-xs px-4 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-primary"
+                                />
+                              </div>
+
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                  <label className="text-[10px] tracking-widest text-brand-brown uppercase font-bold block mb-1">City</label>
+                                  <input
+                                    type="text"
+                                    value={checkoutCity}
+                                    onChange={(e) => {
+                                      setCheckoutCity(e.target.value);
+                                      if (validationError) setValidationError('');
+                                    }}
+                                    placeholder="e.g. Bangalore"
+                                    className="w-full text-xs px-4 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-primary"
+                                  />
+                                </div>
+
+                                <div>
+                                  <label className="text-[10px] tracking-widest text-brand-brown uppercase font-bold block mb-1">Pincode</label>
+                                  <input
+                                    type="text"
+                                    maxLength={6}
+                                    value={checkoutPincode}
+                                    onChange={(e) => {
+                                      setCheckoutPincode(e.target.value);
+                                      if (validationError) setValidationError('');
+                                    }}
+                                    placeholder="6 digit PIN code"
+                                    className="w-full text-xs px-4 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-primary"
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                  <label className="text-[10px] tracking-widest text-brand-brown uppercase font-bold block mb-1">State</label>
+                                  <input
+                                    type="text"
+                                    value={checkoutState}
+                                    onChange={(e) => {
+                                      setCheckoutState(e.target.value);
+                                      if (validationError) setValidationError('');
+                                    }}
+                                    placeholder="e.g. Karnataka"
+                                    className="w-full text-xs px-4 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-primary"
+                                  />
+                                </div>
+
+                                <div>
+                                  <label className="text-[10px] tracking-widest text-brand-brown uppercase font-bold block mb-1">Country</label>
+                                  <input
+                                    type="text"
+                                    value={checkoutCountry}
+                                    onChange={(e) => {
+                                      setCheckoutCountry(e.target.value);
+                                      if (validationError) setValidationError('');
+                                    }}
+                                    placeholder="e.g. India"
+                                    className="w-full text-xs px-4 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-primary"
+                                  />
+                                </div>
+                              </div>
+                              
+                              {/* Checkbox to Save Address for logged in users */}
+                              {isLoggedIn && (
+                                <div className="pt-2 flex items-start gap-2.5 select-none">
+                                  <div className="flex items-center h-5">
+                                    <button
+                                      type="button"
+                                      onClick={() => setSaveAddressChecked(!saveAddressChecked)}
+                                      className={`w-4 h-4 border rounded-xs transition-all flex items-center justify-center cursor-pointer
+                                        ${saveAddressChecked 
+                                          ? 'bg-brand-brown border-brand-brown text-white' 
+                                          : 'bg-white border-gray-300 hover:border-brand-gold'}`}
+                                    >
+                                      {saveAddressChecked && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                                    </button>
+                                  </div>
+                                  <label 
+                                    onClick={() => setSaveAddressChecked(!saveAddressChecked)}
+                                    className="text-[10px] text-gray-550 font-primary cursor-pointer leading-tight select-none pt-0.5"
+                                  >
+                                    Save this address to my profile for future purchases
+                                  </label>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          <div className="grid grid-cols-2 gap-4 pt-8 border-t border-gray-100">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setValidationError('');
+                                setCheckoutStep(1);
+                              }}
+                              className="border border-brand-brown hover:border-brand-gold text-brand-brown hover:text-brand-gold py-4 font-primary text-xs font-semibold tracking-widest uppercase transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer rounded-xs"
+                            >
+                              <ChevronLeft className="w-4 h-4" /> Go Back
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (validateStep2()) {
+                                  setCheckoutStep(3);
+                                }
+                              }}
+                              className="bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white py-4 font-primary text-xs font-semibold tracking-widest uppercase transition-all duration-300 shadow-md flex items-center justify-center gap-1.5 cursor-pointer rounded-xs"
+                            >
+                              Continue <ChevronRight className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+
+                      {checkoutStep === 3 && (
+                        <motion.div
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: 10 }}
+                          className="space-y-6"
+                        >
+                          {/* Order items inline review panel */}
+                          <div className="bg-bg-cream/20 p-4 border border-brand-gold/15 rounded-xs">
+                            <span className="text-[9px] tracking-[0.2em] font-bold text-brand-gold uppercase block mb-3 border-b border-brand-gold/10 pb-1.5">
+                              Review Selection ({cartItems.reduce((acc, cur) => acc + cur.quantity, 0)} Items)
+                            </span>
+                            <div className="max-h-28 overflow-y-auto space-y-3 pr-1">
+                              {cartItems.map((item) => (
+                                <div key={item.product.id} className="flex gap-3 items-center">
+                                  <div className="relative w-10 h-10 bg-white border border-gray-100 shrink-0">
+                                    <Image src={item.product.image} alt={item.product.name} fill className="object-cover" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <h5 className="font-secondary text-xs text-brand-brown font-semibold truncate leading-tight">{item.product.name}</h5>
+                                    <span className="text-[9px] text-gray-400 font-primary block mt-0.5">{item.product.metal} · Qty {item.quantity}</span>
+                                  </div>
+                                  <span className="text-xs text-brand-brown font-bold shrink-0">{formatPrice(item.product.price * item.quantity)}</span>
+                                </div>
+                              ))}
+                            </div>
+
+                            {/* Summary Price list details */}
+                            <div className="border-t border-brand-gold/10 mt-3 pt-3 space-y-1.5 text-xs text-gray-500 font-primary">
+                              <div className="flex justify-between">
+                                <span>Cart Subtotal</span>
+                                <span>{formatPrice(cartTotal)}</span>
+                              </div>
+                              {appliedPromo && (
+                                <div className="flex justify-between text-emerald-700 font-medium">
+                                  <span>Coupon Discount ({appliedPromo.code})</span>
+                                  <span>-{formatPrice(appliedPromo.discount)}</span>
+                                </div>
+                              )}
+                              <div className="flex justify-between font-bold text-brand-brown text-sm pt-2 border-t border-dashed border-brand-gold/15">
+                                <span>Grand Total</span>
+                                <span>{formatPrice(finalTotal)}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Gateway payment selection buttons */}
+                          <div>
+                            <label className="text-[10px] tracking-widest text-brand-brown uppercase font-bold block mb-3">Select Payment Method</label>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              {/* Razorpay Online */}
+                              <div
+                                onClick={() => setPaymentMethod('card')}
+                                className={`p-4 border cursor-pointer flex items-start gap-3 transition-all duration-350 rounded-sm relative
+                                  ${paymentMethod === 'card' 
+                                    ? 'border-brand-gold bg-bg-cream/10 shadow-sm' 
+                                    : 'border-gray-200 hover:border-gray-300 bg-white'}`}
+                              >
+                                <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 mt-0.5 transition-all
+                                  ${paymentMethod === 'card' ? 'border-brand-gold text-brand-gold' : 'border-gray-300'}`}
+                                >
+                                  {paymentMethod === 'card' && (
+                                    <span className="w-2 h-2 rounded-full bg-brand-gold" />
+                                  )}
+                                </div>
+                                <div className="flex-1">
+                                  <span className="text-xs font-bold text-brand-brown block leading-tight mb-1">Online Payment</span>
+                                  <p className="text-[10px] text-gray-400 font-primary leading-normal">Net Banking, Cards, UPI, Wallets via Razorpay</p>
+                                </div>
+                              </div>
+
+                              {/* Cash on Delivery */}
+                              <div
+                                onClick={() => setPaymentMethod('cod')}
+                                className={`p-4 border cursor-pointer flex items-start gap-3 transition-all duration-350 rounded-sm relative
+                                  ${paymentMethod === 'cod' 
+                                    ? 'border-brand-gold bg-bg-cream/10 shadow-sm' 
+                                    : 'border-gray-200 hover:border-gray-300 bg-white'}`}
+                              >
+                                <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 mt-0.5 transition-all
+                                  ${paymentMethod === 'cod' ? 'border-brand-gold text-brand-gold' : 'border-gray-300'}`}
+                                >
+                                  {paymentMethod === 'cod' && (
+                                    <span className="w-2 h-2 rounded-full bg-brand-gold" />
+                                  )}
+                                </div>
+                                <div className="flex-1">
+                                  <span className="text-xs font-bold text-brand-brown block leading-tight mb-1">Cash on Delivery (COD)</span>
+                                  <p className="text-[10px] text-gray-400 font-primary leading-normal">Pay with cash upon secure delivery at your door</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Custom Styled Terms of Service checkbox */}
+                          <div className="flex items-start gap-3 select-none py-1">
+                            <div className="flex items-center h-5">
+                              <button
+                                type="button"
+                                onClick={() => setAcceptTerms(!acceptTerms)}
+                                className={`w-4.5 h-4.5 border rounded-xs transition-all flex items-center justify-center cursor-pointer
+                                  ${acceptTerms 
+                                    ? 'bg-brand-brown border-brand-brown text-white' 
+                                    : 'bg-white border-gray-300 hover:border-brand-gold'}`}
+                              >
+                                {acceptTerms && <Check className="w-3 h-3 stroke-[3]" />}
+                              </button>
+                            </div>
+                            <div className="text-[11px] leading-snug text-gray-550 font-primary">
+                              I accept the{' '}
+                              <Link href="/terms" target="_blank" className="text-brand-brown font-semibold underline hover:text-brand-gold transition-colors">
+                                Terms of Service
+                              </Link>{' '}
+                              and{' '}
+                              <Link href="/privacy" target="_blank" className="text-brand-brown font-semibold underline hover:text-brand-gold transition-colors">
+                                Privacy Policy
+                              </Link>
+                            </div>
+                          </div>
+
+                          {/* Submit Actions */}
+                          <div className="grid grid-cols-2 gap-4 pt-6 border-t border-gray-100">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setValidationError('');
+                                setCheckoutStep(2);
+                              }}
+                              className="border border-brand-brown hover:border-brand-gold text-brand-brown hover:text-brand-gold py-4 font-primary text-xs font-semibold tracking-widest uppercase transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer rounded-xs"
+                            >
+                              <ChevronLeft className="w-4 h-4" /> Go Back
+                            </button>
+                            <button
+                              type="button"
+                              onClick={handleCheckoutSubmit}
+                              disabled={isSubmittingOrder}
+                              className="bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white py-4 font-primary text-xs font-semibold tracking-widest uppercase transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 rounded-xs"
+                            >
+                              {isSubmittingOrder ? (
+                                <>
+                                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                  <span>Securing Order...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Lock className="w-3.5 h-3.5" /> Place Order ({formatPrice(finalTotal)})
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </div>
                   </>
                 ) : (
-                  /* Success State */
+                  /* Luxury Order Success State */
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
+                    initial={{ opacity: 0, scale: 0.96 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className="text-center py-6"
                   >
-                    <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-5 border border-emerald-100 animate-bounce">
+                    <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-5 border border-emerald-100/50 animate-bounce">
                       <Check className="w-8 h-8 text-emerald-600" strokeWidth={3} />
                     </div>
 
-                    <span className="font-primary text-[9px] tracking-[0.25em] uppercase font-bold text-emerald-600">Order Confirmed</span>
+                    <span className="font-primary text-[10px] tracking-[0.25em] uppercase font-bold text-emerald-600">Order Confirmed</span>
                     <h3 className="font-secondary text-2xl text-brand-brown mt-1">Thank You For Your Purchase!</h3>
 
-                    <div className="my-6 bg-bg-cream/60 p-4 border border-gray-100 space-y-2 text-xs text-left max-w-sm mx-auto">
-                      <p className="text-gray-500"><strong className="text-brand-brown">Customer:</strong> {checkoutName}</p>
-                      <p className="text-gray-500"><strong className="text-brand-brown">Delivery Type:</strong> Insured Shipping</p>
-                      <p className="text-gray-500"><strong className="text-brand-brown">Address:</strong> {checkoutAddress}, {checkoutPincode}</p>
-                      <div className="pt-2 border-t border-gray-200 mt-2 flex justify-between items-center text-[10px]">
-                        <span className="text-gray-400 font-bold uppercase tracking-wider">Order ID:</span>
+                    {/* Premium Receipt Card */}
+                    <div className="my-8 bg-bg-cream/40 p-5 border border-brand-gold/10 text-xs text-left max-w-md mx-auto space-y-3 shadow-3xs rounded-sm">
+                      <div className="flex justify-between items-center text-[10px] border-b border-brand-gold/10 pb-2">
+                        <span className="text-gray-400 font-bold uppercase tracking-wider font-primary">Order ID:</span>
                         <span className="font-mono text-brand-brown font-bold tracking-wider">{generatedOrderId}</span>
+                      </div>
+
+                      <div className="space-y-1.5 font-primary text-gray-600">
+                        <p><strong className="text-brand-brown">Recipient:</strong> {checkoutName}</p>
+                        <p><strong className="text-brand-brown">Contact:</strong> {checkoutPhone} · {checkoutEmail}</p>
+                        <p>
+                          <strong className="text-brand-brown">Shipping Address:</strong> {checkoutAddress}{checkoutArea ? `, ${checkoutArea}` : ''}, {checkoutCity}, {checkoutState}, {checkoutCountry} - {checkoutPincode}
+                        </p>
+                        <p className="flex items-center gap-1.5"><strong className="text-brand-brown font-bold">Payment Status:</strong> 
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-850 bg-emerald-50 px-2 py-0.5 rounded-sm uppercase tracking-wider leading-none">
+                            {paymentMethod === 'cod' ? 'Pending COD' : 'Verified Secure'}
+                          </span>
+                        </p>
+                      </div>
+
+                      <div className="pt-2 border-t border-dashed border-brand-gold/15 mt-2 flex justify-between items-baseline font-secondary">
+                        <span className="text-brand-brown text-xs font-bold uppercase tracking-wider">Amount Paid:</span>
+                        <span className="text-base font-bold text-brand-brown">{formatPrice(finalTotal)}</span>
                       </div>
                     </div>
 
-                    <p className="font-primary text-xs text-gray-400 max-w-xs mx-auto leading-relaxed mb-6">
+                    <p className="font-primary text-xs text-gray-400 max-w-sm mx-auto leading-relaxed mb-8">
                       Your order has been recorded securely. An insured shipping confirmation containing packaging guidelines and invoice has been dispatched to {checkoutEmail}.
                     </p>
 
                     <button
                       onClick={closeCheckoutModal}
-                      className="px-8 py-3.5 bg-brand-brown text-white hover:bg-brand-gold hover:text-brand-brown transition-all duration-300 font-primary tracking-[0.18em] uppercase font-bold text-[10px] shadow-md cursor-pointer"
+                      className="px-10 py-4 bg-brand-brown text-white hover:bg-brand-gold hover:text-brand-brown transition-all duration-300 font-primary tracking-[0.2em] uppercase font-bold text-[10px] shadow-md cursor-pointer"
                     >
                       Continue Shopping
                     </button>
