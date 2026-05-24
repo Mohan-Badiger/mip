@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -200,9 +202,15 @@ export default function CategoriesPage() {
                   return (
                     <TableRow key={category._id} className="border-slate-100 hover:bg-slate-50/50 transition-colors">
                       <TableCell>
-                        <div className="w-12 h-12 rounded bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-100">
+                        <div className="w-12 h-12 rounded bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-100 relative">
                           {category.image ? (
-                            <img src={category.image} alt={category.name} className="w-full h-full object-cover" />
+                            <Image 
+                              src={category.image} 
+                              alt={category.name} 
+                              fill
+                              sizes="48px"
+                              className="object-cover" 
+                            />
                           ) : (
                             <ImageIcon className="w-5 h-5 text-slate-300" />
                           )}

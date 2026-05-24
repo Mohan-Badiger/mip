@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -256,9 +257,11 @@ export default function BannersPage() {
           </div>
           <div className="relative h-[300px] md:h-[380px] bg-slate-900 flex items-center">
             {currentPreviewSlide.image ? (
-              <img
+              <Image
                 src={currentPreviewSlide.image}
                 alt={currentPreviewSlide.collectionName}
+                fill
+                sizes="(max-width: 768px) 100vw, 80vw"
                 className="absolute inset-0 w-full h-full object-cover opacity-60 transition-all duration-300"
               />
             ) : (
@@ -337,9 +340,15 @@ export default function BannersPage() {
             cmsData.heroSlides.map((slide, idx) => (
               <div key={idx} className="flex flex-col md:flex-row items-start md:items-center justify-between border border-[#DED8D0]/60 rounded-lg p-5 bg-white hover:shadow-sm transition-all duration-200 gap-4">
                 <div className="flex items-center gap-5 w-full md:w-auto">
-                  <div className="w-28 h-16 rounded bg-[#FAF8F5] border border-[#DED8D0] overflow-hidden flex items-center justify-center flex-shrink-0">
+                  <div className="w-28 h-16 rounded bg-[#FAF8F5] border border-[#DED8D0] overflow-hidden flex items-center justify-center flex-shrink-0 relative">
                     {slide.image ? (
-                      <img src={slide.image} alt={slide.collectionName} className="w-full h-full object-cover" />
+                      <Image 
+                        src={slide.image} 
+                        alt={slide.collectionName} 
+                        fill
+                        sizes="112px"
+                        className="object-cover" 
+                      />
                     ) : (
                       <ImageIcon className="w-7 h-7 text-muted-foreground" />
                     )}

@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -162,10 +164,12 @@ export default function CollectionsPage() {
                 <div>
                   <div className="h-32 bg-slate-100 flex items-center justify-center relative overflow-hidden">
                     {collection.bannerImage ? (
-                      <img 
+                      <Image 
                          src={collection.bannerImage} 
                          alt={collection.name} 
-                         className="w-full h-full object-cover"
+                         fill
+                         sizes="(max-width: 768px) 100vw, 33vw"
+                         className="object-cover"
                       />
                     ) : (
                       <ImageIcon className="h-10 w-10 text-slate-300" />
