@@ -1,54 +1,57 @@
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
+import { z } from 'zod';
 import dbConnect from '@/backend/config/dbConnect';
 import User from '@/backend/models/User';
 import Otp from '@/backend/models/Otp';
+import { rateLimit, resetRateLimit } from '@/backend/lib/rateLimit';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_jwt_secret_token_key';
 
-// In-memory rate limiter: max 5 OTP verification attempts per email per hour
-const rateLimitMap = new Map();
-const MAX_ATTEMPTS = 5;
-const WINDOW_MS = 60 * 60 * 1000; // 1 hour
-
-function checkRateLimit(email) {
-  const now = Date.now();
-  const entry = rateLimitMap.get(email);
-  if (!entry || now - entry.windowStart > WINDOW_MS) {
-    rateLimitMap.set(email, { count: 1, windowStart: now });
-    return true;
-  }
-  if (entry.count >= MAX_ATTEMPTS) {
-    return false;
-  }
-  entry.count += 1;
-  return true;
-}
-
-function resetRateLimit(email) {
-  rateLimitMap.delete(email);
-}
+// Input validation schema to prevent NoSQL query injection and ensure type-safety
+const verifyOtpSchema = z.object({
+  email: z.string().trim().email({ message: 'Invalid email address' }).max(100),
+  otp: z.string().trim().regex(/^[0-9]{6}$/, { message: 'Verification code must be exactly 6 digits' }),
+  type: z.enum(['register', 'login', 'reset'], { message: 'Invalid verification type' }),
+});
 
 export async function POST(req) {
   try {
     await dbConnect();
-    const { email, otp, type } = await req.json();
+    
+    // Get client IP for rate limiting
+    const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || '127.0.0.1';
 
-    if (!email || !otp || !type) {
-      return NextResponse.json({ error: 'Email, verification code, and type are required' }, { status: 400 });
+    // Parse and validate raw JSON body
+    const body = await req.json();
+    const result = verifyOtpSchema.safeParse(body);
+
+    if (!result.success) {
+      const errorMsg = result.error.issues.map(err => err.message).join(', ');
+      return NextResponse.json({ error: errorMsg }, { status: 400 });
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
+    const { email, otp, type } = result.data;
+    const normalizedEmail = email.toLowerCase();
     const otpTrimmed = otp.trim();
 
-    // Rate limiting: max 5 failed attempts per email per hour
-    if (!checkRateLimit(normalizedEmail)) {
+    // Rate Limiting: Max 5 failed attempts per email per hour
+    const limitEmail = rateLimit(`otp-verify:email:${normalizedEmail}`, 5, 3600000);
+    // Rate Limiting: Max 10 verification attempts per IP per 10 minutes (to prevent brute forcing)
+    const limitIp = rateLimit(`otp-verify:ip:${ip}`, 10, 600000);
+
+    if (!limitEmail.success || !limitIp.success) {
       return NextResponse.json(
-        { error: 'Too many verification attempts. Please request a new passcode after 1 hour.' },
-        { status: 429 }
+        { error: 'Too many verification attempts. Please try again later.' },
+        { 
+          status: 429,
+          headers: {
+            'Retry-After': Math.ceil((Math.min(limitEmail.reset, limitIp.reset) - Date.now()) / 1000).toString()
+          }
+        }
       );
     }
+
 
     // Find the OTP document in the database that is not expired
     const otpRecord = await Otp.findOne({
@@ -63,7 +66,7 @@ export async function POST(req) {
     }
 
     // Reset rate limit on successful match
-    resetRateLimit(normalizedEmail);
+    resetRateLimit(`otp-verify:email:${normalizedEmail}`);
 
     let user = null;
 

@@ -1,26 +1,55 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { z } from 'zod';
 import dbConnect from '@/backend/config/dbConnect';
 import User from '@/backend/models/User';
 import Otp from '@/backend/models/Otp';
+import { rateLimit } from '@/backend/lib/rateLimit';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_jwt_secret_token_key';
+
+// Input validation schema to prevent NoSQL query injection and ensure type-safety
+const resetPasswordSchema = z.object({
+  email: z.string().trim().email({ message: 'Invalid email address' }).max(100),
+  token: z.string().trim().regex(/^[0-9a-fA-F]{24}$/, { message: 'Invalid security session token' }),
+  password: z.string().min(6, { message: 'Password must be at least 6 characters' }).max(100),
+});
 
 export async function POST(req) {
   try {
     await dbConnect();
-    const { email, token, password } = await req.json();
+    
+    // Get client IP for rate limiting
+    const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || '127.0.0.1';
 
-    if (!email || !token || !password) {
-      return NextResponse.json({ error: 'Email, token, and new password are required' }, { status: 400 });
+    // Parse and validate raw JSON body
+    const body = await req.json();
+    const result = resetPasswordSchema.safeParse(body);
+
+    if (!result.success) {
+      const errorMsg = result.error.issues.map(err => err.message).join(', ');
+      return NextResponse.json({ error: errorMsg }, { status: 400 });
     }
 
-    if (password.length < 6) {
-      return NextResponse.json({ error: 'Password must be at least 6 characters long' }, { status: 400 });
-    }
+    const { email, token, password } = result.data;
+    const normalizedEmail = email.toLowerCase();
 
-    const normalizedEmail = email.trim().toLowerCase();
+    // Rate Limiting: Max 3 attempts per email or IP per hour
+    const limitEmail = rateLimit(`password-reset:email:${normalizedEmail}`, 3, 3600000);
+    const limitIp = rateLimit(`password-reset:ip:${ip}`, 3, 3600000);
+
+    if (!limitEmail.success || !limitIp.success) {
+      return NextResponse.json(
+        { error: 'Too many password reset attempts. Please try again after 1 hour.' },
+        { 
+          status: 429,
+          headers: {
+            'Retry-After': Math.ceil((Math.min(limitEmail.reset, limitIp.reset) - Date.now()) / 1000).toString()
+          }
+        }
+      );
+    }
 
     // Verify token matches the OTP verification record in DB
     const otpRecord = await Otp.findOne({
@@ -36,6 +65,7 @@ export async function POST(req) {
         error: 'Security session expired or invalid request. Please request a new passcode.'
       }, { status: 400 });
     }
+
 
     // Encrypt/hash the new password
     const hashedPassword = await bcrypt.hash(password, 10);
