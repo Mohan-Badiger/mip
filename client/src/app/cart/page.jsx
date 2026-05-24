@@ -25,7 +25,7 @@ export default function CartPage() {
     clearCart
   } = useCart();
 
-  const { user, isLoggedIn, addOrder, openAuthModal, toggleWishlist, isWishlisted } = useAuth();
+  const { user, isLoggedIn, addOrder, openAuthModal, toggleWishlist, isWishlisted, updateProfile } = useAuth();
 
   const [promoCode, setPromoCode] = useState('');
   const [appliedPromo, setAppliedPromo] = useState(null); // { code, discount }
@@ -54,6 +54,8 @@ export default function CartPage() {
   const [generatedOrderId, setGeneratedOrderId] = useState('');
   const [validationError, setValidationError] = useState('');
   const [saveAddressChecked, setSaveAddressChecked] = useState(true);
+  const [activeRazorpayOrderId, setActiveRazorpayOrderId] = useState('');
+  const [activeOrderId, setActiveOrderId] = useState('');
 
 
   // 1. Promo codes
@@ -108,13 +110,13 @@ export default function CartPage() {
       setCheckoutName(user.name || '');
       setCheckoutPhone(user.phone || '');
       setCheckoutEmail(user.email || '');
-      
+
       if (user.addresses && user.addresses.length > 0) {
         setAddressMode('saved');
         const defaultIdx = user.addresses.findIndex(a => a.isDefault);
         const activeIdx = defaultIdx !== -1 ? defaultIdx : 0;
         setSelectedAddressIndex(activeIdx);
-        
+
         const activeAddr = user.addresses[activeIdx];
         setCheckoutAddress(activeAddr.street || '');
         setCheckoutArea(activeAddr.area || '');
@@ -136,6 +138,18 @@ export default function CartPage() {
       setCheckoutStep(1);
     }
   }, [isCheckoutOpen, isLoggedIn, user]);
+
+  // Lock body scroll when checkout modal is open
+  React.useEffect(() => {
+    if (isCheckoutOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isCheckoutOpen]);
 
   const handleSelectAddress = (index) => {
     setSelectedAddressIndex(index);
@@ -176,7 +190,7 @@ export default function CartPage() {
       setValidationError('Please enter your house/flat number and building.');
       return false;
     }
-    if (!checkoutArea.trim()) {
+    if (addressMode === 'new' && !checkoutArea.trim()) {
       setValidationError('Please enter your street address or area details.');
       return false;
     }
@@ -213,8 +227,7 @@ export default function CartPage() {
       try {
         await updateProfile({
           primaryAddress: {
-            street: checkoutAddress,
-            area: checkoutArea,
+            street: checkoutArea ? `${checkoutAddress}, ${checkoutArea}` : checkoutAddress,
             city: checkoutCity,
             state: checkoutState,
             pincode: checkoutPincode,
@@ -230,7 +243,7 @@ export default function CartPage() {
   // 2. Checkout
   const handleCheckoutSubmit = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
-    
+
     // Final security check for validation
     if (!validateStep1() || !validateStep2()) {
       return;
@@ -268,6 +281,8 @@ export default function CartPage() {
       }
 
       const { razorpayOrderId, orderId } = orderData;
+      setActiveRazorpayOrderId(razorpayOrderId);
+      setActiveOrderId(orderId);
 
       // In local dev/mock, or for COD, we can verify immediately
       if (paymentMethod === 'cod' || razorpayOrderId.startsWith('order_mock_') || !window.Razorpay) {
@@ -302,6 +317,9 @@ export default function CartPage() {
             paymentMethod: paymentMethod
           };
           addOrder(newOrder);
+
+          // Auto-save address if checkbox is checked
+          await saveAddressIfChecked();
 
           setGeneratedOrderId(orderId);
           setIsSubmittingOrder(false);
@@ -351,6 +369,9 @@ export default function CartPage() {
                   paymentMethod: paymentMethod
                 };
                 addOrder(newOrder);
+
+                // Auto-save address if checkbox is checked
+                await saveAddressIfChecked();
 
                 setGeneratedOrderId(orderId);
                 setOrderSuccess(true);
@@ -494,7 +515,7 @@ export default function CartPage() {
                       const discountRate = 0.0354; // ~3.54% discount
                       const originalPrice = Math.round(priceVal * (1 + discountRate));
                       const savingsVal = originalPrice - priceVal;
-                      
+
                       // Calculate dynamic delivery date: current date + 5 days
                       const deliveryDate = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB', {
                         day: 'numeric',
@@ -502,129 +523,129 @@ export default function CartPage() {
                         year: 'numeric'
                       });
 
-                       const rawWeight = item.product.weight || '1.810 g';
-                       const metalWeightVal = parseFloat(rawWeight) || 1.810;
-                       const grossWeightVal = metalWeightVal + 0.06; // slight addition for gross weight
- 
-                       return (
-                         <div key={item.product.id} className="relative flex flex-col sm:flex-row gap-6 py-8 border-b border-gray-100 last:border-b-0 items-start group">
-                           
-                           {/* Absolute Remove Button for Modern Clean Luxury Look */}
-                           <button
-                             onClick={() => removeFromCart(item.product.id)}
-                             className="absolute top-8 right-0 p-1.5 text-gray-400 hover:text-red-650 transition-colors cursor-pointer hover:scale-105"
-                             aria-label="Remove item"
-                           >
-                             <X className="w-5 h-5 stroke-[1.5]" />
-                           </button>
- 
-                           {/* Product Image */}
-                           <div className="relative w-28 h-28 sm:w-32 sm:h-32 bg-bg-cream/40 overflow-hidden border border-gray-100 shrink-0 shadow-3xs">
-                             <Image 
-                               src={item.product.image} 
-                               alt={item.product.name} 
-                               fill 
-                               className="object-cover hover:scale-102 transition-transform duration-500" 
-                             />
-                           </div>
- 
-                           {/* Detail & Price Grid */}
-                           <div className="flex-1 flex flex-col justify-between min-h-[128px] w-full pr-8">
-                             
-                             {/* Product Info */}
-                             <div className="space-y-2">
-                               {/* SKU Code directly shown without "Item Code:" label */}
-                               <span className="font-mono text-xs tracking-wider text-gray-500 block">
-                                 {item.product.sku || '41363440'}
-                               </span>
- 
-                               <Link 
-                                 href={`/products/${item.product.slug}`} 
-                                 className="font-secondary text-base md:text-lg text-brand-brown hover:text-brand-gold transition-colors block font-semibold leading-snug"
-                               >
-                                 {item.product.name}
-                               </Link>
-                               
-                               {/* Specifications Row - Made fonts slightly larger/clearer & modern layout */}
-                               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-xs font-primary text-gray-650">
-                                 <span>Purity: <strong className="text-brand-brown font-semibold">{item.product.metal?.split(' ')[0] || '22 KT'}</strong></span>
-                                 <span className="text-gray-300">•</span>
-                                 <span>Metal weight: <strong className="text-brand-brown font-semibold">{metalWeightVal.toFixed(3)} g</strong></span>
-                                 <span className="text-gray-300">•</span>
-                                 <span>Gross weight: <strong className="text-brand-brown font-semibold">{grossWeightVal.toFixed(3)} g</strong></span>
-                               </div>
- 
-                               {/* Delivery Indicator - Clean and clear */}
-                               <p className="text-xs text-emerald-800 font-primary tracking-wide flex items-center gap-1.5 pt-1 font-medium">
-                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                 Delivery by <span className="font-semibold">{deliveryDate}</span>
-                               </p>
-                             </div>
- 
-                             {/* Bottom row: Action Buttons (Favourite only, since Remove is at top right) and Price & Quantity */}
-                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 mt-4 border-t border-gray-50">
-                               
-                               {/* Favourite Button */}
-                               <button
-                                 onClick={() => toggleWishlist(item.product)}
-                                 className="flex items-center gap-2 text-gray-650 hover:text-brand-gold transition-colors text-xs tracking-wide uppercase font-semibold font-primary cursor-pointer w-fit"
-                               >
-                                 <Heart className={`w-4 h-4 ${isWishlisted(item.product.id) ? 'fill-brand-gold text-brand-gold' : 'text-gray-400'}`} />
-                                 <span>{isWishlisted(item.product.id) ? 'Wishlisted' : 'Favourite'}</span>
-                               </button>
- 
-                               {/* Pricing & Quantity Stack */}
-                               <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto">
-                                 
-                                 {/* Quantity Controls */}
-                                 <div className="flex items-center border border-gray-200 bg-white">
-                                   <button
-                                     onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                                     className="p-2 hover:bg-gray-50 transition-colors cursor-pointer text-gray-500 hover:text-brand-brown disabled:opacity-50"
-                                     disabled={item.quantity <= 1}
-                                     aria-label="Decrease quantity"
-                                   >
-                                     <Minus className="w-3.5 h-3.5" />
-                                   </button>
-                                   <span className="px-3.5 font-primary text-xs font-semibold text-brand-brown min-w-[24px] text-center">
-                                     {item.quantity}
-                                   </span>
-                                   <button
-                                     onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                                     className="p-2 hover:bg-gray-50 transition-colors cursor-pointer text-gray-500 hover:text-brand-brown"
-                                     aria-label="Increase quantity"
-                                   >
-                                     <Plus className="w-3.5 h-3.5" />
-                                   </button>
-                                 </div>
- 
-                                 {/* Price tags stack: unboxed, clean, and highly legible */}
-                                 <div className="text-right flex flex-col items-end">
-                                   <div className="flex items-baseline gap-2">
-                                     {originalPrice > priceVal && (
-                                       <span className="text-xs text-gray-400 line-through font-primary tracking-wide">
-                                         {formatPrice(originalPrice * item.quantity)}
-                                       </span>
-                                     )}
-                                     <span className="font-secondary text-base md:text-lg text-brand-brown font-bold leading-none tracking-wide">
-                                       {formatPrice(priceVal * item.quantity)}
-                                     </span>
-                                   </div>
-                                   {originalPrice > priceVal && (
-                                     <span className="text-xs font-semibold text-emerald-700 tracking-wide font-primary mt-1 block">
-                                       Save {formatPrice(savingsVal * item.quantity)}
-                                     </span>
-                                   )}
-                                 </div>
- 
-                               </div>
- 
-                             </div>
- 
-                           </div>
- 
-                         </div>
-                       );
+                      const rawWeight = item.product.weight || '1.810 g';
+                      const metalWeightVal = parseFloat(rawWeight) || 1.810;
+                      const grossWeightVal = metalWeightVal + 0.06; // slight addition for gross weight
+
+                      return (
+                        <div key={item.product.id} className="relative flex flex-col sm:flex-row gap-6 py-8 border-b border-gray-100 last:border-b-0 items-start group">
+
+                          {/* Absolute Remove Button for Modern Clean Luxury Look */}
+                          <button
+                            onClick={() => removeFromCart(item.product.id)}
+                            className="absolute top-8 right-0 p-1.5 text-gray-400 hover:text-red-650 transition-colors cursor-pointer hover:scale-105"
+                            aria-label="Remove item"
+                          >
+                            <X className="w-5 h-5 stroke-[1.5]" />
+                          </button>
+
+                          {/* Product Image */}
+                          <div className="relative w-28 h-28 sm:w-32 sm:h-32 bg-bg-cream/40 overflow-hidden border border-gray-100 shrink-0 shadow-3xs">
+                            <Image
+                              src={item.product.image}
+                              alt={item.product.name}
+                              fill
+                              className="object-cover hover:scale-102 transition-transform duration-500"
+                            />
+                          </div>
+
+                          {/* Detail & Price Grid */}
+                          <div className="flex-1 flex flex-col justify-between min-h-[128px] w-full pr-8">
+
+                            {/* Product Info */}
+                            <div className="space-y-2">
+                              {/* SKU Code directly shown without "Item Code:" label */}
+                              <span className="font-mono text-xs tracking-wider text-gray-500 block">
+                                {item.product.sku || '41363440'}
+                              </span>
+
+                              <Link
+                                href={`/products/${item.product.slug}`}
+                                className="font-secondary text-base md:text-lg text-brand-brown hover:text-brand-gold transition-colors block font-semibold leading-snug"
+                              >
+                                {item.product.name}
+                              </Link>
+
+                              {/* Specifications Row - Made fonts slightly larger/clearer & modern layout */}
+                              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-xs font-primary text-gray-650">
+                                <span>Purity: <strong className="text-brand-brown font-semibold">{item.product.metal?.split(' ')[0] || '22 KT'}</strong></span>
+                                <span className="text-gray-300">•</span>
+                                <span>Metal weight: <strong className="text-brand-brown font-semibold">{metalWeightVal.toFixed(3)} g</strong></span>
+                                <span className="text-gray-300">•</span>
+                                <span>Gross weight: <strong className="text-brand-brown font-semibold">{grossWeightVal.toFixed(3)} g</strong></span>
+                              </div>
+
+                              {/* Delivery Indicator - Clean and clear */}
+                              <p className="text-xs text-emerald-800 font-primary tracking-wide flex items-center gap-1.5 pt-1 font-medium">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                Delivery by <span className="font-semibold">{deliveryDate}</span>
+                              </p>
+                            </div>
+
+                            {/* Bottom row: Action Buttons (Favourite only, since Remove is at top right) and Price & Quantity */}
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 mt-4 border-t border-gray-50">
+
+                              {/* Favourite Button */}
+                              <button
+                                onClick={() => toggleWishlist(item.product)}
+                                className="flex items-center gap-2 text-gray-650 hover:text-brand-gold transition-colors text-xs tracking-wide uppercase font-semibold font-primary cursor-pointer w-fit"
+                              >
+                                <Heart className={`w-4 h-4 ${isWishlisted(item.product.id) ? 'fill-brand-gold text-brand-gold' : 'text-gray-400'}`} />
+                                <span>{isWishlisted(item.product.id) ? 'Wishlisted' : 'Favourite'}</span>
+                              </button>
+
+                              {/* Pricing & Quantity Stack */}
+                              <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto">
+
+                                {/* Quantity Controls */}
+                                <div className="flex items-center border border-gray-200 bg-white">
+                                  <button
+                                    onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                                    className="p-2 hover:bg-gray-50 transition-colors cursor-pointer text-gray-500 hover:text-brand-brown disabled:opacity-50"
+                                    disabled={item.quantity <= 1}
+                                    aria-label="Decrease quantity"
+                                  >
+                                    <Minus className="w-3.5 h-3.5" />
+                                  </button>
+                                  <span className="px-3.5 font-primary text-xs font-semibold text-brand-brown min-w-[24px] text-center">
+                                    {item.quantity}
+                                  </span>
+                                  <button
+                                    onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                                    className="p-2 hover:bg-gray-50 transition-colors cursor-pointer text-gray-500 hover:text-brand-brown"
+                                    aria-label="Increase quantity"
+                                  >
+                                    <Plus className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+
+                                {/* Price tags stack: unboxed, clean, and highly legible */}
+                                <div className="text-right flex flex-col items-end">
+                                  <div className="flex items-baseline gap-2">
+                                    {originalPrice > priceVal && (
+                                      <span className="text-xs text-gray-400 line-through font-primary tracking-wide">
+                                        {formatPrice(originalPrice * item.quantity)}
+                                      </span>
+                                    )}
+                                    <span className="font-secondary text-base md:text-lg text-brand-brown font-bold leading-none tracking-wide">
+                                      {formatPrice(priceVal * item.quantity)}
+                                    </span>
+                                  </div>
+                                  {originalPrice > priceVal && (
+                                    <span className="text-xs font-semibold text-emerald-700 tracking-wide font-primary mt-1 block">
+                                      Save {formatPrice(savingsVal * item.quantity)}
+                                    </span>
+                                  )}
+                                </div>
+
+                              </div>
+
+                            </div>
+
+                          </div>
+
+                        </div>
+                      );
                     })}
                   </div>
                 </div>
@@ -746,7 +767,7 @@ export default function CartPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={closeCheckoutModal}
-              className="absolute inset-0 bg-black/75 backdrop-blur-md"
+              className="fixed inset-0 bg-black/80 backdrop-blur-xl -z-10"
             />
 
             {/* Modal Box */}
@@ -763,17 +784,72 @@ export default function CartPage() {
               {/* Backdrop Blur Overlay when submitting to Razorpay */}
               <AnimatePresence>
                 {isSubmittingOrder && (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-white/70 backdrop-blur-md z-30 flex flex-col items-center justify-center p-6 text-center"
+                    className="absolute inset-0 bg-white/80 backdrop-blur-md z-30 flex flex-col items-center justify-center p-6 text-center"
                   >
                     <div className="w-12 h-12 rounded-full border-2 border-brand-gold border-t-transparent animate-spin mb-4" />
                     <span className="font-primary text-[10px] tracking-[0.25em] uppercase font-bold text-brand-brown">Securing Transaction...</span>
-                    <p className="font-primary text-[11px] text-gray-400 mt-1.5 max-w-[280px] leading-relaxed">
+                    <p className="font-primary text-[11px] text-gray-400 mt-1.5 max-w-[280px] leading-relaxed mb-5">
                       Please complete the payment process in the secure Razorpay overlay.
                     </p>
+
+                    {/* Test mode bypass with dummy transition */}
+                    {(process.env.NODE_ENV === 'development' || !process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID.startsWith('rzp_test_')) && (
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          try {
+                            const verifyRes = await fetch('/api/v1/payments/verify-payment', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                razorpayOrderId: activeRazorpayOrderId,
+                                razorpayPaymentId: 'pay_mock_' + Math.floor(100000 + Math.random() * 900000),
+                                razorpaySignature: 'mock_sig_dev'
+                              })
+                            });
+                            const verifyData = await verifyRes.json();
+                            if (verifyRes.ok && verifyData.success) {
+                              const newOrder = {
+                                id: activeOrderId,
+                                items: cartItems.map(item => ({
+                                  id: item.product.id,
+                                  name: item.product.name,
+                                  price: item.product.price,
+                                  quantity: item.quantity,
+                                  weight: item.product.weight || '—',
+                                  metal: item.product.metal || '—',
+                                  image: item.product.image
+                                })),
+                                subtotal: cartTotal,
+                                discount: discountAmount,
+                                total: finalTotal,
+                                paymentMethod: paymentMethod
+                              };
+                              addOrder(newOrder);
+                              await saveAddressIfChecked();
+                              setGeneratedOrderId(activeOrderId);
+                              setOrderSuccess(true);
+                              clearCart();
+                              setAppliedPromo(null);
+                            } else {
+                              alert(verifyData.error || 'Mock verification failed');
+                            }
+                          } catch (err) {
+                            console.error(err);
+                            alert('Error verifying mock payment');
+                          } finally {
+                            setIsSubmittingOrder(false);
+                          }
+                        }}
+                        className="px-5 py-3 border border-brand-gold hover:bg-brand-gold hover:text-brand-brown text-brand-gold font-primary text-[10px] font-bold tracking-[0.2em] uppercase transition-all duration-300 shadow-md cursor-pointer rounded-xs"
+                      >
+                        Bypass with Dummy Payment
+                      </button>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -800,7 +876,7 @@ export default function CartPage() {
                           Secure Order Portal
                         </span>
                         <h3 className="font-secondary text-2xl text-brand-brown leading-none">
-                          Luxury Checkout
+                          Checkout
                         </h3>
                       </div>
                     </div>
@@ -810,7 +886,7 @@ export default function CartPage() {
                       <div className="flex items-center justify-between max-w-md mx-auto relative px-2">
                         {/* Background connection line */}
                         <div className="absolute top-4.5 left-6 right-6 h-[2px] bg-gray-100 -z-0">
-                          <div 
+                          <div
                             className="h-full bg-brand-gold transition-all duration-500"
                             style={{ width: checkoutStep === 1 ? '0%' : checkoutStep === 2 ? '50%' : '100%' }}
                           />
@@ -826,12 +902,12 @@ export default function CartPage() {
                           const isCompleted = checkoutStep > item.step;
                           return (
                             <div key={item.step} className="flex flex-col items-center z-10 relative">
-                              <div className={`w-9 h-9 rounded-full flex items-center justify-center border transition-all duration-300 bg-white
-                                ${isCompleted 
-                                  ? 'bg-brand-brown border-brand-brown text-white shadow-sm' 
-                                  : isActive 
-                                    ? 'border-brand-gold text-brand-gold shadow-md shadow-brand-gold/15 ring-4 ring-brand-gold/10' 
-                                    : 'border-gray-200 text-gray-400'}`}
+                              <div className={`w-9 h-9 rounded-full flex items-center justify-center border transition-all duration-300
+                                ${isCompleted
+                                  ? 'bg-brand-brown border-brand-brown text-white shadow-sm'
+                                  : isActive
+                                    ? 'bg-white border-brand-gold text-brand-gold shadow-md shadow-brand-gold/15 ring-4 ring-brand-gold/10'
+                                    : 'bg-white border-gray-200 text-gray-400'}`}
                               >
                                 {isCompleted ? <Check className="w-4 h-4 stroke-[2.5]" /> : <Icon className="w-4.5 h-4.5" />}
                               </div>
@@ -848,7 +924,7 @@ export default function CartPage() {
 
                     {/* Validation Error Message Box */}
                     {validationError && (
-                      <motion.div 
+                      <motion.div
                         initial={{ opacity: 0, y: -8 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="p-4 bg-red-50/70 border-l-2 border-red-500 text-red-700 text-xs font-primary mb-6 flex items-start gap-2.5 rounded-xs"
@@ -932,197 +1008,198 @@ export default function CartPage() {
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           exit={{ opacity: 0, x: 10 }}
-                          className="space-y-4"
+                          className="space-y-5"
                         >
-                          {/* Saved Address selection header if user has registered addresses */}
+                          {/* Saved Addresses Section (if they exist) */}
                           {user?.addresses && user.addresses.length > 0 && (
-                            <div className="grid grid-cols-2 gap-3 mb-5">
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setAddressMode('saved');
-                                  setValidationError('');
-                                  if (user.addresses && user.addresses.length > 0) {
-                                    handleSelectAddress(0);
-                                  }
-                                }}
-                                className={`py-3 border text-[10px] font-primary tracking-widest uppercase transition-all flex items-center justify-center gap-2 cursor-pointer rounded-xs
-                                  ${addressMode === 'saved' 
-                                    ? 'border-brand-brown bg-brand-brown text-white font-bold' 
-                                    : 'border-gray-200 hover:border-brand-gold text-gray-550 bg-white'}`}
-                              >
-                                <UserIcon className="w-3.5 h-3.5" /> Saved Addresses
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setAddressMode('new');
-                                  setValidationError('');
-                                  setCheckoutAddress('');
-                                  setCheckoutArea('');
-                                  setCheckoutCity('');
-                                  setCheckoutState('');
-                                  setCheckoutPincode('');
-                                }}
-                                className={`py-3 border text-[10px] font-primary tracking-widest uppercase transition-all flex items-center justify-center gap-2 cursor-pointer rounded-xs
-                                  ${addressMode === 'new' 
-                                    ? 'border-brand-brown bg-brand-brown text-white font-bold' 
-                                    : 'border-gray-200 hover:border-brand-gold text-gray-550 bg-white'}`}
-                              >
-                                <Plus className="w-3.5 h-3.5" /> Add New Address
-                              </button>
+                            <div className="mb-2">
+                              <label className="text-[10px] tracking-widest text-brand-brown uppercase font-bold block mb-2">
+                                Ship to a Saved Address
+                              </label>
+                              <div className="flex gap-3 overflow-x-auto pb-2.5 scrollbar-thin select-none">
+                                {user.addresses.map((addr, idx) => (
+                                  <div
+                                    key={idx}
+                                    onClick={() => {
+                                      setAddressMode('saved');
+                                      handleSelectAddress(idx);
+                                      setValidationError('');
+                                    }}
+                                    className={`p-3.5 border cursor-pointer relative transition-all duration-300 rounded-sm flex flex-col justify-between min-w-[230px] max-w-[250px] shrink-0
+                                      ${addressMode === 'saved' && selectedAddressIndex === idx
+                                        ? 'border-brand-gold bg-bg-cream/20 shadow-sm ring-1 ring-brand-gold/15'
+                                        : 'border-gray-205 border-gray-200 hover:border-gray-300 bg-white'}`}
+                                  >
+                                    <div className="flex items-start gap-2.5">
+                                      <MapPin className={`w-3.5 h-3.5 mt-0.5 shrink-0 ${addressMode === 'saved' && selectedAddressIndex === idx ? 'text-brand-gold' : 'text-gray-400'}`} />
+                                      <div className="min-w-0 flex-1">
+                                        <div className="flex items-center gap-1.5 mb-1">
+                                          <span className="text-[8px] tracking-wider font-bold text-brand-gold uppercase bg-brand-gold/5 px-1.5 py-0.5 rounded-sm">
+                                            {addr.isDefault ? 'Default' : `#${idx + 1}`}
+                                          </span>
+                                        </div>
+                                        <p className="text-[11px] text-brand-brown font-semibold truncate leading-tight">
+                                          {addr.street}
+                                        </p>
+                                        <p className="text-[10px] text-gray-500 truncate mt-0.5">
+                                          {addr.city}, {addr.state} - {addr.pincode}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    {addressMode === 'saved' && selectedAddressIndex === idx && (
+                                      <div className="absolute top-2.5 right-2.5">
+                                        <CheckCircle2 className="w-3.5 h-3.5 text-brand-gold fill-brand-gold/5" />
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
                             </div>
                           )}
 
-                          {/* Address content options */}
-                          {addressMode === 'saved' && user?.addresses && user.addresses.length > 0 ? (
-                            <div className="space-y-3 max-h-[260px] overflow-y-auto pr-1">
-                              {user.addresses.map((addr, idx) => (
-                                <div
-                                  key={idx}
-                                  onClick={() => handleSelectAddress(idx)}
-                                  className={`p-4 border cursor-pointer relative transition-all duration-300 rounded-sm flex gap-3 items-start
-                                    ${selectedAddressIndex === idx
-                                      ? 'border-brand-gold bg-bg-cream/20 shadow-sm ring-1 ring-brand-gold/15' 
-                                      : 'border-gray-200 hover:border-gray-300 bg-white'}`}
+                          {/* Address Form Fields */}
+                          <div className="space-y-4">
+                            <div className="flex justify-between items-center border-b border-gray-100 pb-2">
+                              <label className="text-[10px] tracking-widest text-brand-brown uppercase font-bold">
+                                {addressMode === 'saved' ? 'Selected Address Details' : 'Enter Shipping Address'}
+                              </label>
+                              {addressMode === 'saved' && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setAddressMode('new');
+                                    setCheckoutAddress('');
+                                    setCheckoutArea('');
+                                    setCheckoutCity('');
+                                    setCheckoutState('');
+                                    setCheckoutPincode('');
+                                  }}
+                                  className="text-[9px] text-brand-gold hover:underline uppercase font-bold tracking-wider cursor-pointer"
                                 >
-                                  <MapPin className={`w-4 h-4 mt-0.5 shrink-0 ${selectedAddressIndex === idx ? 'text-brand-gold' : 'text-gray-400'}`} />
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-1.5">
-                                      <span className="text-[9px] tracking-widest font-bold text-brand-gold uppercase bg-brand-gold/5 px-2 py-0.5 rounded-sm leading-none">
-                                        {addr.isDefault ? 'Default Address' : `Address #${idx + 1}`}
-                                      </span>
-                                    </div>
-                                    <p className="text-xs text-brand-brown font-semibold leading-relaxed">
-                                      {addr.street}
-                                    </p>
-                                    <p className="text-[11px] text-gray-555 mt-0.5 leading-normal">
-                                      {addr.area ? `${addr.area}, ` : ''}{addr.city}, {addr.state} - {addr.pincode}
-                                    </p>
-                                  </div>
-                                  {selectedAddressIndex === idx && (
-                                    <CheckCircle2 className="w-4.5 h-4.5 text-brand-gold fill-brand-gold/5 shrink-0 self-center" />
-                                  )}
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            /* New Address Form Fields */
-                            <div className="space-y-4 animate-fadeIn">
-                              <div>
-                                <label className="text-[10px] tracking-widest text-brand-brown uppercase font-bold block mb-1">House, Flat, Apartment, Building No.</label>
-                                <input
-                                  type="text"
-                                  value={checkoutAddress}
-                                  onChange={(e) => {
-                                    setCheckoutAddress(e.target.value);
-                                    if (validationError) setValidationError('');
-                                  }}
-                                  placeholder="e.g. Penthouse A, Floor 14"
-                                  className="w-full text-xs px-4 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-primary"
-                                />
-                              </div>
-
-                              <div>
-                                <label className="text-[10px] tracking-widest text-brand-brown uppercase font-bold block mb-1">Street Address, Landmark, Area</label>
-                                <input
-                                  type="text"
-                                  value={checkoutArea}
-                                  onChange={(e) => {
-                                    setCheckoutArea(e.target.value);
-                                    if (validationError) setValidationError('');
-                                  }}
-                                  placeholder="e.g. Mg Road, Opposite Royal Plaza"
-                                  className="w-full text-xs px-4 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-primary"
-                                />
-                              </div>
-
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                  <label className="text-[10px] tracking-widest text-brand-brown uppercase font-bold block mb-1">City</label>
-                                  <input
-                                    type="text"
-                                    value={checkoutCity}
-                                    onChange={(e) => {
-                                      setCheckoutCity(e.target.value);
-                                      if (validationError) setValidationError('');
-                                    }}
-                                    placeholder="e.g. Bangalore"
-                                    className="w-full text-xs px-4 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-primary"
-                                  />
-                                </div>
-
-                                <div>
-                                  <label className="text-[10px] tracking-widest text-brand-brown uppercase font-bold block mb-1">Pincode</label>
-                                  <input
-                                    type="text"
-                                    maxLength={6}
-                                    value={checkoutPincode}
-                                    onChange={(e) => {
-                                      setCheckoutPincode(e.target.value);
-                                      if (validationError) setValidationError('');
-                                    }}
-                                    placeholder="6 digit PIN code"
-                                    className="w-full text-xs px-4 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-primary"
-                                  />
-                                </div>
-                              </div>
-
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                  <label className="text-[10px] tracking-widest text-brand-brown uppercase font-bold block mb-1">State</label>
-                                  <input
-                                    type="text"
-                                    value={checkoutState}
-                                    onChange={(e) => {
-                                      setCheckoutState(e.target.value);
-                                      if (validationError) setValidationError('');
-                                    }}
-                                    placeholder="e.g. Karnataka"
-                                    className="w-full text-xs px-4 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-primary"
-                                  />
-                                </div>
-
-                                <div>
-                                  <label className="text-[10px] tracking-widest text-brand-brown uppercase font-bold block mb-1">Country</label>
-                                  <input
-                                    type="text"
-                                    value={checkoutCountry}
-                                    onChange={(e) => {
-                                      setCheckoutCountry(e.target.value);
-                                      if (validationError) setValidationError('');
-                                    }}
-                                    placeholder="e.g. India"
-                                    className="w-full text-xs px-4 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-primary"
-                                  />
-                                </div>
-                              </div>
-                              
-                              {/* Checkbox to Save Address for logged in users */}
-                              {isLoggedIn && (
-                                <div className="pt-2 flex items-start gap-2.5 select-none">
-                                  <div className="flex items-center h-5">
-                                    <button
-                                      type="button"
-                                      onClick={() => setSaveAddressChecked(!saveAddressChecked)}
-                                      className={`w-4 h-4 border rounded-xs transition-all flex items-center justify-center cursor-pointer
-                                        ${saveAddressChecked 
-                                          ? 'bg-brand-brown border-brand-brown text-white' 
-                                          : 'bg-white border-gray-300 hover:border-brand-gold'}`}
-                                    >
-                                      {saveAddressChecked && <Check className="w-2.5 h-2.5 stroke-[3]" />}
-                                    </button>
-                                  </div>
-                                  <label 
-                                    onClick={() => setSaveAddressChecked(!saveAddressChecked)}
-                                    className="text-[10px] text-gray-550 font-primary cursor-pointer leading-tight select-none pt-0.5"
-                                  >
-                                    Save this address to my profile for future purchases
-                                  </label>
-                                </div>
+                                  + Ship to a New Address
+                                </button>
                               )}
                             </div>
-                          )}
+
+                            <div>
+                              <label className="text-[9px] tracking-widest text-brand-brown uppercase font-bold block mb-1">House, Flat, Apartment, Building No.</label>
+                              <input
+                                type="text"
+                                value={checkoutAddress}
+                                onChange={(e) => {
+                                  setCheckoutAddress(e.target.value);
+                                  setAddressMode('new'); // switch to new mode if user edits
+                                  if (validationError) setValidationError('');
+                                }}
+                                placeholder="e.g. Penthouse A, Floor 14"
+                                className="w-full text-xs px-4 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-primary"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="text-[9px] tracking-widest text-brand-brown uppercase font-bold block mb-1">Street Address, Landmark, Area</label>
+                              <input
+                                type="text"
+                                value={checkoutArea}
+                                onChange={(e) => {
+                                  setCheckoutArea(e.target.value);
+                                  setAddressMode('new'); // switch to new mode if user edits
+                                  if (validationError) setValidationError('');
+                                }}
+                                placeholder="e.g. Mg Road, Opposite Royal Plaza"
+                                className="w-full text-xs px-4 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-primary"
+                              />
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <div>
+                                <label className="text-[9px] tracking-widest text-brand-brown uppercase font-bold block mb-1">City</label>
+                                <input
+                                  type="text"
+                                  value={checkoutCity}
+                                  onChange={(e) => {
+                                    setCheckoutCity(e.target.value);
+                                    setAddressMode('new'); // switch to new mode
+                                    if (validationError) setValidationError('');
+                                  }}
+                                  placeholder="e.g. Bangalore"
+                                  className="w-full text-xs px-4 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-primary"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="text-[9px] tracking-widest text-brand-brown uppercase font-bold block mb-1">Pincode</label>
+                                <input
+                                  type="text"
+                                  maxLength={6}
+                                  value={checkoutPincode}
+                                  onChange={(e) => {
+                                    setCheckoutPincode(e.target.value);
+                                    setAddressMode('new'); // switch to new mode
+                                    if (validationError) setValidationError('');
+                                  }}
+                                  placeholder="6 digit PIN code"
+                                  className="w-full text-xs px-4 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-primary"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <div>
+                                <label className="text-[9px] tracking-widest text-brand-brown uppercase font-bold block mb-1">State</label>
+                                <input
+                                  type="text"
+                                  value={checkoutState}
+                                  onChange={(e) => {
+                                    setCheckoutState(e.target.value);
+                                    setAddressMode('new'); // switch to new mode
+                                    if (validationError) setValidationError('');
+                                  }}
+                                  placeholder="e.g. Karnataka"
+                                  className="w-full text-xs px-4 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-primary"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="text-[9px] tracking-widest text-brand-brown uppercase font-bold block mb-1">Country</label>
+                                <input
+                                  type="text"
+                                  value={checkoutCountry}
+                                  onChange={(e) => {
+                                    setCheckoutCountry(e.target.value);
+                                    setAddressMode('new'); // switch to new mode
+                                    if (validationError) setValidationError('');
+                                  }}
+                                  placeholder="e.g. India"
+                                  className="w-full text-xs px-4 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-primary"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Checkbox to Save Address for logged in users */}
+                            {isLoggedIn && addressMode === 'new' && (
+                              <div className="pt-2 flex items-start gap-2.5 select-none animate-fadeIn">
+                                <div className="flex items-center h-5">
+                                  <button
+                                    type="button"
+                                    onClick={() => setSaveAddressChecked(!saveAddressChecked)}
+                                    className={`w-4 h-4 border rounded-xs transition-all flex items-center justify-center cursor-pointer
+                                      ${saveAddressChecked
+                                        ? 'bg-brand-brown border-brand-brown text-white'
+                                        : 'bg-white border-gray-300 hover:border-brand-gold'}`}
+                                  >
+                                    {saveAddressChecked && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                                  </button>
+                                </div>
+                                <label
+                                  onClick={() => setSaveAddressChecked(!saveAddressChecked)}
+                                  className="text-[10px] text-gray-550 font-primary cursor-pointer leading-tight select-none pt-0.5"
+                                >
+                                  Save this address to my profile for future purchases
+                                </label>
+                              </div>
+                            )}
+                          </div>
 
                           <div className="grid grid-cols-2 gap-4 pt-8 border-t border-gray-100">
                             <button
@@ -1204,8 +1281,8 @@ export default function CartPage() {
                               <div
                                 onClick={() => setPaymentMethod('card')}
                                 className={`p-4 border cursor-pointer flex items-start gap-3 transition-all duration-350 rounded-sm relative
-                                  ${paymentMethod === 'card' 
-                                    ? 'border-brand-gold bg-bg-cream/10 shadow-sm' 
+                                  ${paymentMethod === 'card'
+                                    ? 'border-brand-gold bg-bg-cream/10 shadow-sm'
                                     : 'border-gray-200 hover:border-gray-300 bg-white'}`}
                               >
                                 <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 mt-0.5 transition-all
@@ -1225,8 +1302,8 @@ export default function CartPage() {
                               <div
                                 onClick={() => setPaymentMethod('cod')}
                                 className={`p-4 border cursor-pointer flex items-start gap-3 transition-all duration-350 rounded-sm relative
-                                  ${paymentMethod === 'cod' 
-                                    ? 'border-brand-gold bg-bg-cream/10 shadow-sm' 
+                                  ${paymentMethod === 'cod'
+                                    ? 'border-brand-gold bg-bg-cream/10 shadow-sm'
                                     : 'border-gray-200 hover:border-gray-300 bg-white'}`}
                               >
                                 <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 mt-0.5 transition-all
@@ -1251,8 +1328,8 @@ export default function CartPage() {
                                 type="button"
                                 onClick={() => setAcceptTerms(!acceptTerms)}
                                 className={`w-4.5 h-4.5 border rounded-xs transition-all flex items-center justify-center cursor-pointer
-                                  ${acceptTerms 
-                                    ? 'bg-brand-brown border-brand-brown text-white' 
+                                  ${acceptTerms
+                                    ? 'bg-brand-brown border-brand-brown text-white'
                                     : 'bg-white border-gray-300 hover:border-brand-gold'}`}
                               >
                                 {acceptTerms && <Check className="w-3 h-3 stroke-[3]" />}
@@ -1331,7 +1408,7 @@ export default function CartPage() {
                         <p>
                           <strong className="text-brand-brown">Shipping Address:</strong> {checkoutAddress}{checkoutArea ? `, ${checkoutArea}` : ''}, {checkoutCity}, {checkoutState}, {checkoutCountry} - {checkoutPincode}
                         </p>
-                        <p className="flex items-center gap-1.5"><strong className="text-brand-brown font-bold">Payment Status:</strong> 
+                        <p className="flex items-center gap-1.5"><strong className="text-brand-brown font-bold">Payment Status:</strong>
                           <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-850 bg-emerald-50 px-2 py-0.5 rounded-sm uppercase tracking-wider leading-none">
                             {paymentMethod === 'cod' ? 'Pending COD' : 'Verified Secure'}
                           </span>
