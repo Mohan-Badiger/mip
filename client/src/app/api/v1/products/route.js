@@ -209,16 +209,20 @@ export async function GET(req) {
       .limit(limit)
       .sort(searchQuery ? { score: { $meta: 'textScore' } } : { createdAt: -1 });
 
+    // Fetch rates in bulk to avoid N+1 queries in the loop below
+    const rates = await GoldRate.find({});
+
     // Dynamic Price Lock Calculation for luxury catalog items
     const productsWithLivePrices = await Promise.all(
       productsList.map(async (product) => {
-        const pricing = await calculateLiveProductPrice(product);
+        const pricing = await calculateLiveProductPrice(product, rates);
         return {
           ...product.toObject(),
           pricing
         };
       })
     );
+
 
     return NextResponse.json({
       success: true,

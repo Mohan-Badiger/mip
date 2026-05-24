@@ -1,43 +1,56 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
+import { z } from 'zod';
 import dbConnect from '@/backend/config/dbConnect';
 import User from '@/backend/models/User';
 import Otp from '@/backend/models/Otp';
 import { sendOtpEmail } from '@/backend/services/emailService';
+import { rateLimit } from '@/backend/lib/rateLimit';
 
-// Rate limiter: max 3 OTP sends per email per 15 minutes
-const sendRateLimitMap = new Map();
-const MAX_SENDS = 3;
-const SEND_WINDOW_MS = 15 * 60 * 1000;
-
-function checkSendRateLimit(email) {
-  const now = Date.now();
-  const entry = sendRateLimitMap.get(email);
-  if (!entry || now - entry.windowStart > SEND_WINDOW_MS) {
-    sendRateLimitMap.set(email, { count: 1, windowStart: now });
-    return true;
-  }
-  if (entry.count >= MAX_SENDS) return false;
-  entry.count += 1;
-  return true;
-}
+// Input validation schema to prevent NoSQL query injection and enforce type checks
+const sendOtpSchema = z.object({
+  email: z.string().trim().email({ message: 'Invalid email address' }).max(100),
+  type: z.enum(['register', 'login', 'reset'], { message: 'Invalid verification type' }),
+  payload: z.object({
+    name: z.string().trim().min(2, { message: 'Name must be at least 2 characters' }).max(50).optional(),
+    phone: z.string().trim().regex(/^[0-9]{10}$/, { message: 'Phone number must be a valid 10-digit number' }).optional(),
+    password: z.string().min(6, { message: 'Password must be at least 6 characters' }).max(100).optional(),
+  }).optional(),
+});
 
 export async function POST(req) {
   try {
     await dbConnect();
-    const { email, type, payload } = await req.json();
+    
+    // Get client IP for rate limiting
+    const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || '127.0.0.1';
 
-    if (!email || !type) {
-      return NextResponse.json({ error: 'Email and verification type are required' }, { status: 400 });
+    // Parse and validate raw JSON body
+    const body = await req.json();
+    const result = sendOtpSchema.safeParse(body);
+
+    if (!result.success) {
+      const errorMsg = result.error.issues.map(err => err.message).join(', ');
+      return NextResponse.json({ error: errorMsg }, { status: 400 });
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
+    const { email, type, payload } = result.data;
+    const normalizedEmail = email.toLowerCase();
 
-    // Rate limiting: max 3 OTP sends per email per 15 minutes
-    if (!checkSendRateLimit(normalizedEmail)) {
+    // Rate Limiting: Max 3 OTP sends per email per 15 minutes
+    const limitEmail = rateLimit(`otp-send:email:${normalizedEmail}`, 3, 900000);
+    // Rate Limiting: Max 5 OTP sends per IP per 10 minutes (to prevent brute forcing many emails)
+    const limitIp = rateLimit(`otp-send:ip:${ip}`, 5, 600000);
+
+    if (!limitEmail.success || !limitIp.success) {
       return NextResponse.json(
-        { error: 'Too many requests. Please wait 15 minutes before requesting another passcode.' },
-        { status: 429 }
+        { error: 'Too many requests. Please wait a few minutes before requesting another passcode.' },
+        { 
+          status: 429,
+          headers: {
+            'Retry-After': Math.ceil((Math.min(limitEmail.reset, limitIp.reset) - Date.now()) / 1000).toString()
+          }
+        }
       );
     }
 
@@ -45,10 +58,6 @@ export async function POST(req) {
     if (type === 'register') {
       if (!payload || !payload.name || !payload.phone || !payload.password) {
         return NextResponse.json({ error: 'Missing registration details' }, { status: 400 });
-      }
-
-      if (payload.password.length < 6) {
-        return NextResponse.json({ error: 'Password must be at least 6 characters long' }, { status: 400 });
       }
 
       // Check if user already exists
@@ -68,9 +77,8 @@ export async function POST(req) {
       if (!existingUser) {
         return NextResponse.json({ error: 'No account found with this email address' }, { status: 404 });
       }
-    } else {
-      return NextResponse.json({ error: 'Invalid verification type' }, { status: 400 });
     }
+
 
     // Generate 6-digit numeric OTP code
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
