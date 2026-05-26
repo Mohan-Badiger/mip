@@ -9,7 +9,7 @@ import FadeInUp from '@/components/global/FadeInUp';
 export default function ExquisiteCollections() {
   return (
     <div className="bg-white">
-      <section className="py-12 md:py-16 max-w-[1920px] mx-auto px-4 md:px-16 lg:px-24">
+      <section className="py-12 md:py-16 max-w-480 mx-auto px-4 md:px-16 lg:px-24">
 
         {/* ── Mobile Layout ── */}
         <div className="lg:hidden flex flex-col gap-8">
@@ -32,10 +32,10 @@ export default function ExquisiteCollections() {
               {/* Main portrait — spans 2 rows on left */}
               <div className="relative aspect-3/4 w-full overflow-hidden rounded-sm shadow-md">
                 <Image
-                  src="/images/exquisite_model_1779203407757.png"
+                  src="/images/exquisite_model.png"
                   alt="Exquisite jewellery model"
                   fill
-                  sizes="50vw"
+                  sizes="55vw"
                   className="object-cover"
                 />
               </div>
@@ -43,7 +43,7 @@ export default function ExquisiteCollections() {
               <div className="flex flex-col gap-3">
                 <div className="relative aspect-square w-full overflow-hidden rounded-sm shadow-md">
                   <Image
-                    src="/images/bridal_jewellery_1779199671286.png"
+                    src="/images/category_necklaces.png"
                     alt="Bridal necklace"
                     fill
                     sizes="25vw"
@@ -52,7 +52,7 @@ export default function ExquisiteCollections() {
                 </div>
                 <div className="relative aspect-square w-full overflow-hidden rounded-sm shadow-md">
                   <Image
-                    src="/images/category_bangles_1779203423031.png"
+                    src="/images/category_bangles.png"
                     alt="Gold bangles"
                     fill
                     sizes="25vw"
@@ -82,16 +82,16 @@ export default function ExquisiteCollections() {
           </div>
 
           {/* Overlapping image mosaic */}
-          <div className="w-2/3 relative h-[600px] flex justify-center">
+          <div className="w-2/3 relative h-150 flex justify-center">
             {/* Center Portrait */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1.5, ease: [0.25, 1, 0.5, 1] }}
               viewport={{ once: true }}
-              className="absolute left-[58%] -translate-x-1/2 z-10 w-[450px] h-[550px]"
+              className="absolute left-[58%] -translate-x-1/2 z-10 w-112.5 h-137.5"
             >
-              <Image src="/images/exquisite_model_1779203407757.png" alt="Exquisite model" fill sizes="50vw" className="object-cover" />
+              <Image src="/images/exquisite_model.png" alt="Exquisite model" fill sizes="50vw" className="object-cover" />
             </motion.div>
 
             {/* Left Product */}
@@ -100,9 +100,9 @@ export default function ExquisiteCollections() {
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 1.5, delay: 0.3, ease: [0.25, 1, 0.5, 1] }}
               viewport={{ once: true }}
-              className="absolute bottom-0 left-[18%] z-20 w-[350px] h-[250px] shadow-2xl"
+              className="absolute bottom-0 left-[18%] z-20 w-87.5 h-62.5 shadow-2xl"
             >
-              <Image src="/images/bridal_jewellery_1779199671286.png" alt="Necklace" fill sizes="33vw" className="object-cover" />
+              <Image src="/images/category_necklaces.png" alt="Necklace" fill sizes="33vw" className="object-cover" />
             </motion.div>
 
             {/* Right Product */}
@@ -111,9 +111,9 @@ export default function ExquisiteCollections() {
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 1.5, delay: 0.5, ease: [0.25, 1, 0.5, 1] }}
               viewport={{ once: true }}
-              className="absolute bottom-12 right-[5%] z-20 w-[220px] h-[280px] shadow-2xl"
+              className="absolute bottom-12 right-[5%] z-20 w-55 h-70 shadow-2xl"
             >
-              <Image src="/images/category_bangles_1779203423031.png" alt="Earrings" fill sizes="25vw" className="object-cover" />
+              <Image src="/images/category_bangles.png" alt="Earrings" fill sizes="25vw" className="object-cover" />
             </motion.div>
           </div>
         </div>

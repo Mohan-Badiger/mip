@@ -264,7 +264,7 @@ function CatalogContent() {
       <div className="relative bg-[#0F0E0C] overflow-hidden h-45 sm:h-55 md:h-65 lg:h-75 flex items-center border-b border-gray-900 mb-8">
         <div className="absolute right-0 top-0 bottom-0 w-full md:w-[60%] lg:w-[50%] h-full">
           <Image
-            src="/images/exquisite_model_1779203407757.png"
+            src="/images/exquisite_model.png"
             alt="All Jewellery"
             fill
             priority

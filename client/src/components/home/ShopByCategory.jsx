@@ -6,12 +6,12 @@ import { ArrowUpRight } from 'lucide-react';
 import FadeInUp from '@/components/global/FadeInUp';
 
 const CATEGORIES = [
-  { name: "Bangles", slug: "bangles", subtitle: "Curated Cuffs", img: "/images/category_bangles_1779203423031.png" },
-  { name: "Chains", slug: "chains", subtitle: "Sleek Links", img: "/images/luxury_gold_hero_1779199654262.png" },
-  { name: "Earrings", slug: "earrings", subtitle: "Delicate Studs", img: "/images/product_earrings_1.png" },
-  { name: "Necklaces", slug: "necklaces", subtitle: "Royal Chokers", img: "/images/bridal_jewellery_1779199671286.png" },
-  { name: "Coins", slug: "coins-bars", subtitle: "Pure Assets", img: "/images/hero_model_scheme_1779204168417.png" },
-  { name: "Rings", slug: "rings", subtitle: "Timeless Bands", img: "/images/modern_diamonds_1779199687171.png" },
+  { name: "Bangles", slug: "bangles", subtitle: "Curated Cuffs", img: "/images/category_bangles.png" },
+  { name: "Chains", slug: "chains", subtitle: "Sleek Links", img: "/images/category_chains.png" },
+  { name: "Earrings", slug: "earrings", subtitle: "Delicate Studs", img: "/images/category_earrings.png" },
+  { name: "Necklaces", slug: "necklaces", subtitle: "Royal Chokers", img: "/images/category_necklaces.png" },
+  { name: "Coins", slug: "coins-bars", subtitle: "Pure Assets", img: "/images/category_coins.png" },
+  { name: "Rings", slug: "rings", subtitle: "Timeless Bands", img: "/images/category_rings.png" },
 ];
 
 const GIFT_TIERS = [

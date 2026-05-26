@@ -10,37 +10,37 @@ const COLLECTIONS = [
   {
     title: "Aradhana",
     sub: "Inspired by our tradition",
-    img: "/images/bridal_jewellery_1779199671286.png",
+    img: "/images/category_necklaces.png",
     link: "/collections?category=necklaces"
   },
   {
     title: "Sunshine",
     sub: "A craft made to last over time",
-    img: "/images/category_bangles_1779203423031.png",
+    img: "/images/category_bangles.png",
     link: "/collections?category=bangles"
   },
   {
     title: "Kahani",
     sub: "Bridal Stories in Gold",
-    img: "/images/luxury_gold_hero_1779199654262.png",
+    img: "/images/category_chains.png",
     link: "/collections?category=rings"
   },
   {
     title: "Rang Mahal",
     sub: "Semi Precious Stone Jewels",
-    img: "/images/modern_diamonds_1779199687171.png",
+    img: "/images/category_rings.png",
     link: "/collections?category=earrings"
   },
   {
     title: "Kerala",
     sub: "Embrace Culture Legacy",
-    img: "/images/bridal_jewellery_1779199671286.png",
+    img: "/images/category_necklaces.png",
     link: "/collections?category=necklaces"
   },
   {
     title: "Stones",
     sub: "Pure Gold Coins & Bars",
-    img: "/images/category_bangles_1779203423031.png",
+    img: "/images/category_bangles.png",
     link: "/collections?category=coins-bars"
   }
 ];
