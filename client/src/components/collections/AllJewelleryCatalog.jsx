@@ -252,7 +252,7 @@ function CatalogContent() {
   return (
     <>
       {/* Breadcrumb Navigation */}
-      <nav className="max-w-[1920px] mx-auto px-4 md:px-16 pt-[26px] pb-4 md:pt-7 md:pb-4">
+      <nav className="max-w-480 mx-auto px-4 md:px-16 pt-6.5 pb-4 md:pt-7 md:pb-4">
         <ol className="flex items-center gap-2 text-[11px] font-primary text-gray-400 tracking-wide">
           <li><Link href="/" className="hover:text-brand-gold transition-colors">Home</Link></li>
           <li className="text-gray-300">/</li>
@@ -261,7 +261,7 @@ function CatalogContent() {
       </nav>
 
       {/* Hero Banner */}
-      <div className="relative bg-[#0F0E0C] overflow-hidden h-[180px] sm:h-[220px] md:h-[260px] lg:h-[300px] flex items-center border-b border-gray-900 mb-8">
+      <div className="relative bg-[#0F0E0C] overflow-hidden h-45 sm:h-55 md:h-65 lg:h-75 flex items-center border-b border-gray-900 mb-8">
         <div className="absolute right-0 top-0 bottom-0 w-full md:w-[60%] lg:w-[50%] h-full">
           <Image
             src="/images/exquisite_model_1779203407757.png"
@@ -271,22 +271,22 @@ function CatalogContent() {
             sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover object-center transition-transform duration-[2s] ease-out hover:scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0F0E0C] via-[#0F0E0C]/80 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-r from-[#0F0E0C] via-[#0F0E0C]/80 to-transparent" />
         </div>
 
-        <div className="relative z-10 max-w-[1920px] mx-auto px-4 md:px-16 w-full flex flex-col items-start text-left">
+        <div className="relative z-10 max-w-480 mx-auto px-4 md:px-16 w-full flex flex-col items-start text-left">
           <p className="font-primary text-[10px] tracking-[0.3em] uppercase text-brand-gold mb-1.5 md:mb-2">MIP Jewellers</p>
           <h1 className="font-secondary text-3xl md:text-4xl lg:text-5xl text-white tracking-wide leading-tight">
             All Jewellery
           </h1>
-          <p className="font-primary text-gray-300 text-xs md:text-sm mt-1.5 md:mt-2.5 max-w-[240px] sm:max-w-sm md:max-w-md lg:max-w-lg leading-relaxed">
+          <p className="font-primary text-gray-300 text-xs md:text-sm mt-1.5 md:mt-2.5 max-w-60 sm:max-w-sm md:max-w-md lg:max-w-lg leading-relaxed">
             Explore our complete handcrafted collections. Gold, diamonds, platinum and precious gemstones curated for every generation.
           </p>
         </div>
       </div>
 
       {/* Main Listing Area */}
-      <div className="max-w-[1920px] mx-auto px-4 md:px-16 pb-20">
+      <div className="max-w-480 mx-auto px-4 md:px-16 pb-20">
         <div className="flex gap-12">
           {/* Desktop Filters Sidebar */}
           <aside className="hidden md:block w-56 shrink-0 pt-2">
@@ -372,7 +372,7 @@ function CatalogContent() {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 gap-y-10">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 gap-y-10">
                 {filtered.map((product) => (
                   <div key={product.id} className="group">
                     <Link href={`/products/${product.slug}`}>
@@ -381,7 +381,7 @@ function CatalogContent() {
                           src={product.image}
                           alt={product.name}
                           fill
-                          sizes="(max-width: 768px) 50vw, 33vw"
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
                           className="object-cover transition-transform duration-[1.4s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-105"
                         />
                         {product.tag && (
