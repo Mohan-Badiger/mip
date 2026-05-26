@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import React from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
@@ -29,9 +29,9 @@ export default function YCollection() {
         <FadeInUp delay={0.1}>
           <div className="flex gap-4 items-stretch mb-6">
             {/* Tall portrait */}
-            <div className="relative w-[55%] shrink-0 aspect-2/3 overflow-hidden bg-gray-50">
+            <div className="relative w-[55%] shrink-0 aspect-2/3 overflow-hidden bg-transparent">
               <Image
-                src="/images/y_collection_pink_1779203438367.png"
+                src="/images/y_young_girl_1.png"
                 alt="Y Collection Model"
                 fill
                 sizes="55vw"
@@ -47,9 +47,9 @@ export default function YCollection() {
                 </p>
               </div>
               {/* Small accent image */}
-              <div className="relative w-full aspect-square overflow-hidden bg-gray-50 mt-4">
+              <div className="relative w-full aspect-square overflow-hidden bg-transparent mt-4">
                 <Image
-                  src="/images/y_collection_pink_1779203438367.png"
+                  src="/images/y_young_girl_4.png"
                   alt="Y Collection Detail"
                   fill
                   sizes="40vw"
@@ -75,7 +75,7 @@ export default function YCollection() {
           DESKTOP layout (lg+) — artistic mosaic
       ══════════════════════════════════════════ */}
       <div className="hidden lg:block py-28 px-16 xl:px-24">
-        <div className="relative w-full min-h-[620px] flex items-center justify-center">
+        <div className="relative w-full min-h-155 flex items-center justify-center">
 
           {/* Main Left Portrait */}
           <motion.div
@@ -83,10 +83,10 @@ export default function YCollection() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.2 }}
             viewport={{ once: true }}
-            className="absolute left-[8%] top-0 z-20 w-[380px] h-[500px]"
+            className="absolute left-[8%] top-0 z-20 w-95 h-125"
           >
             <Image
-              src="/images/y_collection_pink_1779203438367.png"
+              src="/images/y_young_girl_1.png"
               alt="Y Collection Model"
               fill
               sizes="30vw"
@@ -103,10 +103,10 @@ export default function YCollection() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.2, delay: 0.2 }}
             viewport={{ once: true }}
-            className="absolute right-[30%] top-[-40px] z-10 w-[160px] h-[200px]"
+            className="absolute right-[30%] -top-10 z-10 w-50 h-60"
           >
             <Image
-              src="/images/y_collection_pink_1779203438367.png"
+              src="/images/y_young_girl_2.png"
               alt="Y Collection Detail"
               fill
               sizes="15vw"
@@ -120,10 +120,10 @@ export default function YCollection() {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 1.2, delay: 0.4 }}
             viewport={{ once: true }}
-            className="absolute right-[4%] bottom-[-40px] z-30 w-[280px] h-[380px]"
+            className="absolute right-[4%] -bottom-10 z-30 w-90 h-125"
           >
             <Image
-              src="/images/y_collection_pink_1779203438367.png"
+              src="/images/y_young_girl_3.png"
               alt="Y Collection Fashion"
               fill
               sizes="22vw"
@@ -143,10 +143,10 @@ export default function YCollection() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.2, delay: 0.6 }}
             viewport={{ once: true }}
-            className="absolute bottom-[-100px] left-[47%] z-20 w-[110px] h-[110px] rounded-t-full overflow-hidden"
+            className="absolute -bottom-25 left-[47%] z-20 w-65 h-65 rounded-t-full overflow-hidden"
           >
             <Image
-              src="/images/y_collection_pink_1779203438367.png"
+              src="/images/y_young_girl_4.png"
               alt="Y Collection Accent"
               fill
               sizes="10vw"
@@ -162,7 +162,7 @@ export default function YCollection() {
             viewport={{ once: true }}
             className="relative z-40 text-center"
           >
-            <div className="bg-white/85 backdrop-blur-sm px-8 py-5">
+            <div className="px-8 py-5">
               <p className="font-primary text-[9px] tracking-[0.3em] uppercase text-brand-gold mb-2">New Collection</p>
               <h2 className="font-secondary text-5xl xl:text-6xl text-brand-brown">Y Collection</h2>
             </div>

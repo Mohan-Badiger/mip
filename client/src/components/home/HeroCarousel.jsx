@@ -10,7 +10,7 @@ const MotionLink = motion.create(Link);
 const slides = [
   {
     id: 0,
-    image: "/images/hero_slide_2.png",
+    image: "/images/hero_slide_1.jpg",
     tag: "New Collection",
     collection: "Aradhana",
     title: "Nature's most graceful bloom,\nset in diamond and gold.",
@@ -24,7 +24,7 @@ const slides = [
   },
   {
     id: 1,
-    image: "/images/hero_slide_1.png",
+    image: "/images/hero_slide_4.jpg",
     tag: "Everyday Elegance",
     collection: "Wear it every day,\nlove it forever",
     title: "Diamond jewellery that moves with you",
@@ -39,7 +39,7 @@ const slides = [
   },
   {
     id: 2,
-    image: "/images/hero_slide_3.png",
+    image: "/images/hero_slide_3.jpg",
     tag: "New Schemes",
     collection: "Kanaka Plus",
     title: "Invest once. Redeem in Gold or Silver\nwith no making charges.",
@@ -54,7 +54,7 @@ const slides = [
   },
   {
     id: 3,
-    image: "/images/hero_slide_4.png",
+    image: "/images/hero_slide_2.jpg",
     tag: "Bridal 2025",
     collection: "A Timeless Legacy",
     title: "Handcrafted 916 BIS Hallmarked jewellery\nfor your most precious moments.",
@@ -109,14 +109,14 @@ export default function HeroCarousel() {
   };
 
   return (
-    <div className="max-w-[1940px] mx-auto px-4 md:px-12 lg:px-16 pt-4 md:pt-6 pb-1">
+    <div className="max-w-485 mx-auto px-4 md:px-12 lg:px-16 pt-4 md:pt-6 pb-1">
       <div
         className="relative w-full overflow-hidden rounded-xl md:rounded-sm shadow-lg"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
       >
         {/* ── Slide ── */}
-        <div className="relative w-full h-[450px] md:h-[480px]">
+        <div className="relative w-full h-112.5 md:h-120">
           <AnimatePresence custom={direction} initial={false} mode="sync">
             <motion.div
               key={current}
