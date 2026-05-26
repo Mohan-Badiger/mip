@@ -2,9 +2,12 @@ import { NextResponse } from 'next/server';
 
 export function proxy(request) {
   const response = NextResponse.next();
+  const isProd = process.env.NODE_ENV === 'production';
 
-  // Enforce HTTPS and HSTS (Strict-Transport-Security) for 2 years
-  response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+  // Enforce HTTPS and HSTS (Strict-Transport-Security) for 2 years (only in production)
+  if (isProd) {
+    response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+  }
   
   // Protect against clickjacking (X-Frame-Options)
   response.headers.set('X-Frame-Options', 'SAMEORIGIN');
@@ -34,7 +37,7 @@ export function proxy(request) {
     base-uri 'self';
     form-action 'self' https:;
     frame-ancestors 'none';
-    upgrade-insecure-requests;
+    ${isProd ? 'upgrade-insecure-requests;' : ''}
   `.replace(/\s{2,}/g, ' ').trim();
 
   response.headers.set('Content-Security-Policy', cspHeader);
