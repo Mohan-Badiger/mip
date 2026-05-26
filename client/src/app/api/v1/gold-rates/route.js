@@ -3,12 +3,13 @@ import dbConnect from '@/backend/config/dbConnect';
 import GoldRate from '@/backend/models/GoldRate';
 
 // Seeding defaults
+// Seeding defaults (accurate to Bengaluru retail rates)
 const DEFAULT_RATES = [
-  { metal: 'gold', purity: '18KT', pricePerGram: 6000 },
-  { metal: 'gold', purity: '22KT', pricePerGram: 7200 },
-  { metal: 'gold', purity: '24KT', pricePerGram: 7850 },
-  { metal: 'silver', purity: '950PT', pricePerGram: 95 },
-  { metal: 'platinum', purity: '950PT', pricePerGram: 3200 }
+  { metal: 'gold', purity: '18KT', pricePerGram: 11917 },
+  { metal: 'gold', purity: '22KT', pricePerGram: 14565 },
+  { metal: 'gold', purity: '24KT', pricePerGram: 15889 },
+  { metal: 'silver', purity: '950PT', pricePerGram: 109 },
+  { metal: 'platinum', purity: '950PT', pricePerGram: 3514 }
 ];
 
 export async function GET() {
@@ -18,7 +19,9 @@ export async function GET() {
     
     // Check if we need to refresh rates from external APIs (cache for 15 minutes)
     const CACHE_DURATION_MS = 15 * 60 * 1000;
-    const isCacheValid = rates.length > 0 && rates.every(r => (Date.now() - new Date(r.updatedAt).getTime()) < CACHE_DURATION_MS);
+    const isCacheValid = rates.length > 0 && 
+                         rates.every(r => (Date.now() - new Date(r.updatedAt).getTime()) < CACHE_DURATION_MS) &&
+                         !rates.some(r => r.metal === 'gold' && r.purity === '24KT' && r.pricePerGram < 10000); // force refresh if old rates are in DB
 
     if (!isCacheValid) {
       try {
@@ -37,13 +40,16 @@ export async function GET() {
           exRes.json()
         ]);
 
-        const usdToInr = exData?.rates?.INR || 83.5;
+        const usdToInr = exData?.rates?.INR || 95.33;
         const gramsPerOunce = 31.1034768;
+
+        // Indian gold price includes 6% customs duty, 5% AIDC, 3% GST and local transport/refining premiums (~14.7% total markup)
+        const INDIA_PREMIUM_MULTIPLIER = 1.147;
 
         // XAU is price per troy ounce of 24KT Gold
         const xauUsdPerOunce = xauData?.price;
         if (xauUsdPerOunce) {
-          const gold24PricePerGram = Math.round((xauUsdPerOunce / gramsPerOunce) * usdToInr);
+          const gold24PricePerGram = Math.round((xauUsdPerOunce / gramsPerOunce) * usdToInr * INDIA_PREMIUM_MULTIPLIER);
           const gold22PricePerGram = Math.round(gold24PricePerGram * (22 / 24));
           const gold18PricePerGram = Math.round(gold24PricePerGram * (18 / 24));
 
@@ -67,7 +73,7 @@ export async function GET() {
         // XAG is price per troy ounce of Silver
         const xagUsdPerOunce = xagData?.price;
         if (xagUsdPerOunce) {
-          const silverPricePerGram = Math.round((xagUsdPerOunce / gramsPerOunce) * usdToInr);
+          const silverPricePerGram = Math.round((xagUsdPerOunce / gramsPerOunce) * usdToInr * INDIA_PREMIUM_MULTIPLIER);
           await GoldRate.findOneAndUpdate(
             { metal: 'silver', purity: '950PT' },
             { pricePerGram: silverPricePerGram },
@@ -78,7 +84,7 @@ export async function GET() {
         // XPT is price per troy ounce of Platinum
         const xptUsdPerOunce = xptData?.price;
         if (xptUsdPerOunce) {
-          const platinumPricePerGram = Math.round((xptUsdPerOunce / gramsPerOunce) * usdToInr);
+          const platinumPricePerGram = Math.round((xptUsdPerOunce / gramsPerOunce) * usdToInr * INDIA_PREMIUM_MULTIPLIER);
           await GoldRate.findOneAndUpdate(
             { metal: 'platinum', purity: '950PT' },
             { pricePerGram: platinumPricePerGram },

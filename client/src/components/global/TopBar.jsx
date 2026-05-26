@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useEffect, useState } from 'react';
 
@@ -40,10 +40,10 @@ export default function TopBar() {
   return (
     <div className="bg-brand-brown text-white/90 text-xs py-2 px-4 md:px-8 flex justify-between items-center">
       <div className="flex gap-4 font-primary tracking-widest text-[10px] overflow-hidden whitespace-nowrap uppercase">
-        <span>Online Gold 22KT: ₹{rates.gold22.toLocaleString('en-IN')}/g</span>
-        <span className="hidden sm:inline">Online Gold 24KT: ₹{rates.gold24.toLocaleString('en-IN')}/g</span>
-        <span className="hidden md:inline">Online Gold 18KT: ₹{rates.gold18.toLocaleString('en-IN')}/g</span>
-        <span className="hidden lg:inline">Online Silver: ₹{rates.silver.toLocaleString('en-IN')}/g</span>
+        <span>Bengaluru Gold 22KT: ₹{rates.gold22.toLocaleString('en-IN')}/g</span>
+        <span className="hidden sm:inline">Bengaluru Gold 24KT: ₹{rates.gold24.toLocaleString('en-IN')}/g</span>
+        <span className="hidden md:inline">Bengaluru Gold 18KT: ₹{rates.gold18.toLocaleString('en-IN')}/g</span>
+        <span className="hidden lg:inline">Bengaluru Silver: ₹{rates.silver.toLocaleString('en-IN')}/g</span>
       </div>
       <div className="flex gap-4 tracking-wide font-primary">
         <a href="tel:18001201925" className="hover:text-brand-gold transition-colors">1800-120-1925</a>
