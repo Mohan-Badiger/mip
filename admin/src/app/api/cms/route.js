@@ -5,14 +5,14 @@ import { logAdminAction } from '@/lib/auditLogger';
 
 const DEFAULT_SECTIONS = [
   { id: "hero", name: "Hero Carousel Slider", type: "Slider", active: true, order: 0 },
-  { id: "exquisite", name: "Exquisite Collections Overview", type: "Grid", active: true, order: 1 },
-  { id: "cards", name: "Collections Card Directory", type: "Grid", active: true, order: 2 },
-  { id: "categories", name: "Shop By Category Section", type: "Grid", active: true, order: 3 },
-  { id: "ycollection", name: "Y Collection Spotlight Banner", type: "Banner", active: true, order: 4 },
-  { id: "gender", name: "Shop By Gender Portal", type: "Grid", active: true, order: 5 },
-  { id: "plan", name: "Purchase & Saving Scheme Banner", type: "Banner", active: true, order: 6 },
-  { id: "legacy", name: "Brand Trust & Legacy Block", type: "Grid", active: true, order: 7 },
-  { id: "newsletter", name: "Newsletter Subscription Form", type: "Form", active: true, order: 8 }
+  { id: "exquisite", name: "Luxury That Matches Your Style", type: "Grid", active: true, order: 1 },
+  { id: "cards", name: "Modern Collections", type: "Grid", active: true, order: 2 },
+  { id: "categories", name: "Shop By Category", type: "Grid", active: true, order: 3 },
+  { id: "ycollection", name: "Y Collection", type: "Banner", active: true, order: 4 },
+  { id: "gender", name: "Shop By Gender", type: "Grid", active: true, order: 5 },
+  { id: "plan", name: "MIP My Choice", type: "Banner", active: true, order: 6 },
+  { id: "legacy", name: "A Choice You Can Trust", type: "Grid", active: true, order: 7 },
+  { id: "newsletter", name: "Join Our MIP Family", type: "Form", active: true, order: 8 }
 ];
 
 const DEFAULT_SLIDES = [
@@ -72,6 +72,18 @@ const DEFAULT_SLIDES = [
   }
 ];
 
+// Map old admin-style names to correct client-facing headings
+const NAME_CORRECTIONS = {
+  "Exquisite Collections Overview": "Luxury That Matches Your Style",
+  "Collections Card Directory": "Modern Collections",
+  "Shop By Category Section": "Shop By Category",
+  "Y Collection Spotlight Banner": "Y Collection",
+  "Shop By Gender Portal": "Shop By Gender",
+  "Purchase & Saving Scheme Banner": "MIP My Choice",
+  "Brand Trust & Legacy Block": "A Choice You Can Trust",
+  "Newsletter Subscription Form": "Join Our MIP Family"
+};
+
 export async function GET(req) {
   try {
     await dbConnect();
@@ -86,6 +98,20 @@ export async function GET(req) {
           description: 'Discover our exclusive collection of 22K gold, diamond, and platinum jewellery. Shop online or visit our stores.'
         }
       });
+    } else {
+      // One-time migration: fix old admin-style section names in existing DB data
+      let needsSave = false;
+      if (cms.sections && cms.sections.length > 0) {
+        cms.sections.forEach(section => {
+          if (NAME_CORRECTIONS[section.name]) {
+            section.name = NAME_CORRECTIONS[section.name];
+            needsSave = true;
+          }
+        });
+        if (needsSave) {
+          await cms.save();
+        }
+      }
     }
     return NextResponse.json({ success: true, data: cms });
   } catch (error) {
