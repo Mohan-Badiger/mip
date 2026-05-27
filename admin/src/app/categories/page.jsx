@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Image as ImageIcon, Settings, Loader2, Sparkles, Search, Edit2, Trash2 } from "lucide-react";
+import { Plus, Image as ImageIcon, Settings, Loader2, Sparkles, Search, Edit2, Trash2, UploadCloud, X } from "lucide-react";
 import JewelryLoader from "@/components/jewelry-loader";
 import {
   Dialog,
@@ -79,13 +79,27 @@ export default function CategoriesPage() {
     setIsDialogOpen(true);
   };
 
+  const handleFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFormData(prev => ({
+        ...prev,
+        image: reader.result
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSaveCategory = async (e) => {
     e.preventDefault();
     if (!formData.name) return;
     try {
       const url = "/api/categories";
       const method = selectedCategory ? "PUT" : "POST";
-      const payload = selectedCategory 
+      const payload = selectedCategory
         ? { ...formData, _id: selectedCategory._id }
         : formData;
 
@@ -137,7 +151,7 @@ export default function CategoriesPage() {
     return products.filter(p => p.category?._id === catId || p.category === catId).length;
   };
 
-  const filteredCategories = categories.filter(c => 
+  const filteredCategories = categories.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase()) ||
     c.description?.toLowerCase().includes(search.toLowerCase())
   );
@@ -188,7 +202,7 @@ export default function CategoriesPage() {
             <Table>
               <TableHeader>
                 <TableRow className="border-slate-100 bg-slate-50/50 hover:bg-slate-50/50">
-                  <TableHead className="font-semibold text-slate-600 w-[80px]">Cover</TableHead>
+                  <TableHead className="font-semibold text-slate-600 w-20">Cover</TableHead>
                   <TableHead className="font-semibold text-slate-600">Name</TableHead>
                   <TableHead className="font-semibold text-slate-600">Slug</TableHead>
                   <TableHead className="font-semibold text-slate-600">Description</TableHead>
@@ -204,12 +218,12 @@ export default function CategoriesPage() {
                       <TableCell>
                         <div className="w-12 h-12 rounded bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-100 relative">
                           {category.image ? (
-                            <Image 
-                              src={category.image} 
-                              alt={category.name} 
+                            <Image
+                              src={category.image}
+                              alt={category.name}
                               fill
                               sizes="48px"
-                              className="object-cover" 
+                              className="object-cover"
                             />
                           ) : (
                             <ImageIcon className="w-5 h-5 text-slate-300" />
@@ -247,56 +261,121 @@ export default function CategoriesPage() {
         </CardContent>
       </Card>
 
-      {/* Category Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-md font-sans">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-secondary uppercase text-slate-800">
-              {selectedCategory ? "Edit Category" : "Create New Category"}
-            </DialogTitle>
-            <DialogDescription className="text-xs text-slate-400">
-              Categories organize jewellery catalog pages on the client-side.
-            </DialogDescription>
-          </DialogHeader>
+        <DialogContent className="w-full max-w-[calc(100%-2rem)] sm:max-w-xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl max-h-[92vh] overflow-y-auto font-sans p-0 rounded-2xl border-slate-100 shadow-2xl bg-white **:data-[slot=dialog-close]:text-white/80 **:data-[slot=dialog-close]:hover:text-white **:data-[slot=dialog-close]:hover:bg-white/10 **:data-[slot=dialog-close]:top-4 **:data-[slot=dialog-close]:right-4">
+          <div className="bg-slate-900/90 text-white p-6 rounded-t-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-slate-800/20 rounded-full blur-2xl -mr-20 -mt-20 pointer-events-none" />
+            <DialogHeader className="relative z-10">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="bg-amber-400/25 text-amber-300 text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 rounded border border-amber-400/30">
+                  Premium Category Manager
+                </span>
+              </div>
+              <DialogTitle className="text-2xl font-secondary uppercase tracking-wide text-white">
+                {selectedCategory ? "Edit Category Details" : "Create New Jewellery Category"}
+              </DialogTitle>
+              <DialogDescription className="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                Configure category metadata, descriptions, and banner display imagery synced directly to the client catalog.
+              </DialogDescription>
+            </DialogHeader>
+          </div>
 
-          <form onSubmit={handleSaveCategory} className="space-y-4 pt-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="cat-name">Category Name *</Label>
-              <Input
-                id="cat-name"
-                placeholder="e.g. Earrings"
-                required
-                value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-              />
+          <form onSubmit={handleSaveCategory} className="p-6 space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+              {/* Left Column: Basic Details */}
+              <div className="bg-slate-50/50 rounded-xl p-4 border border-slate-100/80 space-y-4 flex flex-col justify-between">
+                <div>
+                  <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider border-b border-slate-100 pb-2 flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-slate-700" /> Category Details
+                  </h4>
+
+                  <div className="space-y-4 pt-3">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="cat-name" className="text-[10px] font-bold text-slate-500 tracking-wider uppercase">Category Name *</Label>
+                      <Input
+                        id="cat-name"
+                        placeholder="e.g. Earrings"
+                        required
+                        className="bg-white border-slate-200 text-sm shadow-sm"
+                        value={formData.name}
+                        onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="cat-desc" className="text-[10px] font-bold text-slate-500 tracking-wider uppercase">Description</Label>
+                      <Textarea
+                        id="cat-desc"
+                        placeholder="Description of the category style, collections, and aesthetic appeal..."
+                        rows={5}
+                        className="bg-white border-slate-200 text-sm leading-relaxed shadow-sm resize-none"
+                        value={formData.description}
+                        onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <span className="text-[9px] text-slate-400 font-medium block mt-4">
+                  * Categories organize jewellery catalog items, grouping them for customer filtering.
+                </span>
+              </div>
+
+              {/* Right Column: Imagery */}
+              <div className="bg-slate-50/50 rounded-xl p-4 border border-slate-100/80 space-y-4 flex flex-col justify-between">
+                <div>
+                  <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider border-b border-slate-100 pb-2 flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4 text-slate-700" /> Category Banner Image
+                  </h4>
+
+                  <div className="pt-3 space-y-4">
+                    {/* Image Preview Thumbnail */}
+                    {formData.image ? (
+                      <div className="relative w-full aspect-video rounded-lg border border-slate-200 overflow-hidden bg-white shadow-sm group">
+                        <img src={formData.image} alt="Category Banner preview" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <button
+                            type="button"
+                            onClick={() => setFormData(prev => ({ ...prev, image: "" }))}
+                            className="p-1 bg-rose-600 text-white rounded-full hover:bg-rose-700 transition-colors"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="w-full aspect-video rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-450 bg-white">
+                        <ImageIcon className="w-8 h-8 text-slate-350 mb-2" />
+                        <span className="text-xs font-medium">No banner image uploaded</span>
+                      </div>
+                    )}
+
+                    {/* Drag & Drop File Upload Area */}
+                    <div className="border border-dashed border-slate-200 rounded-xl p-4 bg-white hover:bg-slate-50/50 transition-colors flex flex-col items-center justify-center text-center cursor-pointer relative group min-h-22.5">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileUpload}
+                        className="absolute inset-0 opacity-0 cursor-pointer"
+                      />
+                      <UploadCloud className="w-6 h-6 text-slate-400 group-hover:text-primary transition-colors mb-1" />
+                      <span className="text-xs font-semibold text-slate-600">Upload Image File</span>
+                      <span className="text-[9px] text-slate-400">Drag & drop or click</span>
+                    </div>
+                  </div>
+                </div>
+
+                <span className="text-[9px] text-slate-400 font-medium block mt-4">
+                  * Visual graphics make catalogue navigation intuitive and premium on storefront listings.
+                </span>
+              </div>
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="cat-desc">Description</Label>
-              <Textarea
-                id="cat-desc"
-                placeholder="Description of the category style..."
-                rows={3}
-                value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="cat-image">Cover Image URL</Label>
-              <Input
-                id="cat-image"
-                placeholder="https://images.unsplash.com/photo-..."
-                value={formData.image}
-                onChange={(e) => setFormData(prev => ({ ...prev, image: e.target.value }))}
-              />
-            </div>
-
-            <DialogFooter className="gap-2">
-              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="border-slate-300">
+            <DialogFooter className="gap-2 border-t border-slate-100 pt-4 flex flex-col-reverse sm:flex-row sm:justify-end">
+              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="border-slate-200 hover:bg-slate-50 text-xs rounded-lg h-9">
                 Cancel
               </Button>
-              <Button type="submit" className="bg-slate-900 hover:bg-slate-800 text-white font-semibold">
+              <Button type="submit" className="bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs rounded-lg h-9">
                 {selectedCategory ? "Save Changes" : "Create Category"}
               </Button>
             </DialogFooter>

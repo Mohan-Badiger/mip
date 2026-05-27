@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Filter, Trash2, Edit2, Loader2, Sparkles, X, Image as ImageIcon, LayoutGrid, Save, ArrowDown } from "lucide-react";
+import { Plus, Search, Filter, Trash2, Edit2, Loader2, Sparkles, X, Image as ImageIcon, LayoutGrid, Save, ArrowDown, UploadCloud } from "lucide-react";
 import JewelryLoader from "@/components/jewelry-loader";
 import { Input } from "@/components/ui/input";
 import {
@@ -51,7 +51,7 @@ export default function ProductsPage() {
     name: "",
     slug: "",
     description: "",
-    images: "",
+    images: [],
     category: "",
     collectionRef: "",
     metalType: "gold",
@@ -123,7 +123,7 @@ export default function ProductsPage() {
       name: "",
       slug: "",
       description: "",
-      images: "",
+      images: [],
       category: categories[0]?._id || "",
       collectionRef: "",
       metalType: "gold",
@@ -147,7 +147,7 @@ export default function ProductsPage() {
       name: product.name || "",
       slug: product.slug || "",
       description: product.description || "",
-      images: product.images?.join(", ") || "",
+      images: product.images || [],
       category: product.category?._id || product.category || "",
       collectionRef: product.collectionRef?._id || product.collectionRef || "",
       metalType: product.metalType || "gold",
@@ -194,18 +194,31 @@ export default function ProductsPage() {
     }));
   };
 
+  const handleFileUpload = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({
+          ...prev,
+          images: [...(prev.images || []), reader.result]
+        }));
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleSaveProduct = async (e) => {
     e.preventDefault();
     try {
       const url = "/api/products";
       const method = currentProduct ? "PUT" : "POST";
-      const imagesArray = formData.images
-        ? formData.images.split(",").map(img => img.trim()).filter(Boolean)
-        : [];
 
       const payload = {
         ...formData,
-        images: imagesArray,
+        images: formData.images || [],
         collectionRef: (formData.collectionRef === "none_ref" || !formData.collectionRef) ? null : formData.collectionRef,
         _id: currentProduct?._id
       };
@@ -308,11 +321,11 @@ export default function ProductsPage() {
                 {products.map((product) => (
                   <TableRow key={product._id} className="border-slate-100 hover:bg-slate-50/50 transition-colors">
                     <TableCell className="font-mono text-xs font-semibold text-slate-700">{product.sku}</TableCell>
-                    <TableCell className="max-w-[200px]">
+                    <TableCell className="max-w-50">
                       <div className="font-medium text-slate-900 truncate">{product.name}</div>
                       <div className="text-xs text-slate-400 capitalize">{product.metalType} {product.metalPurity}</div>
                     </TableCell>
-                    <TableCell className="text-slate-600">{product.category?.name || "Other"}</TableCell>
+                    <TableCell className="text-slate-600">{product.category?.name || categories.find(c => c._id === product.category || c.slug === product.category)?.name || "Other"}</TableCell>
                     <TableCell className="text-slate-600 text-xs">
                       {product.metalWeight} g ({product.metalPurity})
                     </TableCell>
@@ -350,7 +363,7 @@ export default function ProductsPage() {
 
       {/* Add / Edit Product Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="w-full max-w-[calc(100%-2rem)] sm:max-w-xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl max-h-[92vh] overflow-y-auto font-sans p-0 rounded-2xl border-slate-100 shadow-2xl bg-white">
+        <DialogContent className="w-full max-w-[calc(100%-2rem)] sm:max-w-xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl max-h-[92vh] overflow-y-auto font-sans p-0 rounded-2xl border-slate-100 shadow-2xl bg-white **:data-[slot=dialog-close]:text-white/80 **:data-[slot=dialog-close]:hover:text-white **:data-[slot=dialog-close]:hover:bg-white/10 **:data-[slot=dialog-close]:top-4 **:data-[slot=dialog-close]:right-4">
           <div className="bg-slate-900/90 text-white p-6 rounded-t-2xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-slate-800/20 rounded-full blur-2xl -mr-20 -mt-20 pointer-events-none" />
             <DialogHeader className="relative z-10">
@@ -423,19 +436,53 @@ export default function ProductsPage() {
                   <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider border-b border-slate-100 pb-2 flex items-center gap-2">
                     <ImageIcon className="w-4 h-4 text-slate-700" /> Media & Images
                   </h4>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="prod-images" className="text-[10px] font-bold text-slate-500 tracking-wider uppercase">Images URLs (Comma separated)</Label>
-                    <Input
-                      id="prod-images"
-                      placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
-                      className="bg-white border-slate-200 text-xs font-mono shadow-sm"
-                      value={formData.images}
-                      onChange={(e) => setFormData(prev => ({ ...prev, images: e.target.value }))}
+                  
+                  {/* Image Previews Grid */}
+                  {formData.images && formData.images.length > 0 && (
+                    <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                      {formData.images.map((img, index) => (
+                        <div key={index} className="relative aspect-square rounded-lg border border-slate-200 overflow-hidden group bg-white shadow-sm">
+                          <img src={img} alt={`Product ${index + 1}`} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setFormData(prev => ({
+                                  ...prev,
+                                  images: prev.images.filter((_, i) => i !== index)
+                                }));
+                              }}
+                              className="p-1 bg-rose-600 text-white rounded-full hover:bg-rose-700 transition-colors"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                          {index === 0 && (
+                            <span className="absolute bottom-1 left-1 bg-amber-500 text-white text-[8px] font-bold px-1 py-0.5 rounded shadow">
+                              Primary
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Upload Area */}
+                  <div className="border border-dashed border-slate-200 rounded-xl p-4 bg-white hover:bg-slate-50/50 transition-colors flex flex-col items-center justify-center text-center cursor-pointer relative group min-h-22.5">
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="absolute inset-0 opacity-0 cursor-pointer"
                     />
-                    <span className="text-[10px] text-slate-400 font-medium block">
-                      * First image will serve as the primary catalog display thumbnail.
-                    </span>
+                    <UploadCloud className="w-6 h-6 text-slate-400 group-hover:text-primary transition-colors mb-1" />
+                    <span className="text-xs font-semibold text-slate-600">Upload Image Files</span>
+                    <span className="text-[9px] text-slate-400">Drag & drop or click</span>
                   </div>
+                  <span className="text-[9px] text-slate-400 font-medium block mt-1">
+                    * The first image in the previews is the primary catalog display thumbnail.
+                  </span>
                 </div>
 
                 {/* Categorization & Metadata Group */}

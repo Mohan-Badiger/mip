@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Image as ImageIcon, Settings, Loader2, Sparkles } from "lucide-react";
+import { Plus, Image as ImageIcon, Settings, Loader2, Sparkles, UploadCloud, X } from "lucide-react";
 import JewelryLoader from "@/components/jewelry-loader";
 import {
   Dialog,
@@ -204,7 +204,7 @@ export default function CollectionsPage() {
 
           <Card 
             onClick={openCreateDialog}
-            className="flex flex-col items-center justify-center h-full min-h-[250px] border-dashed border-2 border-slate-200 bg-slate-50/30 hover:bg-slate-50/70 hover:border-slate-300 cursor-pointer transition-all duration-300"
+            className="flex flex-col items-center justify-center h-full min-h-62.5 border-dashed border-2 border-slate-200 bg-slate-50/30 hover:bg-slate-50/70 hover:border-slate-300 cursor-pointer transition-all duration-300"
           >
             <div className="flex flex-col items-center gap-2 text-slate-400">
               <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100">
@@ -219,65 +219,135 @@ export default function CollectionsPage() {
 
       {/* Collection Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-md font-sans">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-secondary uppercase text-slate-800">
-              {selectedCollection ? "Edit Collection" : "Create New Collection"}
-            </DialogTitle>
-            <DialogDescription className="text-xs text-slate-400">
-              {selectedCollection 
-                ? "Update details or permanently delete this collection tag."
-                : "This will add a new collection tag usable for product listings and frontpage carousels."}
-            </DialogDescription>
-          </DialogHeader>
+        <DialogContent className="w-full max-w-[calc(100%-2rem)] sm:max-w-xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl max-h-[92vh] overflow-y-auto font-sans p-0 rounded-2xl border-slate-100 shadow-2xl bg-white **:data-[slot=dialog-close]:text-white/80 **:data-[slot=dialog-close]:hover:text-white **:data-[slot=dialog-close]:hover:bg-white/10 **:data-[slot=dialog-close]:top-4 **:data-[slot=dialog-close]:right-4">
+          <div className="bg-slate-900/90 text-white p-6 rounded-t-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-slate-800/20 rounded-full blur-2xl -mr-20 -mt-20 pointer-events-none" />
+            <DialogHeader className="relative z-10">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="bg-amber-400/25 text-amber-300 text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 rounded border border-amber-400/30">
+                  Premium Campaign Manager
+                </span>
+              </div>
+              <DialogTitle className="text-2xl font-secondary uppercase tracking-wide text-white">
+                {selectedCollection ? "Edit Collection Details" : "Create New Campaign Collection"}
+              </DialogTitle>
+              <DialogDescription className="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                Configure collection metadata, themed descriptions, and display banners synced directly to storefront showcases.
+              </DialogDescription>
+            </DialogHeader>
+          </div>
 
-          <form onSubmit={handleSaveCollection} className="space-y-4 pt-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="col-name">Collection Name *</Label>
-              <Input
-                id="col-name"
-                placeholder="e.g. Royal Antique Collection"
-                required
-                value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-              />
+          <form onSubmit={handleSaveCollection} className="p-6 space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+              {/* Left Column: Basic Details */}
+              <div className="bg-slate-50/50 rounded-xl p-4 border border-slate-100/80 space-y-4 flex flex-col justify-between">
+                <div>
+                  <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider border-b border-slate-100 pb-2 flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-slate-700" /> Collection Details
+                  </h4>
+                  
+                  <div className="space-y-4 pt-3">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="col-name" className="text-[10px] font-bold text-slate-500 tracking-wider uppercase">Collection Name *</Label>
+                      <Input
+                        id="col-name"
+                        placeholder="e.g. Royal Antique Collection"
+                        required
+                        className="bg-white border-slate-200 text-sm shadow-sm"
+                        value={formData.name}
+                        onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="col-desc" className="text-[10px] font-bold text-slate-500 tracking-wider uppercase">Description</Label>
+                      <Textarea
+                        id="col-desc"
+                        placeholder="Short pitch or summary describing this themed campaign or collection style..."
+                        rows={5}
+                        className="bg-white border-slate-200 text-sm leading-relaxed shadow-sm resize-none"
+                        value={formData.description}
+                        onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <span className="text-[9px] text-slate-400 font-medium block mt-4">
+                  * Campaigns segment catalogue listings, grouping them under custom theme banners.
+                </span>
+              </div>
+
+              {/* Right Column: Imagery */}
+              <div className="bg-slate-50/50 rounded-xl p-4 border border-slate-100/80 space-y-4 flex flex-col justify-between">
+                <div>
+                  <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider border-b border-slate-100 pb-2 flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4 text-slate-700" /> Collection Banner Image
+                  </h4>
+
+                  <div className="pt-3 space-y-4">
+                    {/* Image Preview Thumbnail */}
+                    {formData.bannerImage ? (
+                      <div className="relative w-full aspect-video rounded-lg border border-slate-200 overflow-hidden bg-white shadow-sm group">
+                        <img src={formData.bannerImage} alt="Collection Banner preview" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <button
+                            type="button"
+                            onClick={() => setFormData(prev => ({ ...prev, bannerImage: "" }))}
+                            className="p-1 bg-rose-600 text-white rounded-full hover:bg-rose-700 transition-colors"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="w-full aspect-video rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-450 bg-white">
+                        <ImageIcon className="w-8 h-8 text-slate-350 mb-2" />
+                        <span className="text-xs font-medium">No banner image uploaded</span>
+                      </div>
+                    )}
+
+                    {/* Drag & Drop File Upload Area */}
+                    <div className="border border-dashed border-slate-200 rounded-xl p-4 bg-white hover:bg-slate-50/50 transition-colors flex flex-col items-center justify-center text-center cursor-pointer relative group min-h-22.5">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setFormData(prev => ({ ...prev, bannerImage: reader.result }));
+                          };
+                          reader.readAsDataURL(file);
+                        }}
+                        className="absolute inset-0 opacity-0 cursor-pointer"
+                      />
+                      <UploadCloud className="w-6 h-6 text-slate-400 group-hover:text-primary transition-colors mb-1" />
+                      <span className="text-xs font-semibold text-slate-600">Upload Image File</span>
+                      <span className="text-[9px] text-slate-400">Drag & drop or click</span>
+                    </div>
+                  </div>
+                </div>
+
+                <span className="text-[9px] text-slate-400 font-medium block mt-4">
+                  * Dynamic thematic banners draw instant attention on client landing page modules.
+                </span>
+              </div>
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="col-desc">Description</Label>
-              <Textarea
-                id="col-desc"
-                placeholder="Short pitch or summary for customers..."
-                rows={3}
-                value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="col-image">Banner Image URL</Label>
-              <Input
-                id="col-image"
-                placeholder="https://images.unsplash.com/photo-..."
-                value={formData.bannerImage}
-                onChange={(e) => setFormData(prev => ({ ...prev, bannerImage: e.target.value }))}
-              />
-            </div>
-
-            <DialogFooter className="gap-2 flex justify-between items-center">
+            <DialogFooter className="gap-2 border-t border-slate-100 pt-4 flex flex-col-reverse sm:flex-row sm:justify-end">
               {selectedCollection && (
-                <Button type="button" variant="destructive" onClick={handleDeleteCollection} className="bg-rose-600 hover:bg-rose-700 text-white mr-auto">
-                  Delete
+                <Button type="button" variant="destructive" onClick={handleDeleteCollection} className="bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs rounded-lg h-9 mr-auto">
+                  Delete Collection
                 </Button>
               )}
-              <div className="flex gap-2 justify-end ml-auto">
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="border-slate-300">
-                  Cancel
-                </Button>
-                <Button type="submit" className="bg-slate-900 hover:bg-slate-800 text-white font-semibold">
-                  {selectedCollection ? "Save Changes" : "Create Collection"}
-                </Button>
-              </div>
+              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="border-slate-200 hover:bg-slate-50 text-xs rounded-lg h-9">
+                Cancel
+              </Button>
+              <Button type="submit" className="bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs rounded-lg h-9">
+                {selectedCollection ? "Save Changes" : "Create Collection"}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>

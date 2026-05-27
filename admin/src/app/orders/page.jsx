@@ -261,7 +261,7 @@ export default function OrdersPage() {
 
       {/* View & Update Order Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto font-sans p-6 rounded-lg">
+        <DialogContent className="w-full max-w-[calc(100%-2rem)] sm:max-w-xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl max-h-[92vh] overflow-y-auto font-sans p-6 rounded-2xl border-slate-100 shadow-2xl bg-white">
           {selectedOrder && (
             <>
               <DialogHeader>
@@ -273,82 +273,130 @@ export default function OrdersPage() {
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="space-y-6 pt-2">
-                {/* 1. Customer & Shipping Info */}
-                <div className="grid gap-4 md:grid-cols-2 bg-slate-50/50 p-4 border rounded-md">
-                  <div>
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Customer Info</h3>
-                    <div className="space-y-1 text-sm">
-                      <p className="font-semibold text-slate-800">{selectedOrder.user?.name || "Guest"}</p>
-                      <p className="text-slate-500">{selectedOrder.user?.email || "No email"}</p>
-                      <p className="text-slate-500">{selectedOrder.user?.phone || "No phone"}</p>
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Shipping Address</h3>
-                    <div className="space-y-1 text-sm text-slate-600">
-                      <p>{selectedOrder.shippingAddress?.street}</p>
-                      <p>{selectedOrder.shippingAddress?.city}, {selectedOrder.shippingAddress?.state}</p>
-                      <p className="font-mono text-xs">PIN: {selectedOrder.shippingAddress?.pincode}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 2. Order Items */}
-                <div className="space-y-2">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Purchased Items</h3>
-                  <div className="border rounded-md overflow-hidden bg-white">
-                    <Table>
-                      <TableHeader className="bg-slate-50/50">
-                        <TableRow>
-                          <TableHead className="py-2">Item Details</TableHead>
-                          <TableHead className="py-2 text-right">Qty</TableHead>
-                          <TableHead className="py-2 text-right">Gold Rate Locked</TableHead>
-                          <TableHead className="py-2 text-right">Making Charges</TableHead>
-                          <TableHead className="py-2 text-right">Subtotal</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {selectedOrder.items?.map((item, index) => (
-                          <TableRow key={index} className="border-t">
-                            <TableCell className="py-3">
-                              <div className="font-medium text-slate-800">{item.name}</div>
-                              <div className="text-xs text-slate-400 capitalize">
-                                {item.metalWeightLocked}g ({item.metalPurityLocked})
-                              </div>
-                            </TableCell>
-                            <TableCell className="py-3 text-right font-semibold">{item.quantity}</TableCell>
-                            <TableCell className="py-3 text-right font-mono text-xs">
-                              ₹{item.goldRateLocked?.toLocaleString("en-IN")}/g
-                            </TableCell>
-                            <TableCell className="py-3 text-right font-mono text-xs">
-                              ₹{item.makingChargesLocked?.toLocaleString("en-IN")}
-                            </TableCell>
-                            <TableCell className="py-3 text-right font-semibold">
-                              ₹{item.finalPriceLocked?.toLocaleString("en-IN")}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </div>
-
-                {/* 3. Calculations & Payment Details */}
-                <div className="flex flex-col md:flex-row items-stretch gap-4 justify-between">
-                  <div className="flex-1 bg-slate-50/50 p-4 border rounded-md flex flex-col justify-between">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 pt-2">
+                {/* Left Column - Customer info, Address, Payment info & Fulfillment form */}
+                <div className="lg:col-span-5 space-y-6">
+                  {/* Customer & Shipping Info */}
+                  <div className="bg-slate-50/50 p-4 border border-slate-100 rounded-xl space-y-4 shadow-sm">
                     <div>
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Razorpay Details</h4>
-                      <p className="text-xs text-slate-600 mb-1">
-                        <span className="font-medium">Order ID:</span> <span className="font-mono">{selectedOrder.razorpayOrderId}</span>
-                      </p>
-                      <p className="text-xs text-slate-600">
-                        <span className="font-medium">Payment ID:</span> <span className="font-mono">{selectedOrder.razorpayPaymentId || "None"}</span>
-                      </p>
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Customer Info</h3>
+                      <div className="space-y-1 text-sm">
+                        <p className="font-semibold text-slate-800">{selectedOrder.user?.name || "Guest"}</p>
+                        <p className="text-slate-500">{selectedOrder.user?.email || "No email"}</p>
+                        <p className="text-slate-500">{selectedOrder.user?.phone || "No phone"}</p>
+                      </div>
+                    </div>
+                    <div className="border-t border-slate-100 pt-3">
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Shipping Address</h3>
+                      <div className="space-y-1 text-sm text-slate-600">
+                        <p>{selectedOrder.shippingAddress?.street}</p>
+                        <p>{selectedOrder.shippingAddress?.city}, {selectedOrder.shippingAddress?.state}</p>
+                        <p className="font-mono text-xs">PIN: {selectedOrder.shippingAddress?.pincode}</p>
+                      </div>
                     </div>
                   </div>
-                  
-                  <div className="w-full md:w-64 space-y-1.5 text-sm bg-slate-50/50 p-4 border rounded-md">
+
+                  {/* Calculations & Payment Details */}
+                  <div className="bg-slate-50/50 p-4 border border-slate-100 rounded-xl shadow-sm">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Razorpay Details</h4>
+                    <p className="text-xs text-slate-600 mb-1">
+                      <span className="font-medium">Order ID:</span> <span className="font-mono">{selectedOrder.razorpayOrderId}</span>
+                    </p>
+                    <p className="text-xs text-slate-600">
+                      <span className="font-medium">Payment ID:</span> <span className="font-mono">{selectedOrder.razorpayPaymentId || "None"}</span>
+                    </p>
+                  </div>
+
+                  {/* Fulfillment Panel */}
+                  <form onSubmit={handleUpdateStatus} className="border border-slate-200 rounded-xl p-4 bg-slate-50/50 space-y-4 shadow-sm">
+                    <h3 className="font-secondary uppercase text-sm font-semibold tracking-wider text-slate-700">Fulfillment Panel</h3>
+                    <div className="space-y-4">
+                      <div className="space-y-1.5">
+                        <Label htmlFor="order-status-sel">Fulfillment Stage</Label>
+                        <Select
+                          value={orderStatus}
+                          onValueChange={setOrderStatus}
+                        >
+                          <SelectTrigger id="order-status-sel" className="bg-white border-slate-200 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="received">Received / Pending</SelectItem>
+                            <SelectItem value="processing">Processing Order</SelectItem>
+                            <SelectItem value="shipped">Shipped Package</SelectItem>
+                            <SelectItem value="delivered">Delivered Successfully</SelectItem>
+                            <SelectItem value="cancelled">Cancelled</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label htmlFor="order-track-id">Courier Tracking ID</Label>
+                        <Input
+                          id="order-track-id"
+                          placeholder="e.g. BLUEDART723004"
+                          value={trackingId}
+                          onChange={(e) => setTrackingId(e.target.value)}
+                          className="bg-white border-slate-200 text-xs h-9"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                      <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="border-slate-300 bg-white text-xs h-9">
+                        Cancel
+                      </Button>
+                      <Button type="submit" disabled={isSaving} className="bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs h-9">
+                        {isSaving ? "Saving..." : "Update Shipment"}
+                      </Button>
+                    </div>
+                  </form>
+                </div>
+
+                {/* Right Column - Purchased items list and totals */}
+                <div className="lg:col-span-7 space-y-6">
+                  {/* Purchased Items */}
+                  <div className="space-y-2">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Purchased Items</h3>
+                    <div className="border border-slate-100 rounded-xl overflow-hidden bg-white shadow-sm">
+                      <Table>
+                        <TableHeader className="bg-slate-50/50">
+                          <TableRow>
+                            <TableHead className="py-2 text-xs">Item Details</TableHead>
+                            <TableHead className="py-2 text-right text-xs">Qty</TableHead>
+                            <TableHead className="py-2 text-right text-xs">Gold Rate</TableHead>
+                            <TableHead className="py-2 text-right text-xs">Making Charges</TableHead>
+                            <TableHead className="py-2 text-right text-xs">Subtotal</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {selectedOrder.items?.map((item, index) => (
+                            <TableRow key={index} className="border-t border-slate-100">
+                              <TableCell className="py-2.5">
+                                <div className="font-medium text-slate-800 text-xs">{item.name}</div>
+                                <div className="text-[10px] text-slate-400 capitalize">
+                                  {item.metalWeightLocked}g ({item.metalPurityLocked})
+                                </div>
+                              </TableCell>
+                              <TableCell className="py-2.5 text-right font-semibold text-xs">{item.quantity}</TableCell>
+                              <TableCell className="py-2.5 text-right font-mono text-[11px] text-slate-600">
+                                ₹{item.goldRateLocked?.toLocaleString("en-IN")}/g
+                              </TableCell>
+                              <TableCell className="py-2.5 text-right font-mono text-[11px] text-slate-600">
+                                ₹{item.makingChargesLocked?.toLocaleString("en-IN")}
+                              </TableCell>
+                              <TableCell className="py-2.5 text-right font-semibold text-xs">
+                                ₹{item.finalPriceLocked?.toLocaleString("en-IN")}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+
+                  {/* Calculations summary */}
+                  <div className="w-full space-y-2.5 text-xs bg-slate-50/50 p-4 border border-slate-100 rounded-xl shadow-sm">
                     <div className="flex justify-between text-slate-500">
                       <span>Subtotal:</span>
                       <span className="font-mono">₹{selectedOrder.subTotal?.toLocaleString("en-IN")}</span>
@@ -357,57 +405,12 @@ export default function OrdersPage() {
                       <span>GST (3%):</span>
                       <span className="font-mono">₹{selectedOrder.taxAmount?.toLocaleString("en-IN")}</span>
                     </div>
-                    <div className="flex justify-between font-bold text-slate-800 border-t pt-1.5">
+                    <div className="flex justify-between font-bold text-slate-800 border-t border-slate-200 pt-2.5 mt-1">
                       <span>Grand Total:</span>
-                      <span className="font-mono">₹{selectedOrder.grandTotal?.toLocaleString("en-IN")}</span>
+                      <span className="font-mono text-sm text-slate-900">₹{selectedOrder.grandTotal?.toLocaleString("en-IN")}</span>
                     </div>
                   </div>
                 </div>
-
-                {/* 4. Update Status and Tracking ID */}
-                <form onSubmit={handleUpdateStatus} className="border border-slate-100 rounded-lg p-4 bg-slate-50/50 space-y-4">
-                  <h3 className="font-secondary uppercase text-sm font-semibold tracking-wider text-slate-700">Fulfillment Panel</h3>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="order-status-sel">Fulfillment Stage</Label>
-                      <Select
-                        value={orderStatus}
-                        onValueChange={setOrderStatus}
-                      >
-                        <SelectTrigger id="order-status-sel" className="bg-white">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="received">Received / Pending</SelectItem>
-                          <SelectItem value="processing">Processing Order</SelectItem>
-                          <SelectItem value="shipped">Shipped Package</SelectItem>
-                          <SelectItem value="delivered">Delivered Successfully</SelectItem>
-                          <SelectItem value="cancelled">Cancelled</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <Label htmlFor="order-track-id">Courier Tracking ID</Label>
-                      <Input
-                        id="order-track-id"
-                        placeholder="e.g. BLUEDART723004"
-                        value={trackingId}
-                        onChange={(e) => setTrackingId(e.target.value)}
-                        className="bg-white border-slate-200"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end gap-2 pt-2">
-                    <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="border-slate-300 bg-white">
-                      Cancel
-                    </Button>
-                    <Button type="submit" disabled={isSaving} className="bg-slate-900 hover:bg-slate-800 text-white font-semibold">
-                      {isSaving ? "Saving..." : "Update Shipment Info"}
-                    </Button>
-                  </div>
-                </form>
               </div>
             </>
           )}
