@@ -22,7 +22,7 @@ export function AdminNavbar() {
   return (
     <>
       <nav className="w-full bg-background py-3 md:py-4 sticky top-0 z-50 shadow-sm border-b border-border/40">
-        <div className="max-w-[1920px] mx-auto px-4 md:px-8">
+        <div className="max-w-480 mx-auto px-4 md:px-8">
           {/* ── Top Row ── */}
           <div className="flex justify-between items-center pb-3 md:pb-4 border-b border-border/40">
             {/* Left: Hamburger + Logo */}

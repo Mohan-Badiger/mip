@@ -204,7 +204,7 @@ export async function GET(req) {
     const total = await Product.countDocuments(query);
     const productsList = await Product.find(query)
       .populate('category', 'name slug')
-      .populate('collectionRef', 'name slug')
+      .populate('collectionRef', 'name slug bannerImage description')
       .skip(skip)
       .limit(limit)
       .sort(searchQuery ? { score: { $meta: 'textScore' } } : { createdAt: -1 });

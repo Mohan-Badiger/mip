@@ -49,19 +49,19 @@ export default function JewelryLoader({ size = "lg", label = "Loading Exquisite 
       
       <div className="relative" style={{ animation: 'float-jewel 4s infinite ease-in-out' }}>
         {/* Sparkle Stars */}
-        <svg className="absolute -top-3 -right-3 w-4 h-4 text-[#B39254] fill-current sparkle-1" viewBox="0 0 24 24">
+        <svg className="absolute -top-3 -right-3 w-4 h-4 text-brand-gold fill-current sparkle-1" viewBox="0 0 24 24">
           <path d="M12 0L14.6 9.4L24 12L14.6 14.6L12 24L9.4 14.6L0 12L9.4 9.4Z" />
         </svg>
-        <svg className="absolute -bottom-2 -left-3 w-3 h-3 text-[#B39254] fill-current sparkle-2" viewBox="0 0 24 24">
+        <svg className="absolute -bottom-2 -left-3 w-3 h-3 text-brand-gold fill-current sparkle-2" viewBox="0 0 24 24">
           <path d="M12 0L14.6 9.4L24 12L14.6 14.6L12 24L9.4 14.6L0 12L9.4 9.4Z" />
         </svg>
-        <svg className="absolute top-6 -left-5 w-3.5 h-3.5 text-[#B39254] fill-current sparkle-3" viewBox="0 0 24 24">
+        <svg className="absolute top-6 -left-5 w-3.5 h-3.5 text-brand-gold fill-current sparkle-3" viewBox="0 0 24 24">
           <path d="M12 0L14.6 9.4L24 12L14.6 14.6L12 24L9.4 14.6L0 12L9.4 9.4Z" />
         </svg>
 
         {/* Central Diamond SVG */}
         <svg 
-          className={`${sizeClasses[size] || sizeClasses.lg} text-[#B39254] fill-none stroke-[1.2] stroke-current`}
+          className={`${sizeClasses[size] || sizeClasses.lg} text-brand-gold fill-none stroke-[1.2] stroke-current`}
           viewBox="0 0 100 100"
           style={{ filter: 'drop-shadow(0 0 8px rgba(179, 146, 84, 0.25))' }}
         >
@@ -94,7 +94,7 @@ export default function JewelryLoader({ size = "lg", label = "Loading Exquisite 
 
       {label && (
         <div className="mt-4 flex flex-col gap-1 items-center">
-          <span className="text-[11px] font-bold text-[#4E3629] tracking-[0.25em] uppercase" style={{ animation: 'text-fade 2s infinite ease-in-out' }}>
+          <span className="text-[11px] font-bold text-brand-brown tracking-[0.25em] uppercase" style={{ animation: 'text-fade 2s infinite ease-in-out' }}>
             MIP
           </span>
           <span className="text-[10px] text-gray-400 font-medium tracking-wide">

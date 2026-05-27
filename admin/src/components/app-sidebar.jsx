@@ -16,9 +16,7 @@ import {
   Store,
   Users,
   RotateCcw,
-  Globe,
   UserCheck,
-  Layers,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -53,11 +51,9 @@ const sidebarGroups = [
     ]
   },
   {
-    label: "Website CMS",
+    label: "Website",
     items: [
-      { title: "Homepage", url: "/cms", icon: Home },
-      { title: "Banners", url: "/cms/banners", icon: ImageIcon },
-      { title: "Featured Sections", url: "/cms/sections", icon: Layers },
+      { title: "Website CMS", url: "/cms", icon: Home },
     ]
   },
   {
@@ -78,7 +74,6 @@ const sidebarGroups = [
     label: "Marketing",
     items: [
       { title: "Offers", url: "/offers", icon: Gift },
-      { title: "Blogs", url: "/blogs", icon: FileText },
     ]
   },
   {
@@ -97,7 +92,6 @@ const sidebarGroups = [
   {
     label: "Settings",
     items: [
-      { title: "SEO Settings", url: "/settings/seo", icon: Globe },
       { title: "Admin Users", url: "/settings/users", icon: UserCheck },
       { title: "Website Settings", url: "/settings/website", icon: Settings },
     ]
