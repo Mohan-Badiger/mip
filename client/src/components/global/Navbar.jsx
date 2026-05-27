@@ -55,7 +55,10 @@ function SearchOverlay({ onClose }) {
     }
     setIsSearching(true);
     fetch(`/api/v1/products?search=${encodeURIComponent(debouncedQuery.trim())}&limit=6`)
-      .then(r => r.json())
+      .then(r => {
+        if (!r.ok || !r.headers.get('content-type')?.includes('application/json')) throw new Error('Not JSON');
+        return r.json();
+      })
       .then(data => {
         if (data.success && Array.isArray(data.products)) {
           setResults(data.products);
@@ -92,7 +95,7 @@ function SearchOverlay({ onClose }) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
-      className="fixed inset-0 z-[300] flex flex-col"
+      className="fixed inset-0 z-300 flex flex-col"
     >
       {/* Blurred backdrop */}
       <div
@@ -109,7 +112,7 @@ function SearchOverlay({ onClose }) {
         className="relative z-10 bg-bg-cream shadow-2xl"
       >
         {/* Search Input Row */}
-        <div className="max-w-[900px] mx-auto px-4 md:px-8 py-5">
+        <div className="max-w-225 mx-auto px-4 md:px-8 py-5">
           <form onSubmit={handleSubmit} className="flex items-center gap-4">
             <Search className="w-5 h-5 text-brand-gold shrink-0" strokeWidth={1.5} />
             <input
@@ -141,11 +144,11 @@ function SearchOverlay({ onClose }) {
             </button>
           </form>
           {/* Animated underline */}
-          <div className="h-px bg-gradient-to-r from-brand-brown/10 via-brand-gold to-brand-brown/10 mt-4" />
+          <div className="h-px bg-linear-to-r from-brand-brown/10 via-brand-gold to-brand-brown/10 mt-4" />
         </div>
 
         {/* Results / Trending Panel */}
-        <div className="max-w-[900px] mx-auto px-4 md:px-8 pb-8 max-h-[70vh] overflow-y-auto">
+        <div className="max-w-225 mx-auto px-4 md:px-8 pb-8 max-h-[70vh] overflow-y-auto">
 
           {/* ── Live Search Results (shown when typing) ── */}
           {hasQuery && (
@@ -327,7 +330,10 @@ export default function Navbar() {
     }
     setMobileSearching(true);
     fetch(`/api/v1/products?search=${encodeURIComponent(debouncedMobileQuery.trim())}&limit=5`)
-      .then(r => r.json())
+      .then(r => {
+        if (!r.ok || !r.headers.get('content-type')?.includes('application/json')) throw new Error('Not JSON');
+        return r.json();
+      })
       .then(data => {
         if (data.success && Array.isArray(data.products)) {
           setMobileResults(data.products);
@@ -360,7 +366,7 @@ export default function Navbar() {
   return (
     <>
       <nav className="w-full bg-bg-cream py-3 md:py-4">
-        <div className="max-w-[1920px] mx-auto px-4 md:px-8">
+        <div className="max-w-480 mx-auto px-4 md:px-8">
 
           {/* ── Top Row ── */}
           <div className="flex justify-between items-center pb-3 md:pb-4 border-b border-black/5">
@@ -749,7 +755,7 @@ export default function Navbar() {
                       <span>SHOP CATEGORIES</span>
                       <ChevronDown className={`w-4 h-4 text-brand-gold transition-transform duration-200 ${categoriesExpanded ? 'rotate-180' : ''}`} />
                     </button>
-                    
+
                     <AnimatePresence>
                       {categoriesExpanded && (
                         <motion.div

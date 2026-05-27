@@ -40,6 +40,7 @@ export function CartProvider({ children }) {
         if (isLoggedIn) {
           try {
             const res = await fetch('/api/v1/cart');
+            if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) throw new Error('Not JSON');
             const data = await res.json();
             if (data.success && data.cart && Array.isArray(data.cart.items)) {
               setCartItems(mapBackendCartItems(data.cart.items));
@@ -54,7 +55,10 @@ export function CartProvider({ children }) {
               setCartItems(JSON.parse(savedCart));
             } catch (e) {
               console.error('Failed to parse cart items from localStorage:', e);
+              setCartItems([]);
             }
+          } else {
+            setCartItems([]);
           }
         }
         setIsMounted(true);

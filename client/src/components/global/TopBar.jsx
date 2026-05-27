@@ -14,6 +14,7 @@ export default function TopBar() {
     async function fetchRates() {
       try {
         const res = await fetch('/api/v1/gold-rates');
+        if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) throw new Error('Not JSON');
         const data = await res.json();
         if (data && data.success && Array.isArray(data.rates)) {
           setRates(prevRates => {

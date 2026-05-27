@@ -24,13 +24,16 @@ export function AuthProvider({ children }) {
   // Load session from backend me API on mount
   useEffect(() => {
     async function checkSession() {
+      let isUserLoggedIn = false;
       const isLoggedInHint = localStorage.getItem('mip_is_logged_in') === 'true';
       if (isLoggedInHint) {
         try {
           const res = await fetch('/api/v1/auth/me');
+          if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) throw new Error('Not JSON');
           const data = await res.json();
           if (data.success && data.user) {
             setUser(data.user);
+            isUserLoggedIn = true;
           } else {
             setUser(null);
             localStorage.setItem('mip_is_logged_in', 'false');
@@ -47,6 +50,20 @@ export function AuthProvider({ children }) {
       setOrders(storedOrders ? JSON.parse(storedOrders) : []);
       setWishlist(storedWishlist ? JSON.parse(storedWishlist) : []);
       setIsMounted(true);
+
+      // Fetch fresh orders from db if user session exists
+      if (isUserLoggedIn) {
+        try {
+          const ordersRes = await fetch('/api/v1/orders');
+          const ordersData = await ordersRes.json();
+          if (ordersData.success && ordersData.orders) {
+            setOrders(ordersData.orders);
+            localStorage.setItem('mip_user_orders', JSON.stringify(ordersData.orders));
+          }
+        } catch (err) {
+          console.error('Failed to sync DB orders on session load:', err);
+        }
+      }
     }
     checkSession();
   }, []);
@@ -85,7 +102,23 @@ export function AuthProvider({ children }) {
       });
       const data = await res.json();
       if (data.success) {
+        // Clear any previous session leftovers first
+        setOrders([]);
+        setWishlist([]);
+        localStorage.removeItem('mip_user_orders');
+        localStorage.removeItem('mip_user_wishlist');
         setUser(data.user);
+        // Fetch database orders on login
+        try {
+          const ordersRes = await fetch('/api/v1/orders');
+          const ordersData = await ordersRes.json();
+          if (ordersData.success && ordersData.orders) {
+            setOrders(ordersData.orders);
+            localStorage.setItem('mip_user_orders', JSON.stringify(ordersData.orders));
+          }
+        } catch (err) {
+          console.error('Failed to sync orders on login:', err);
+        }
         return { success: true };
       } else {
         return { success: false, error: data.error || 'Invalid credentials' };
@@ -98,9 +131,21 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     try {
       await fetch('/api/v1/auth/logout', { method: 'POST' });
+      // Reset state and clear session localStorage
+      setOrders([]);
+      setWishlist([]);
+      localStorage.removeItem('mip_user_orders');
+      localStorage.removeItem('mip_user_wishlist');
+      localStorage.setItem('mip_is_logged_in', 'false');
       setUser(null);
     } catch (err) {
       console.error('Logout error:', err);
+      // Fallback clean state
+      setOrders([]);
+      setWishlist([]);
+      localStorage.removeItem('mip_user_orders');
+      localStorage.removeItem('mip_user_wishlist');
+      localStorage.setItem('mip_is_logged_in', 'false');
       setUser(null);
     }
   };
@@ -135,6 +180,21 @@ export function AuthProvider({ children }) {
       }
     } catch (err) {
       return { success: false, error: err.message };
+    }
+  };
+
+  const fetchOrders = async () => {
+    const isLoggedInHint = localStorage.getItem('mip_is_logged_in') === 'true';
+    if (!isLoggedInHint) return;
+    try {
+      const res = await fetch('/api/v1/orders');
+      const data = await res.json();
+      if (data.success && data.orders) {
+        setOrders(data.orders);
+        localStorage.setItem('mip_user_orders', JSON.stringify(data.orders));
+      }
+    } catch (err) {
+      console.error('Failed to manually sync orders from DB:', err);
     }
   };
 
@@ -180,6 +240,11 @@ export function AuthProvider({ children }) {
       });
       const data = await res.json();
       if (data.success) {
+        // Clear any previous session leftovers first
+        setOrders([]);
+        setWishlist([]);
+        localStorage.removeItem('mip_user_orders');
+        localStorage.removeItem('mip_user_wishlist');
         setUser(data.user);
         return { success: true };
       } else {
@@ -217,7 +282,23 @@ export function AuthProvider({ children }) {
       });
       const data = await res.json();
       if (data.success && data.user) {
+        // Clear any previous session leftovers first
+        setOrders([]);
+        setWishlist([]);
+        localStorage.removeItem('mip_user_orders');
+        localStorage.removeItem('mip_user_wishlist');
         setUser(data.user);
+        // Fetch new orders
+        try {
+          const ordersRes = await fetch('/api/v1/orders');
+          const ordersData = await ordersRes.json();
+          if (ordersData.success && ordersData.orders) {
+            setOrders(ordersData.orders);
+            localStorage.setItem('mip_user_orders', JSON.stringify(ordersData.orders));
+          }
+        } catch (err) {
+          console.error('Failed to sync orders on OTP login:', err);
+        }
       }
       return data;
     } catch (err) {
@@ -254,6 +335,7 @@ export function AuthProvider({ children }) {
         logout,
         updateProfile,
         addOrder,
+        fetchOrders,
         toggleWishlist,
         isWishlisted,
         isAuthModalOpen,

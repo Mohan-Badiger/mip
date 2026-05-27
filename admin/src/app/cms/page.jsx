@@ -131,6 +131,9 @@ export default function UnifiedCMSPage() {
     try {
       setLoading(true);
       const res = await fetch("/api/cms");
+      if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) {
+        throw new Error(`API returned ${res.status}: Not JSON`);
+      }
       const json = await res.json();
       if (json.success && json.data) {
         // Ensure sections are sorted by order
@@ -276,6 +279,9 @@ export default function UnifiedCMSPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(cmsData)
       });
+      if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) {
+        throw new Error(`API returned ${res.status}: Not JSON`);
+      }
       const json = await res.json();
       if (json.success) {
         setSuccessMsg("MIP Storefront design saved & updated live!");
