@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ArrowUpRight, Sparkles } from 'lucide-react';
 import FadeInUp from '@/components/global/FadeInUp';
 
-export default function PurchasePlanBanner() {
+export default function PurchasePlanBanner({ name }) {
   return (
     <section className="py-16 md:py-28 max-w-480 mx-auto px-4 md:px-16 lg:px-24 bg-white overflow-hidden">
       <FadeInUp>
@@ -21,7 +21,7 @@ export default function PurchasePlanBanner() {
               Exclusive Purchase Scheme
             </span>
             <h2 className="font-secondary text-3xl md:text-4xl font-normal tracking-wide leading-tight">
-              MIP My Choice
+              {name || "MIP My Choice"}
             </h2>
             <p className="font-primary text-white/80 text-sm leading-relaxed max-w-md">
               Embark on an effortless path to owning your dream jewelry. Save monthly, bypass making charges, and receive exclusive maturity rewards.
@@ -84,7 +84,7 @@ export default function PurchasePlanBanner() {
                 Exclusive Purchase Scheme
               </span>
               <h2 className="font-secondary text-4xl xl:text-5xl mb-4 font-normal tracking-wide leading-tight">
-                MIP My Choice
+                {name || "MIP My Choice"}
               </h2>
               <p className="font-primary text-white/80 text-sm xl:text-base mb-6 max-w-lg leading-relaxed">
                 Embark on an effortless path to owning your dream jewelry. Save monthly, bypass making charges, and receive exclusive maturity rewards.

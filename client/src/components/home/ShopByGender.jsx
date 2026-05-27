@@ -32,7 +32,7 @@ const genders = [
   },
 ];
 
-export default function ShopByGender() {
+export default function ShopByGender({ name }) {
   return (
     <section className="py-16 md:py-28 border-t border-gray-100 bg-bg-cream/50 overflow-hidden">
       <div className="max-w-480 mx-auto px-4 md:px-16 lg:px-24">
@@ -42,7 +42,7 @@ export default function ShopByGender() {
           <div className="flex items-end justify-between mb-12 md:mb-16">
             <div>
               <p className="font-primary text-[10px] tracking-[0.3em] uppercase text-brand-gold mb-2">Browse By</p>
-              <h2 className="font-secondary text-3xl md:text-5xl text-brand-brown">Shop By Gender</h2>
+              <h2 className="font-secondary text-3xl md:text-5xl text-brand-brown">{name || "Shop By Gender"}</h2>
               <div className="w-12 h-0.5 bg-brand-gold mt-4" />
             </div>
             <Link

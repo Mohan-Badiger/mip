@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import FadeInUp from '@/components/global/FadeInUp';
 
-export default function YCollection() {
+export default function YCollection({ name }) {
   return (
     <section className="border-t border-gray-100 bg-white overflow-hidden">
 
@@ -20,7 +20,7 @@ export default function YCollection() {
             New Collection
           </p>
           <h2 className="font-secondary text-4xl text-brand-brown leading-tight mb-1">
-            Y Collection
+            {name || "Y Collection"}
           </h2>
           <div className="w-10 h-0.5 bg-brand-gold mt-3 mb-5" />
         </FadeInUp>
@@ -164,7 +164,7 @@ export default function YCollection() {
           >
             <div className="px-8 py-5">
               <p className="font-primary text-[9px] tracking-[0.3em] uppercase text-brand-gold mb-2">New Collection</p>
-              <h2 className="font-secondary text-5xl xl:text-6xl text-brand-brown">Y Collection</h2>
+              <h2 className="font-secondary text-5xl xl:text-6xl text-brand-brown">{name || "Y Collection"}</h2>
             </div>
           </motion.div>
 

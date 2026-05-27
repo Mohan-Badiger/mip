@@ -1,17 +1,17 @@
-﻿"use client";
+"use client";
 import React from 'react';
 import FadeInUp from '@/components/global/FadeInUp';
 
-export default function TrustLegacy() {
+export default function TrustLegacy({ name }) {
   return (
-    <section className="py-12 md:py-20 max-w-[1920px] mx-auto px-4 md:px-16 lg:px-24 bg-white border-t border-gray-100">
+    <section className="py-12 md:py-20 max-w-480 mx-auto px-4 md:px-16 lg:px-24 bg-white border-t border-gray-100">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
 
         {/* Left Column - Big Headline */}
         <div className="lg:col-span-5">
           <FadeInUp>
             <h2 className="font-secondary text-3xl md:text-5xl text-brand-brown leading-tight mb-6">
-              MIP Jewellers – <br className="hidden md:inline" />A Choice You Can Trust
+              {name || <>MIP Jewellers – <br className="hidden md:inline" />A Choice You Can Trust</>}
             </h2>
             <p className="font-primary text-brand-brown text-sm md:text-base leading-relaxed font-semibold max-w-md">
               {"At MIP Jewellers, Trust is our Foundation. Choosing MIP is not merely selecting jewellery; it's making a conscious decision to entrust your moments and milestones to a brand with a rich legacy of trust and integrity."}

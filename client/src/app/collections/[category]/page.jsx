@@ -83,7 +83,7 @@ export async function generateMetadata({ params }) {
       url: `${baseUrl}/collections/${cat.slug}`,
       images: [
         {
-          url: HERO_IMAGES[cat.slug] || cat.image || '/images/placeholder.png',
+          url: cat.image || HERO_IMAGES[cat.slug] || '/images/placeholder.png',
           alt: cat.name,
         }
       ],
@@ -93,7 +93,7 @@ export async function generateMetadata({ params }) {
       card: 'summary_large_image',
       title,
       description,
-      images: [HERO_IMAGES[cat.slug] || cat.image || '/images/placeholder.png'],
+      images: [cat.image || HERO_IMAGES[cat.slug] || '/images/placeholder.png'],
     }
   };
 }
@@ -114,7 +114,7 @@ export default async function CategoryPage({ params }) {
   }
 
   const products = await getCategoryProducts(cat._id);
-  const heroImage = HERO_IMAGES[cat.slug] || cat.image || '/images/exquisite_model_1779203407757.png';
+  const heroImage = cat.image || HERO_IMAGES[cat.slug] || '/images/exquisite_model_1779203407757.png';
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mipjewellers.com';
 
   // 3. Dynamic JSON-LD CollectionPage Schema for SEO Rich snippets

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import FadeInUp from '@/components/global/FadeInUp';
 
-export default function ExquisiteCollections() {
+export default function ExquisiteCollections({ name }) {
   return (
     <div className="bg-white">
       <section className="py-12 md:py-16 max-w-480 mx-auto px-4 md:px-16 lg:px-24">
@@ -16,7 +16,7 @@ export default function ExquisiteCollections() {
           {/* Text */}
           <FadeInUp>
             <h2 className="font-secondary text-3xl text-brand-brown mb-4 leading-tight">
-              Luxury That Matches Your Style
+              {name || "Luxury That Matches Your Style"}
             </h2>
             <p className="font-primary text-gray-500 text-sm mb-6 leading-relaxed">
               Blending tradition with modernity. We set the standard for the ultimate in Diamond Jewellery.
@@ -70,7 +70,7 @@ export default function ExquisiteCollections() {
           <div className="w-1/3 pt-12">
             <FadeInUp>
               <h2 className="font-secondary text-5xl text-brand-brown mb-6 leading-tight">
-                Luxury That Matches Your Style
+                {name || "Luxury That Matches Your Style"}
               </h2>
               <p className="font-primary text-gray-500 text-sm mb-10 leading-relaxed max-w-sm">
                 Blending tradition with modernity. We set the standard for the ultimate in Diamond Jewellery.

@@ -158,9 +158,14 @@ function CatalogContent() {
   const searchParams = useSearchParams();
   const initialGender = searchParams.get('gender');
   const initialCategory = searchParams.get('category');
+  const initialCollection = searchParams.get('collection');
 
   const [productsList, setProductsList] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [colName, setColName] = useState('All Jewellery');
+  const [colDesc, setColDesc] = useState('Explore our complete handcrafted collections. Gold, diamonds, platinum and precious gemstones curated for every generation.');
+  const [colBanner, setColBanner] = useState('/images/exquisite_model.png');
 
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedGenders, setSelectedGenders] = useState([]);
@@ -200,7 +205,11 @@ function CatalogContent() {
   useEffect(() => {
     async function loadProducts() {
       try {
-        const res = await fetch('/api/v1/products?limit=100');
+        let url = '/api/v1/products?limit=100';
+        if (initialCollection) {
+          url += `&collection=${encodeURIComponent(initialCollection)}`;
+        }
+        const res = await fetch(url);
         const data = await res.json();
         if (data.success && Array.isArray(data.products)) {
           const mapped = data.products.map(p => ({
@@ -217,6 +226,15 @@ function CatalogContent() {
             gender: p.gender || 'Women'
           }));
           setProductsList(mapped);
+
+          if (data.products.length > 0 && initialCollection) {
+            const withCol = data.products.find(p => p.collectionRef);
+            if (withCol && withCol.collectionRef) {
+              setColName(withCol.collectionRef.name);
+              setColDesc(withCol.collectionRef.description || 'Exclusive themed collection.');
+              setColBanner(withCol.collectionRef.bannerImage || '/images/exquisite_model.png');
+            }
+          }
         }
       } catch (err) {
         console.error('Failed to load products:', err);
@@ -225,7 +243,7 @@ function CatalogContent() {
       }
     }
     loadProducts();
-  }, []);
+  }, [initialCollection]);
 
   // Update URL SearchParams to mirror current state
   useEffect(() => {
@@ -256,7 +274,15 @@ function CatalogContent() {
         <ol className="flex items-center gap-2 text-[11px] font-primary text-gray-400 tracking-wide">
           <li><Link href="/" className="hover:text-brand-gold transition-colors">Home</Link></li>
           <li className="text-gray-300">/</li>
-          <li className="text-brand-brown font-medium">All Jewellery</li>
+          {initialCollection ? (
+            <>
+              <li><Link href="/collections" className="hover:text-brand-gold transition-colors">Collections</Link></li>
+              <li className="text-gray-300">/</li>
+              <li className="text-brand-brown font-medium">{colName}</li>
+            </>
+          ) : (
+            <li className="text-brand-brown font-medium">All Jewellery</li>
+          )}
         </ol>
       </nav>
 
@@ -264,8 +290,8 @@ function CatalogContent() {
       <div className="relative bg-[#0F0E0C] overflow-hidden h-45 sm:h-55 md:h-65 lg:h-75 flex items-center border-b border-gray-900 mb-8">
         <div className="absolute right-0 top-0 bottom-0 w-full md:w-[60%] lg:w-[50%] h-full">
           <Image
-            src="/images/exquisite_model.png"
-            alt="All Jewellery"
+            src={colBanner}
+            alt={colName}
             fill
             priority
             sizes="(max-width: 768px) 100vw, 50vw"
@@ -276,11 +302,11 @@ function CatalogContent() {
 
         <div className="relative z-10 max-w-480 mx-auto px-4 md:px-16 w-full flex flex-col items-start text-left">
           <p className="font-primary text-[10px] tracking-[0.3em] uppercase text-brand-gold mb-1.5 md:mb-2">MIP Jewellers</p>
-          <h1 className="font-secondary text-3xl md:text-4xl lg:text-5xl text-white tracking-wide leading-tight">
-            All Jewellery
+          <h1 className="font-secondary text-3xl md:text-4xl lg:text-5xl text-white tracking-wide leading-tight uppercase">
+            {colName}
           </h1>
           <p className="font-primary text-gray-300 text-xs md:text-sm mt-1.5 md:mt-2.5 max-w-60 sm:max-w-sm md:max-w-md lg:max-w-lg leading-relaxed">
-            Explore our complete handcrafted collections. Gold, diamonds, platinum and precious gemstones curated for every generation.
+            {colDesc}
           </p>
         </div>
       </div>

@@ -70,7 +70,8 @@ const slides = [
 
 const SLIDE_INTERVAL = 5000;
 
-export default function HeroCarousel() {
+export default function HeroCarousel({ slides: propSlides }) {
+  const activeSlides = (propSlides && propSlides.length > 0) ? propSlides : slides;
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1); // 1 = forward, -1 = backward
   const [paused, setPaused] = useState(false);
@@ -81,26 +82,26 @@ export default function HeroCarousel() {
   }, []);
 
   const prev = useCallback(() => {
-    const idx = (current - 1 + slides.length) % slides.length;
+    const idx = (current - 1 + activeSlides.length) % activeSlides.length;
     goTo(idx, -1);
-  }, [current, goTo]);
+  }, [current, goTo, activeSlides.length]);
 
   const next = useCallback(() => {
-    const idx = (current + 1) % slides.length;
+    const idx = (current + 1) % activeSlides.length;
     goTo(idx, 1);
-  }, [current, goTo]);
+  }, [current, goTo, activeSlides.length]);
 
   // Auto-scroll
   useEffect(() => {
-    if (paused) return;
+    if (paused || activeSlides.length <= 1) return;
     const timer = setInterval(() => {
-      setCurrent((c) => (c + 1) % slides.length);
+      setCurrent((c) => (c + 1) % activeSlides.length);
       setDirection(1);
     }, SLIDE_INTERVAL);
     return () => clearInterval(timer);
-  }, [paused]);
+  }, [paused, activeSlides.length]);
 
-  const slide = slides[current];
+  const slide = activeSlides[current] || activeSlides[0] || {};
 
   const variants = {
     enter: (dir) => ({ x: dir > 0 ? '6%' : '-6%', opacity: 0 }),
@@ -129,17 +130,27 @@ export default function HeroCarousel() {
               className="absolute inset-0"
             >
               {/* Background Image */}
-              <Image
-                src={slide.image}
-                alt={slide.collection}
-                fill
-                priority
-                sizes="100vw"
-                className="object-cover object-center"
-              />
+              {slide.image && (
+                slide.image.startsWith('data:') ? (
+                  <img
+                    src={slide.image}
+                    alt={slide.collectionName || slide.collection || "Hero Banner"}
+                    className="absolute inset-0 w-full h-full object-cover object-center"
+                  />
+                ) : (
+                  <Image
+                    src={slide.image}
+                    alt={slide.collectionName || slide.collection || "Hero Banner"}
+                    fill
+                    priority
+                    sizes="100vw"
+                    className="object-cover object-center"
+                  />
+                )
+              )}
 
               {/* Gradient overlay for text readability */}
-              <div className={`absolute inset-0 ${slide.overlay}`} />
+              <div className={`absolute inset-0 ${slide.overlay || ""}`} />
 
               {/* Text Content */}
               <div className="absolute inset-0 flex items-center px-6 md:px-16 lg:px-20">
@@ -152,7 +163,7 @@ export default function HeroCarousel() {
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.25, duration: 0.6 }}
-                    className={`font-primary text-[10px] md:text-xs tracking-[0.25em] uppercase font-semibold ${slide.tagColor}`}
+                    className={`font-primary text-[10px] md:text-xs tracking-[0.25em] uppercase font-semibold ${slide.tagColor || "text-brand-gold"}`}
                   >
                     {slide.tag}
                   </motion.span>
@@ -162,10 +173,10 @@ export default function HeroCarousel() {
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.35, duration: 0.65 }}
-                    className={`font-secondary text-2xl sm:text-3xl md:text-4xl lg:text-5xl leading-tight ${slide.textColor}`}
+                    className={`font-secondary text-2xl sm:text-3xl md:text-4xl lg:text-5xl leading-tight ${slide.textColor || "text-brand-brown"}`}
                     style={{ whiteSpace: 'pre-line' }}
                   >
-                    {slide.collection}
+                    {slide.collectionName || slide.collection}
                   </motion.h2>
 
                   {/* Subtitle */}
@@ -173,7 +184,7 @@ export default function HeroCarousel() {
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.45, duration: 0.6 }}
-                    className={`font-primary text-xs sm:text-sm md:text-base leading-relaxed ${slide.subtitleColor}`}
+                    className={`font-primary text-xs sm:text-sm md:text-base leading-relaxed ${slide.subtitleColor || "text-brand-brown/70"}`}
                     style={{ whiteSpace: 'pre-line' }}
                   >
                     {slide.title}
@@ -185,7 +196,7 @@ export default function HeroCarousel() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.5, duration: 0.55 }}
-                      className={`font-secondary text-lg md:text-2xl lg:text-3xl font-normal ${slide.textColor}`}
+                      className={`font-secondary text-lg md:text-2xl lg:text-3xl font-normal ${slide.textColor || "text-brand-brown"}`}
                     >
                       {slide.price}
                     </motion.p>
@@ -193,7 +204,7 @@ export default function HeroCarousel() {
 
                   {/* CTA */}
                   <MotionLink
-                    href={slide.href}
+                    href={slide.href || "#"}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.55, duration: 0.55 }}
@@ -203,7 +214,7 @@ export default function HeroCarousel() {
                         : 'border-brand-gold text-brand-brown hover:text-brand-gold'}
                     transition-colors duration-300`}
                   >
-                    {slide.cta}
+                    {slide.cta || "Explore"}
                   </MotionLink>
                 </div>
               </div>
@@ -229,9 +240,9 @@ export default function HeroCarousel() {
 
         {/* ── Dot Indicators ── */}
         <div className="flex items-center justify-center gap-2.5 py-3 md:py-4">
-          {slides.map((s, idx) => (
+          {activeSlides.map((s, idx) => (
             <button
-              key={s.id}
+              key={s._id || s.id || idx}
               onClick={() => goTo(idx, idx > current ? 1 : -1)}
               aria-label={`Go to slide ${idx + 1}`}
               className={`rounded-full transition-all duration-400 ${idx === current

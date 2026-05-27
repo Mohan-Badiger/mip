@@ -38,7 +38,25 @@ const GIFT_TIERS = [
   }
 ];
 
-export default function ShopByCategory() {
+export default function ShopByCategory({ categories: propCategories, name }) {
+  const SUBTITLES = {
+    bangles: "Curated Cuffs",
+    chains: "Sleek Links",
+    earrings: "Delicate Studs",
+    necklaces: "Royal Chokers",
+    'coins-bars': "Pure Assets",
+    rings: "Timeless Bands",
+  };
+
+  const displayCategories = propCategories && propCategories.length > 0
+    ? propCategories.map(cat => ({
+        name: cat.name || cat.label,
+        slug: cat.slug,
+        subtitle: SUBTITLES[cat.slug] || cat.description || "Exquisite Designs",
+        img: cat.image || "/images/placeholder.png"
+      }))
+    : CATEGORIES;
+
   return (
     <section className="py-16 md:py-28 max-w-480 mx-auto px-4 md:px-16 lg:px-24 border-t border-gray-100 bg-white">
 
@@ -49,14 +67,14 @@ export default function ShopByCategory() {
             Discover
           </span>
           <h2 className="font-secondary text-3xl md:text-5xl text-brand-brown tracking-wide">
-            Shop By Category
+            {name || "Shop By Category"}
           </h2>
           <div className="w-12 h-0.5 bg-brand-gold mt-4" />
         </div>
 
         {/* Horizontal scroll track on mobile, grid on desktop */}
         <div className="flex lg:grid overflow-x-auto lg:overflow-x-visible snap-x snap-mandatory lg:snap-none scrollbar-none gap-6 lg:gap-8 lg:grid-cols-6 pb-8 lg:pb-0 px-2">
-          {CATEGORIES.map((cat, idx) => (
+          {displayCategories.map((cat, idx) => (
             <FadeInUp key={cat.name} delay={idx * 0.08}>
               <Link
                 href={`/collections/${cat.slug}`}

@@ -1,9 +1,9 @@
-﻿"use client";
+"use client";
 import React, { useState } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import FadeInUp from '@/components/global/FadeInUp';
 
-export default function Newsletter() {
+export default function Newsletter({ name }) {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
@@ -16,7 +16,7 @@ export default function Newsletter() {
 
   return (
     <section className="py-14 md:py-20 bg-bg-cream border-t border-gray-100">
-      <div className="max-w-[1920px] mx-auto px-4 md:px-16 lg:px-24 text-center">
+      <div className="max-w-480 mx-auto px-4 md:px-16 lg:px-24 text-center">
 
         <FadeInUp>
           {/* Decorative label */}
@@ -24,7 +24,7 @@ export default function Newsletter() {
             Exclusive Offers &amp; New Arrivals
           </p>
           <h2 className="font-secondary text-3xl md:text-4xl lg:text-5xl text-brand-brown mb-3 tracking-wide">
-            Join Our MIP Family
+            {name || "Join Our MIP Family"}
           </h2>
           <p className="font-primary text-gray-400 text-sm mb-8 max-w-md mx-auto leading-relaxed">
             Subscribe to receive early access to collections, festive offers, and jewellery care tips.
