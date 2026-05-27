@@ -33,11 +33,16 @@ export async function GET() {
           fetch('https://open.er-api.com/v6/latest/USD')
         ]);
 
+        const safeJson = async (res) => {
+          if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) return null;
+          return res.json().catch(() => null);
+        };
+
         const [xauData, xagData, xptData, exData] = await Promise.all([
-          xauRes.json(),
-          xagRes.json(),
-          xptRes.json(),
-          exRes.json()
+          safeJson(xauRes),
+          safeJson(xagRes),
+          safeJson(xptRes),
+          safeJson(exRes)
         ]);
 
         const usdToInr = exData?.rates?.INR || 95.33;
