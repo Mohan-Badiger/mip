@@ -4,10 +4,11 @@ import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { 
-  User, ShoppingBag, Heart, Trash2, Edit3, 
-  Mail, CheckCircle2, Lock, 
-  ChevronRight, LogOut, Check
+import {
+  User, ShoppingBag, Heart, Trash2, Edit3,
+  Mail, CheckCircle2, Lock,
+  ChevronRight, LogOut, Check,
+  Sparkles, Truck, ClipboardList, XCircle, AlertCircle, ExternalLink, ShieldCheck, RefreshCw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PageLayout from '@/components/global/PageLayout';
@@ -16,31 +17,50 @@ import { useCart } from '@/context/CartContext';
 import { formatPrice } from '@/lib/products';
 
 function AccountDashboardContent() {
-  const { 
-    user, 
-    isLoggedIn, 
-    orders, 
-    wishlist, 
-    isMounted, 
-    logout, 
-    updateProfile, 
+  const {
+    user,
+    isLoggedIn,
+    orders,
+    wishlist,
+    isMounted,
+    logout,
+    updateProfile,
     toggleWishlist,
-    openAuthModal
+    openAuthModal,
+    fetchOrders
   } = useAuth();
-  
+
   const { addToCart } = useCart();
   const searchParams = useSearchParams();
   const router = useRouter();
-  
+
   const [activeTab, setActiveTab] = useState('profile');
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editName, setEditName] = useState('');
   const [editPhone, setEditPhone] = useState('');
   const [editAddress, setEditAddress] = useState('');
   const [editPincode, setEditPincode] = useState('');
-  
+
   const [profileSuccessMsg, setProfileSuccessMsg] = useState('');
   const [addedItems, setAddedItems] = useState({}); // Track quick-add status for products: { [id]: boolean }
+
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [simulatedStatuses, setSimulatedStatuses] = useState({});
+
+  const handleSyncOrders = async () => {
+    setIsSyncing(true);
+    await fetchOrders();
+    setTimeout(() => {
+      setIsSyncing(false);
+    }, 600);
+  };
+
+  const handleSimulateStatus = (orderId, newStatus) => {
+    setSimulatedStatuses(prev => ({
+      ...prev,
+      [orderId]: newStatus
+    }));
+  };
 
   // Sync tab from query parameters
   useEffect(() => {
@@ -107,21 +127,21 @@ function AccountDashboardContent() {
   if (!isLoggedIn) {
     return (
       <div className="bg-bg-cream min-h-screen py-16 md:py-28 flex items-center justify-center">
-        <div className="max-w-[480px] w-full mx-auto px-4">
-          <motion.div 
+        <div className="max-w-120 w-full mx-auto px-4">
+          <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             className="bg-white border border-brand-gold/15 shadow-xl p-8 md:p-10 relative overflow-hidden text-center animate-fade-in"
           >
-            <div className="h-1 bg-gradient-to-r from-brand-brown via-brand-gold to-brand-brown absolute top-0 left-0 right-0" />
-            
+            <div className="h-1 bg-linear-to-r from-brand-brown via-brand-gold to-brand-brown absolute top-0 left-0 right-0" />
+
             <div className="w-16 h-16 bg-bg-cream border border-brand-gold/15 rounded-full flex items-center justify-center mx-auto mb-6">
               <User className="w-6 h-6 text-brand-gold" strokeWidth={1.5} />
             </div>
 
             <span className="font-primary text-[10px] tracking-[0.3em] uppercase text-brand-gold font-bold block mb-2">MIP Customer Portal</span>
-            <h1 className="font-secondary text-2xl md:text-3xl text-brand-brown mb-3">Welcome to MIP</h1>
+            <h1 className="font-primary text-2xl md:text-3xl text-brand-brown font-bold mb-3">Welcome to MIP</h1>
             <p className="font-primary text-xs text-gray-500 leading-relaxed mb-8">
               Sign in to view your bespoke orders, track active package deliveries, and access your curated wishlist of luxury jewellery pieces.
             </p>
@@ -146,22 +166,22 @@ function AccountDashboardContent() {
 
   return (
     <div className="bg-bg-cream min-h-screen py-8 md:py-16 text-text-dark">
-      <div className="max-w-[1400px] mx-auto px-4 md:px-8">
-        
+      <div className="max-w-350 mx-auto px-4 md:px-8">
+
         {/* Banner header */}
         <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-brand-gold/10">
           <div>
             <span className="font-primary text-[10px] tracking-[0.3em] uppercase text-brand-gold font-bold block mb-2">
               Welcome Back
             </span>
-            <h1 className="font-secondary text-3xl md:text-5xl text-brand-brown tracking-wide">
+            <h1 className="font-secondary text-3xl md:text-5xl text-brand-brown font-medium tracking-wide">
               {user.name}
             </h1>
             <p className="font-primary text-xs text-gray-400 mt-2 flex items-center gap-1">
               <Mail className="w-3.5 h-3.5 text-brand-gold" /> {user.email}
             </p>
           </div>
-          
+
           <button
             onClick={() => { logout(); router.push('/'); }}
             className="flex items-center gap-1.5 font-primary text-[10px] font-bold tracking-widest text-red-500 hover:text-red-700 transition-colors uppercase border border-red-200/50 hover:bg-red-50/50 bg-white px-4 py-2.5 shrink-0 self-start md:self-auto cursor-pointer"
@@ -173,7 +193,7 @@ function AccountDashboardContent() {
         {/* Success toast notification */}
         <AnimatePresence>
           {profileSuccessMsg && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
@@ -187,7 +207,7 @@ function AccountDashboardContent() {
 
         {/* Dashboard Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
+
           {/* Left Column Navigation Tabs */}
           <div className="lg:col-span-3 space-y-2">
             {[
@@ -201,11 +221,10 @@ function AccountDashboardContent() {
                 <button
                   key={tab.id}
                   onClick={() => handleTabChange(tab.id)}
-                  className={`w-full flex items-center justify-between p-4 font-primary text-xs tracking-wider uppercase font-semibold transition-all cursor-pointer ${
-                    isSelected 
-                      ? 'bg-brand-brown text-white shadow-md' 
-                      : 'bg-white text-brand-brown hover:bg-bg-cream hover:text-brand-gold border border-brand-gold/10'
-                  }`}
+                  className={`w-full flex items-center justify-between p-4 font-primary text-xs tracking-wider uppercase font-semibold transition-all cursor-pointer ${isSelected
+                    ? 'bg-brand-brown text-white shadow-md'
+                    : 'bg-white text-brand-brown hover:bg-bg-cream hover:text-brand-gold border border-brand-gold/10'
+                    }`}
                 >
                   <div className="flex items-center gap-3">
                     <TabIcon className={`w-4 h-4 ${isSelected ? 'text-brand-gold' : 'text-gray-400'}`} />
@@ -219,13 +238,13 @@ function AccountDashboardContent() {
 
           {/* Right Column Dashboard View Area */}
           <div className="lg:col-span-9">
-            <div className="bg-white border border-brand-gold/15 p-6 md:p-8 shadow-xs min-h-[450px]">
-              
+            <div className="bg-white border border-brand-gold/15 p-6 md:p-8 shadow-xs min-h-112.5">
+
               {/* PROFILE TAB */}
               {activeTab === 'profile' && (
                 <div>
                   <div className="flex justify-between items-center mb-6 pb-3 border-b border-gray-100">
-                    <h2 className="font-secondary text-xl text-brand-brown">Account Details</h2>
+                    <h2 className="font-primary text-xl font-bold tracking-wide text-brand-brown">Account Details</h2>
                     {!isEditingProfile && (
                       <button
                         onClick={() => setIsEditingProfile(true)}
@@ -242,7 +261,7 @@ function AccountDashboardContent() {
                       <div className="space-y-4">
                         <div>
                           <span className="text-[9px] tracking-widest text-gray-400 uppercase font-bold block mb-1">Full Name</span>
-                          <p className="font-secondary text-base text-brand-brown font-semibold">{user.name}</p>
+                          <p className="font-primary text-base text-brand-brown font-semibold">{user.name}</p>
                         </div>
                         <div>
                           <span className="text-[9px] tracking-widest text-gray-400 uppercase font-bold block mb-1">Email Address</span>
@@ -292,7 +311,7 @@ function AccountDashboardContent() {
                             className="w-full text-xs px-3 py-3 border border-gray-200 focus:outline-none focus:border-brand-gold text-text-dark bg-bg-cream/10 font-primary"
                           />
                         </div>
-                        
+
                         <div>
                           <label className="text-[10px] tracking-widest text-brand-brown uppercase font-bold block mb-1">Phone Number</label>
                           <input
@@ -354,16 +373,18 @@ function AccountDashboardContent() {
               {/* ORDERS TAB */}
               {activeTab === 'orders' && (
                 <div>
-                  <h2 className="font-secondary text-xl text-brand-brown mb-6 pb-3 border-b border-gray-100">
-                    Order History
-                  </h2>
-                  
+                  <div className="flex justify-between items-center mb-6 pb-3 border-b border-gray-100">
+                    <h2 className="font-secondary text-2xl font-bold tracking-wide text-brand-brown">
+                      Order History
+                    </h2>
+                  </div>
+
                   {orders.length === 0 ? (
                     <div className="text-center py-12">
                       <div className="w-12 h-12 bg-bg-cream rounded-full flex items-center justify-center mx-auto mb-4">
                         <ShoppingBag className="w-6 h-6 text-brand-gold" strokeWidth={1.5} />
                       </div>
-                      <h3 className="font-secondary text-lg text-brand-brown mb-1">No Orders Found</h3>
+                      <h3 className="font-primary text-lg font-semibold text-brand-brown mb-1">No Orders Found</h3>
                       <p className="font-primary text-xs text-gray-400 max-w-xs mx-auto leading-relaxed mb-6">
                         You have not placed any orders yet. Add beautiful items to your shopping cart to begin.
                       </p>
@@ -377,68 +398,87 @@ function AccountDashboardContent() {
                   ) : (
                     <div className="space-y-6">
                       {orders.map((order) => {
-                        const statusColors = {
-                          Pending: 'bg-amber-50 text-amber-800 border-amber-100/50',
-                          Shipped: 'bg-blue-50 text-blue-800 border-blue-100/50',
-                          Delivered: 'bg-emerald-50 text-emerald-800 border-emerald-100/50',
+                        const statusStyles = {
+                          pending: 'bg-amber-50 text-amber-800 border-amber-100',
+                          processing: 'bg-indigo-50 text-indigo-800 border-indigo-100',
+                          crafting: 'bg-indigo-50 text-indigo-800 border-indigo-100',
+                          shipped: 'bg-blue-50 text-blue-800 border-blue-100',
+                          transit: 'bg-blue-50 text-blue-800 border-blue-100',
+                          delivered: 'bg-emerald-50 text-emerald-800 border-emerald-100',
+                          cancelled: 'bg-rose-50 text-rose-800 border-rose-100',
                         };
-                        const badgeStyle = statusColors[order.status] || 'bg-gray-50 text-gray-800 border-gray-100/50';
 
                         return (
-                          <div key={order.id} className="border border-brand-gold/15 bg-white overflow-hidden shadow-xs">
-                            {/* Order Card Header */}
-                            <div className="bg-bg-cream/40 p-4 border-b border-brand-gold/10 flex flex-wrap justify-between items-center gap-4 text-xs">
-                              <div className="flex flex-wrap gap-x-6 gap-y-2">
-                                <div>
-                                  <span className="text-[9px] text-gray-400 font-primary block uppercase font-bold">Order ID</span>
-                                  <span className="font-mono font-bold text-brand-brown">{order.id}</span>
-                                </div>
-                                <div>
-                                  <span className="text-[9px] text-gray-400 font-primary block uppercase font-bold">Placed On</span>
-                                  <span className="font-primary text-gray-700 font-medium">{order.date}</span>
-                                </div>
-                                <div>
-                                  <span className="text-[9px] text-gray-400 font-primary block uppercase font-bold">Payment Method</span>
-                                  <span className="font-primary text-gray-700 font-semibold uppercase">{order.paymentMethod === 'cod' ? 'COD' : 'Online'}</span>
-                                </div>
+                          <div key={order.id} className="border border-brand-gold/15 bg-white shadow-2xs hover:shadow-xs transition-all hover:border-brand-gold/30 overflow-hidden flex flex-col">
+
+                            {/* Card Header metadata strip */}
+                            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-100 bg-slate-50/60 px-5 py-4 text-[11px] font-primary text-gray-500">
+                              <div className="flex flex-wrap gap-x-4 gap-y-1">
+                                <span><strong className="text-brand-brown">Date Placed:</strong> {order.date}</span>
+                                <span>•</span>
+                                <span><strong className="text-brand-brown">Order ID:</strong> <span className="font-mono">{order.id}</span></span>
+                                <span>•</span>
+                                <span><strong className="text-brand-brown">Ship To:</strong> {user.name}</span>
                               </div>
-                              
-                              <div className="flex items-center gap-3">
-                                <span className={`px-2.5 py-1 rounded-full font-primary text-[9px] font-bold uppercase border ${badgeStyle}`}>
-                                  {order.status}
-                                </span>
-                                <div className="text-right">
-                                  <span className="text-[9px] text-gray-400 font-primary block uppercase font-bold">Grand Total</span>
-                                  <span className="font-secondary text-sm text-brand-brown font-bold">{formatPrice(order.total)}</span>
-                                </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-brand-brown font-bold uppercase tracking-wider text-[10px]">Payment: {order.paymentMethod === 'cod' ? 'COD' : 'Online'}</span>
                               </div>
                             </div>
 
-                            {/* Order items inside card */}
-                            <div className="p-4 divide-y divide-gray-100">
-                              {order.items.map((item, idx) => (
-                                <div key={idx} className="flex gap-4 py-4 first:pt-0 last:pb-0 items-center">
-                                  <div className="relative w-14 h-14 bg-bg-cream overflow-hidden border border-gray-100 shrink-0">
-                                    <Image src={item.image} alt={item.name} fill className="object-cover" />
-                                  </div>
-                                  <div className="min-w-0 flex-1">
-                                    <h4 className="font-secondary text-sm text-brand-brown font-bold truncate leading-snug">
-                                      {item.name}
-                                    </h4>
-                                    <div className="flex flex-wrap gap-x-2.5 gap-y-0.5 mt-1 text-[10px] font-primary text-gray-400">
-                                      <span><strong>Metal:</strong> {item.metal}</span>
-                                      <span>•</span>
-                                      <span><strong>Weight:</strong> {item.weight}</span>
-                                      <span>•</span>
-                                      <span><strong>Qty:</strong> {item.quantity}</span>
+                            {/* Card Body */}
+                            <div className="p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+
+                              {/* Left column: List of items */}
+                              <div className="flex-1 space-y-5">
+                                {order.items.map((item, idx) => (
+                                  <div key={idx} className="flex gap-6 items-center">
+                                    {/* Big Large Image */}
+                                    <div className="relative w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 border border-gray-100 shrink-0 bg-bg-cream/40 overflow-hidden shadow-xs rounded-sm">
+                                      <Image src={item.image} alt={item.name} fill className="object-cover" />
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                      <span className="bg-bg-cream text-brand-gold text-[9px] tracking-widest uppercase font-bold px-2 py-0.5 inline-block mb-1.5">
+                                        {item.metal}
+                                      </span>
+                                      <h4 className="font-primary text-base font-bold text-brand-brown truncate leading-snug">
+                                        {item.name}
+                                      </h4>
+                                      <p className="text-xs text-gray-555 mt-1">
+                                        Weight: <strong className="text-brand-brown">{item.weight}</strong>
+                                      </p>
+                                      <p className="text-sm text-brand-brown font-semibold mt-2">
+                                        {item.quantity} x {formatPrice(item.price)}
+                                      </p>
                                     </div>
                                   </div>
-                                  <div className="text-right shrink-0">
-                                    <span className="font-secondary text-xs text-brand-brown font-bold">{formatPrice(item.price * item.quantity)}</span>
-                                  </div>
+                                ))}
+                              </div>
+
+                              {/* Right column: Status, Price and Actions */}
+                              <div className="flex flex-col md:items-end justify-center gap-4 shrink-0 md:pl-6 md:border-l border-gray-150 w-full md:w-auto">
+                                <div className="flex items-center md:justify-end gap-2.5">
+                                  <span className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Status:</span>
+                                  <span className={`px-3 py-1 text-[9px] font-bold uppercase tracking-wider border rounded-xs ${statusStyles[order.status?.toLowerCase()] || 'bg-gray-50 text-gray-805 border-gray-100'
+                                    }`}>
+                                    {order.status || 'Pending'}
+                                  </span>
                                 </div>
-                              ))}
+
+                                <div className="text-left md:text-right">
+                                  <span className="text-[9px] text-gray-400 uppercase tracking-widest block font-bold">Total Price</span>
+                                  <span className="text-2xl font-bold text-brand-brown leading-tight block mt-0.5">{formatPrice(order.total)}</span>
+                                </div>
+
+                                <Link
+                                  href={`/account/orders/${order.id}`}
+                                  className="bg-brand-brown hover:bg-brand-gold text-white hover:text-brand-brown transition-all px-6 py-3 font-primary text-[10px] font-bold tracking-widest uppercase shadow-xs hover:shadow-md text-center w-full md:min-w-40 inline-block cursor-pointer"
+                                >
+                                  Track & Details
+                                </Link>
+                              </div>
+
                             </div>
+
                           </div>
                         );
                       })}
@@ -450,16 +490,16 @@ function AccountDashboardContent() {
               {/* FAVOURITES TAB */}
               {activeTab === 'favourites' && (
                 <div>
-                  <h2 className="font-secondary text-xl text-brand-brown mb-6 pb-3 border-b border-gray-100">
+                  <h2 className="font-primary text-xl font-bold tracking-wide text-brand-brown mb-6 pb-3 border-b border-gray-100">
                     My Curated Favourites
                   </h2>
-                  
+
                   {wishlist.length === 0 ? (
                     <div className="text-center py-12">
                       <div className="w-12 h-12 bg-bg-cream rounded-full flex items-center justify-center mx-auto mb-4">
                         <Heart className="w-6 h-6 text-brand-gold" strokeWidth={1.5} />
                       </div>
-                      <h3 className="font-secondary text-lg text-brand-brown mb-1">Your Favourites List is Empty</h3>
+                      <h3 className="font-primary text-lg font-semibold text-brand-brown mb-1">Your Favourites List is Empty</h3>
                       <p className="font-primary text-xs text-gray-400 max-w-xs mx-auto leading-relaxed mb-6">
                         Explore our jewellery collections and click the Heart icon on any product page to curate your favourites list here.
                       </p>
@@ -475,7 +515,7 @@ function AccountDashboardContent() {
                       {wishlist.map((item) => {
                         const isAdded = addedItems[item.id] || false;
                         return (
-                          <div 
+                          <div
                             key={item.id}
                             className="group bg-white border border-brand-gold/15 relative overflow-hidden flex flex-col h-full hover:shadow-md transition-shadow"
                           >
@@ -490,11 +530,11 @@ function AccountDashboardContent() {
 
                             {/* Product Image */}
                             <div className="relative aspect-square w-full bg-gray-50 overflow-hidden shrink-0">
-                              <Image 
-                                src={item.image} 
-                                alt={item.name} 
-                                fill 
-                                className="object-cover group-hover:scale-105 transition-transform duration-[1.4s]" 
+                              <Image
+                                src={item.image}
+                                alt={item.name}
+                                fill
+                                className="object-cover group-hover:scale-105 transition-transform duration-[1.4s]"
                               />
                             </div>
 
@@ -504,24 +544,23 @@ function AccountDashboardContent() {
                                 <span className="font-primary text-[8px] tracking-[0.2em] uppercase text-brand-gold font-bold block mb-1">
                                   {item.metal}
                                 </span>
-                                <Link 
+                                <Link
                                   href={`/products/${item.slug}`}
-                                  className="font-secondary text-sm text-brand-brown hover:text-brand-gold transition-colors font-bold block leading-snug"
+                                  className="font-primary text-sm text-brand-brown hover:text-brand-gold transition-colors font-bold block leading-snug"
                                 >
                                   {item.name}
                                 </Link>
                                 <span className="text-[10px] text-gray-400 font-primary tracking-wide mt-1 block">Weight: {item.weight}</span>
-                                <span className="font-secondary text-sm text-brand-brown font-semibold block mt-1.5">{formatPrice(item.price)}</span>
+                                <span className="font-primary text-sm text-brand-brown font-semibold block mt-1.5">{formatPrice(item.price)}</span>
                               </div>
 
                               <button
                                 onClick={() => handleQuickAdd(item)}
                                 disabled={isAdded}
-                                className={`w-full font-primary text-[10px] font-bold tracking-[0.18em] uppercase py-2.5 flex items-center justify-center gap-1.5 transition-all duration-300 border cursor-pointer ${
-                                  isAdded 
-                                    ? 'bg-emerald-600 border-emerald-600 text-white' 
-                                    : 'bg-brand-brown border-brand-brown hover:bg-brand-gold hover:border-brand-gold hover:text-brand-brown text-white'
-                                }`}
+                                className={`w-full font-primary text-[10px] font-bold tracking-[0.18em] uppercase py-2.5 flex items-center justify-center gap-1.5 transition-all duration-300 border cursor-pointer ${isAdded
+                                  ? 'bg-emerald-600 border-emerald-600 text-white'
+                                  : 'bg-brand-brown border-brand-brown hover:bg-brand-gold hover:border-brand-gold hover:text-brand-brown text-white'
+                                  }`}
                               >
                                 {isAdded ? (
                                   <>

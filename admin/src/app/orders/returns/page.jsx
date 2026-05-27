@@ -37,6 +37,7 @@ import {
 import {
   RotateCcw,
   Search,
+  Filter,
   Eye,
   RefreshCw,
   Clock,
@@ -259,25 +260,38 @@ export default function ReturnsPage() {
       {/* Filter and Search controls */}
       <Card className="border-[#DED8D0] bg-white shadow-sm">
         <CardContent className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <div className="relative flex-1 max-w-lg">
+            <button
+              type="button"
+              className="absolute left-3 top-1/2 -translate-y-1/2 h-9 w-9 flex items-center justify-center text-muted-foreground hover:text-text-dark transition-colors rounded-md hover:bg-bg-cream cursor-pointer border-0 bg-transparent p-0"
+              onClick={() => {
+                document.getElementById("returns-search-input")?.focus();
+              }}
+              title="Focus search input"
+            >
+              <Search className="h-4.5 w-4.5" />
+            </button>
             <Input
+              id="returns-search-input"
               placeholder="Search by Return ID, Order ID, customer, jewellery name..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 bg-white border-[#DED8D0] text-xs focus-visible:ring-primary shadow-none"
+              className="pl-11 h-10 bg-white border-[#DED8D0] text-xs focus-visible:ring-0 focus-visible:border-slate-450 shadow-none"
             />
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider font-heading mr-1 flex items-center gap-1">
+              <Filter className="w-3.5 h-3.5 text-primary" /> Filter:
+            </span>
             {["ALL", "Requested", "Approved", "Item Received", "Refunded"].map((status) => (
               <Button
                 key={status}
-                variant={statusFilter === status ? "default" : "outline"}
+                variant="outline"
                 className={`text-xs px-4 py-2 h-9 rounded-md transition-all shadow-none
                   ${statusFilter === status 
-                    ? "bg-text-dark text-white hover:bg-[#2C2C2C]" 
-                    : "border-[#DED8D0] hover:bg-bg-cream text-muted-foreground hover:text-text-dark"}`}
+                    ? "bg-primary/10 text-primary border-primary hover:bg-primary/15 font-semibold" 
+                    : "border-[#DED8D0] hover:bg-bg-cream text-muted-foreground hover:text-text-dark bg-white"}`}
                 onClick={() => setStatusFilter(status)}
               >
                 {status === "ALL" ? "All Returns" : status}
