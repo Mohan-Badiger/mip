@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import User from '@/lib/models/User';
 import Order from '@/lib/models/Order';
+import { withAuth } from '@/lib/withAuth';
 
-export async function GET(req) {
+export const GET = withAuth(async function GET(req) {
   try {
     await dbConnect();
 
@@ -69,4 +70,4 @@ export async function GET(req) {
     console.error('Error fetching customers:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
-}
+});

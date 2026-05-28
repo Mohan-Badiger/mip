@@ -4,8 +4,9 @@ import Order from '@/lib/models/Order';
 import Product from '@/lib/models/Product';
 import User from '@/lib/models/User';
 import Category from '@/lib/models/Category';
+import { withAuth } from '@/lib/withAuth';
 
-export async function GET() {
+export const GET = withAuth(async function GET() {
   try {
     await dbConnect();
 
@@ -139,7 +140,7 @@ export async function GET() {
     console.error('Error loading dashboard statistics:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
-}
+});
 
 function formatTimeAgo(date) {
   const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);

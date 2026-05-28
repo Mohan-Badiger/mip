@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import CMS from '@/lib/models/CMS';
 import { logAdminAction } from '@/lib/auditLogger';
+import { withAuth } from '@/lib/withAuth';
 
 const DEFAULT_SECTIONS = [
   { id: "hero", name: "Hero Carousel Slider", type: "Slider", active: true, order: 0 },
@@ -84,7 +85,7 @@ const NAME_CORRECTIONS = {
   "Newsletter Subscription Form": "Join Our MIP Family"
 };
 
-export async function GET(req) {
+export const GET = withAuth(async function GET(req) {
   try {
     await dbConnect();
     let cms = await CMS.findOne();
@@ -118,9 +119,9 @@ export async function GET(req) {
     console.error('Error fetching CMS data:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
-}
+});
 
-export async function PUT(req) {
+export const PUT = withAuth(async function PUT(req) {
   try {
     await dbConnect();
     const body = await req.json();
@@ -164,4 +165,4 @@ export async function PUT(req) {
     console.error('Error updating CMS data:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
-}
+}, ['admin', 'cms-editor']);
