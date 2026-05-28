@@ -1,13 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,56 +38,16 @@ import {
   Edit2,
   Trash2,
   Shield,
-  Clock,
   Search,
-  Check,
-  X,
   Mail,
   Phone,
+  Loader2,
 } from "lucide-react";
 
-// Mock user listings representing shop staff and admins
-const INITIAL_STAFF = [
-  {
-    id: "STF-001",
-    name: "Mohan Badiger",
-    email: "super.admin@mip.com",
-    phone: "+91 9845012345",
-    role: "Super Admin",
-    status: "Active",
-    joinedDate: "Jan 10, 2025"
-  },
-  {
-    id: "STF-002",
-    name: "Aarav Deshmukh",
-    email: "aarav.d@mip.com",
-    phone: "+91 9866299102",
-    role: "Catalog Manager",
-    status: "Active",
-    joinedDate: "Feb 14, 2025"
-  },
-  {
-    id: "STF-003",
-    name: "Pooja Hegde",
-    email: "pooja.h@mip.com",
-    phone: "+91 9741235678",
-    role: "CMS Editor",
-    status: "Active",
-    joinedDate: "Mar 01, 2025"
-  },
-  {
-    id: "STF-004",
-    name: "Karan Johar",
-    email: "karan.j@mip.com",
-    phone: "+91 8123456789",
-    role: "Sales Representative",
-    status: "Suspended",
-    joinedDate: "Apr 20, 2025"
-  }
-];
-
 export default function AdminUsersPage() {
-  const [staff, setStaff] = useState(INITIAL_STAFF);
+  const [staff, setStaff] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -102,6 +59,26 @@ export default function AdminUsersPage() {
   const [formPhone, setFormPhone] = useState("");
   const [formRole, setFormRole] = useState("Sales Representative");
   const [formStatus, setFormStatus] = useState("Active");
+  const [formPassword, setFormPassword] = useState("");
+
+  // Fetch staff from API
+  const fetchStaff = async () => {
+    try {
+      const res = await fetch("/api/settings/users");
+      const data = await res.json();
+      if (data.success) {
+        setStaff(data.data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch staff:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStaff();
+  }, []);
 
   const handleOpenAdd = () => {
     setFormName("");
@@ -109,29 +86,41 @@ export default function AdminUsersPage() {
     setFormPhone("");
     setFormRole("Sales Representative");
     setFormStatus("Active");
+    setFormPassword("");
     setIsAddOpen(true);
   };
 
-  const handleCreateUser = () => {
-    if (!formName || !formEmail) {
-      alert("Please fill in the Name and Email.");
+  const handleCreateUser = async () => {
+    if (!formName || !formEmail || !formPhone) {
+      alert("Please fill in the Name, Email, and Phone.");
       return;
     }
-    const newStaff = {
-      id: `STF-00${staff.length + 1}`,
-      name: formName,
-      email: formEmail,
-      phone: formPhone || "+91 9999999999",
-      role: formRole,
-      status: formStatus,
-      joinedDate: new Date().toLocaleDateString("en-US", {
-        month: "short",
-        day: "2-digit",
-        year: "numeric"
-      })
-    };
-    setStaff(prev => [...prev, newStaff]);
-    setIsAddOpen(false);
+    setSaving(true);
+    try {
+      const res = await fetch("/api/settings/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formName,
+          email: formEmail,
+          phone: formPhone,
+          role: formRole,
+          status: formStatus,
+          password: formPassword || undefined,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStaff(prev => [data.data, ...prev]);
+        setIsAddOpen(false);
+      } else {
+        alert(data.error || "Failed to create staff member.");
+      }
+    } catch (err) {
+      alert("Network error. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleOpenEdit = (user) => {
@@ -141,42 +130,73 @@ export default function AdminUsersPage() {
     setFormPhone(user.phone);
     setFormRole(user.role);
     setFormStatus(user.status);
+    setFormPassword("");
     setIsEditOpen(true);
   };
 
-  const handleUpdateUser = () => {
+  const handleUpdateUser = async () => {
     if (!selectedUser) return;
-    setStaff(prev =>
-      prev.map(item =>
-        item.id === selectedUser.id
-          ? {
-              ...item,
-              name: formName,
-              email: formEmail,
-              phone: formPhone,
-              role: formRole,
-              status: formStatus
-            }
-          : item
-      )
-    );
-    setIsEditOpen(false);
-    setSelectedUser(null);
+    setSaving(true);
+    try {
+      const payload = {
+        _id: selectedUser._id,
+        name: formName,
+        email: formEmail,
+        phone: formPhone,
+        role: formRole,
+        status: formStatus,
+      };
+      if (formPassword) payload.password = formPassword;
+
+      const res = await fetch("/api/settings/users", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStaff(prev => prev.map(item => item._id === selectedUser._id ? data.data : item));
+        setIsEditOpen(false);
+        setSelectedUser(null);
+      } else {
+        alert(data.error || "Failed to update staff member.");
+      }
+    } catch (err) {
+      alert("Network error. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleToggleStatus = (id) => {
-    setStaff(prev =>
-      prev.map(item =>
-        item.id === id
-          ? { ...item, status: item.status === "Active" ? "Suspended" : "Active" }
-          : item
-      )
-    );
+  const handleToggleStatus = async (user) => {
+    const newStatus = user.status === "Active" ? "Suspended" : "Active";
+    try {
+      const res = await fetch("/api/settings/users", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ _id: user._id, status: newStatus }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStaff(prev => prev.map(item => item._id === user._id ? data.data : item));
+      }
+    } catch (err) {
+      console.error("Failed to toggle status:", err);
+    }
   };
 
-  const handleDeleteUser = (id) => {
-    if (confirm("Are you sure you want to remove this administrator's credentials?")) {
-      setStaff(prev => prev.filter(item => item.id !== id));
+  const handleDeleteUser = async (user) => {
+    if (!confirm("Are you sure you want to remove this administrator's credentials?")) return;
+    try {
+      const res = await fetch(`/api/settings/users?id=${user._id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (data.success) {
+        setStaff(prev => prev.filter(item => item._id !== user._id));
+      } else {
+        alert(data.error || "Failed to delete staff member.");
+      }
+    } catch (err) {
+      alert("Network error. Please try again.");
     }
   };
 
@@ -244,8 +264,7 @@ export default function AdminUsersPage() {
         <Table>
           <TableHeader className="bg-bg-cream">
             <TableRow className="border-b border-[#DED8D0]">
-              <TableHead className="text-[10px] font-heading uppercase text-muted-foreground font-semibold py-4 pl-6">ID</TableHead>
-              <TableHead className="text-[10px] font-heading uppercase text-muted-foreground font-semibold py-4">Name</TableHead>
+              <TableHead className="text-[10px] font-heading uppercase text-muted-foreground font-semibold py-4 pl-6">Name</TableHead>
               <TableHead className="text-[10px] font-heading uppercase text-muted-foreground font-semibold py-4">Contacts</TableHead>
               <TableHead className="text-[10px] font-heading uppercase text-muted-foreground font-semibold py-4">Assigned Role</TableHead>
               <TableHead className="text-[10px] font-heading uppercase text-muted-foreground font-semibold py-4">Status</TableHead>
@@ -254,17 +273,24 @@ export default function AdminUsersPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredStaff.length === 0 ? (
+            {loading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-12 text-xs text-muted-foreground font-mono">
+                <TableCell colSpan={6} className="text-center py-12">
+                  <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                    <Loader2 className="w-4 h-4 animate-spin" /> Loading staff members...
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : filteredStaff.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-12 text-xs text-muted-foreground font-mono">
                   No administrative staff found matching the parameters.
                 </TableCell>
               </TableRow>
             ) : (
               filteredStaff.map((user) => (
-                <TableRow key={user.id} className="border-b border-[#DED8D0]/60 hover:bg-bg-cream/30 transition-all">
-                  <TableCell className="font-mono text-xs font-semibold text-primary py-4 pl-6">{user.id}</TableCell>
-                  <TableCell className="text-xs font-semibold text-text-dark">
+                <TableRow key={user._id} className="border-b border-[#DED8D0]/60 hover:bg-bg-cream/30 transition-all">
+                  <TableCell className="text-xs font-semibold text-text-dark py-4 pl-6">
                     <div className="flex items-center gap-2">
                       <div className="w-7 h-7 rounded bg-bg-cream border border-[#DED8D0] text-primary flex items-center justify-center font-heading text-[10px] font-bold">
                         {user.name.split(" ").map(n => n[0]).join("")}
@@ -276,9 +302,11 @@ export default function AdminUsersPage() {
                     <div className="flex items-center gap-1.5 text-text-dark">
                       <Mail className="w-3.5 h-3.5 text-muted-foreground" /> {user.email}
                     </div>
-                    <div className="flex items-center gap-1.5 text-muted-foreground text-[10px] mt-0.5">
-                      <Phone className="w-3 h-3 text-muted-foreground" /> {user.phone}
-                    </div>
+                    {user.phone && (
+                      <div className="flex items-center gap-1.5 text-muted-foreground text-[10px] mt-0.5">
+                        <Phone className="w-3 h-3 text-muted-foreground" /> {user.phone}
+                      </div>
+                    )}
                   </TableCell>
                   <TableCell className="py-4">
                     <Badge variant="outline" className={`text-[9px] uppercase tracking-wider font-semibold py-0.5 px-2 ${getRoleBadgeColor(user.role)}`}>
@@ -287,7 +315,7 @@ export default function AdminUsersPage() {
                   </TableCell>
                   <TableCell className="py-4">
                     <Badge
-                      onClick={() => handleToggleStatus(user.id)}
+                      onClick={() => handleToggleStatus(user)}
                       className={`text-[9px] uppercase tracking-wider cursor-pointer font-bold
                         ${user.status === "Active" 
                           ? "bg-emerald-50 text-emerald-700 border-emerald-250 hover:bg-emerald-100" 
@@ -312,7 +340,7 @@ export default function AdminUsersPage() {
                         size="icon"
                         disabled={user.role === "Super Admin"}
                         className="w-8 h-8 text-rose-500 hover:text-rose-700 hover:bg-rose-50 disabled:opacity-20"
-                        onClick={() => handleDeleteUser(user.id)}
+                        onClick={() => handleDeleteUser(user)}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </Button>
@@ -424,6 +452,18 @@ export default function AdminUsersPage() {
                       </SelectContent>
                     </Select>
                   </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="add-password" className="text-[10px] font-bold text-slate-500 tracking-wider uppercase">Initial Password</Label>
+                    <Input
+                      id="add-password"
+                      type="password"
+                      value={formPassword}
+                      onChange={(e) => setFormPassword(e.target.value)}
+                      placeholder="Leave blank for default (MIP@2025)"
+                      className="bg-white border-slate-200 text-sm shadow-sm"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -438,9 +478,10 @@ export default function AdminUsersPage() {
               </Button>
               <Button
                 onClick={handleCreateUser}
+                disabled={saving}
                 className="bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs rounded-lg h-9"
               >
-                Add Staff Member
+                {saving ? <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Creating...</> : "Add Staff Member"}
               </Button>
             </DialogFooter>
           </div>
@@ -543,6 +584,18 @@ export default function AdminUsersPage() {
                       </SelectContent>
                     </Select>
                   </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="edit-password" className="text-[10px] font-bold text-slate-500 tracking-wider uppercase">Reset Password</Label>
+                    <Input
+                      id="edit-password"
+                      type="password"
+                      value={formPassword}
+                      onChange={(e) => setFormPassword(e.target.value)}
+                      placeholder="Leave blank to keep current"
+                      className="bg-white border-slate-200 text-sm shadow-sm"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -557,9 +610,10 @@ export default function AdminUsersPage() {
               </Button>
               <Button
                 onClick={handleUpdateUser}
+                disabled={saving}
                 className="bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs rounded-lg h-9"
               >
-                Save Changes
+                {saving ? <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Saving...</> : "Save Changes"}
               </Button>
             </DialogFooter>
           </div>
