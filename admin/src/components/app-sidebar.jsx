@@ -6,7 +6,6 @@ import {
   FileText,
   Gift,
   Home,
-  Image as ImageIcon,
   LayoutDashboard,
   MessageSquare,
   Package,
@@ -24,7 +23,6 @@ import { usePathname } from "next/navigation";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -84,12 +82,6 @@ const sidebarGroups = [
     ]
   },
   {
-    label: "Media",
-    items: [
-      { title: "Media Library", url: "/media", icon: ImageIcon },
-    ]
-  },
-  {
     label: "Settings",
     items: [
       { title: "Admin Users", url: "/settings/users", icon: UserCheck },
@@ -107,7 +99,7 @@ export function AppSidebar() {
       <SidebarHeader className="h-16 flex justify-center px-4 border-b border-border/50 overflow-hidden bg-background">
         <div className="flex items-center w-full">
           <h2 className="text-xl md:text-2xl font-bold tracking-widest text-primary font-heading uppercase truncate whitespace-nowrap">
-            {state === "collapsed" ? "MIP" : "MIP LUXURY"}
+            {state === "collapsed" ? "MIP" : "MIP ADMIN"}
           </h2>
         </div>
       </SidebarHeader>
@@ -140,19 +132,6 @@ export function AppSidebar() {
           </SidebarGroup>
         ))}
       </SidebarContent>
-      <SidebarFooter className="border-t border-border/50 p-4 bg-background overflow-hidden">
-        <div className="flex items-center gap-3 font-sans">
-          <div className="w-9 h-9 bg-primary text-white rounded-md shrink-0 flex items-center justify-center text-sm font-semibold tracking-wider font-heading">
-            SA
-          </div>
-          {state !== "collapsed" && (
-            <div className="flex flex-col truncate">
-              <span className="text-xs uppercase tracking-wider font-semibold text-foreground">Admin</span>
-              <span className="text-[10px] uppercase tracking-widest text-muted-foreground">MIP Jewellers</span>
-            </div>
-          )}
-        </div>
-      </SidebarFooter>
     </Sidebar>
   );
 }
