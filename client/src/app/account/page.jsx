@@ -27,7 +27,8 @@ function AccountDashboardContent() {
     updateProfile,
     toggleWishlist,
     openAuthModal,
-    fetchOrders
+    fetchOrders,
+    deleteAccount
   } = useAuth();
 
   const { addToCart } = useCart();
@@ -43,6 +44,22 @@ function AccountDashboardContent() {
 
   const [profileSuccessMsg, setProfileSuccessMsg] = useState('');
   const [addedItems, setAddedItems] = useState({}); // Track quick-add status for products: { [id]: boolean }
+
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteEmailConfirm, setDeleteEmailConfirm] = useState('');
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    if (deleteEmailConfirm !== user.email) return;
+    setIsDeletingAccount(true);
+    const res = await deleteAccount();
+    setIsDeletingAccount(false);
+    if (res.success) {
+      router.push('/');
+    } else {
+      alert(res.error || 'Failed to close account.');
+    }
+  };
 
   const [isSyncing, setIsSyncing] = useState(false);
   const [simulatedStatuses, setSimulatedStatuses] = useState({});
@@ -366,6 +383,54 @@ function AccountDashboardContent() {
                         </button>
                       </div>
                     </form>
+                  )}
+
+                  {/* Muted and non-motivating account close option */}
+                  {user.role === "customer" && (
+                    <div className="mt-16 pt-8 border-t border-gray-100 text-left">
+                      {!showDeleteConfirm ? (
+                        <button
+                          type="button"
+                          onClick={() => setShowDeleteConfirm(true)}
+                          className="text-[10px] text-gray-400 hover:text-gray-600 underline font-primary tracking-wider transition-colors cursor-pointer"
+                        >
+                          Close customer account
+                        </button>
+                      ) : (
+                        <div className="max-w-md mt-2 p-4 border border-gray-200 bg-gray-50/50 rounded-xs">
+                          <p className="font-primary text-[11px] text-gray-500 leading-relaxed mb-3">
+                            Closing your account is permanent. All orders and wishlist items will be removed.
+                          </p>
+                          <p className="font-primary text-[10px] font-semibold text-gray-600 mb-2">
+                            To confirm, enter your account email: <span className="underline select-all">{user.email}</span>
+                          </p>
+                          <input
+                            type="text"
+                            placeholder="Email address"
+                            value={deleteEmailConfirm}
+                            onChange={(e) => setDeleteEmailConfirm(e.target.value)}
+                            className="w-full text-xs px-3 py-2 border border-gray-250 focus:outline-none focus:border-gray-400 text-text-dark bg-white font-primary mb-3"
+                          />
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={handleDeleteAccount}
+                              disabled={deleteEmailConfirm !== user.email || isDeletingAccount}
+                              className="bg-gray-600 hover:bg-gray-700 disabled:bg-gray-300 text-white font-primary text-[9px] font-bold tracking-widest uppercase px-4 py-2 transition-all cursor-pointer"
+                            >
+                              {isDeletingAccount ? "Processing..." : "Confirm Close Account"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => { setShowDeleteConfirm(false); setDeleteEmailConfirm(''); }}
+                              className="bg-white border border-gray-200 hover:bg-gray-105 text-gray-500 font-primary text-[9px] font-bold tracking-widest uppercase px-4 py-2 transition-all cursor-pointer"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
               )}

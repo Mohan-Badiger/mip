@@ -17,8 +17,9 @@ export default function RootLayout({ children }) {
     <html
       lang="en"
       className={`${workSans.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex bg-background font-sans">
+      <body className="min-h-full flex bg-background font-sans" suppressHydrationWarning>
         <AdminShell>{children}</AdminShell>
       </body>
     </html>

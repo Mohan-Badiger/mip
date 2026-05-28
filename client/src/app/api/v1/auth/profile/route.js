@@ -80,3 +80,42 @@ export async function PUT(req) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+/**
+ * DELETE /api/v1/auth/profile
+ * Permanently deletes the authenticated user's account and clears their session.
+ */
+export async function DELETE(req) {
+  try {
+    await dbConnect();
+    const user = await authenticate(req);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (user.role !== 'customer') {
+      return NextResponse.json({ error: 'Only customer accounts can be self-deleted.' }, { status: 403 });
+    }
+
+    const deletedUser = await User.findByIdAndDelete(user._id);
+    if (!deletedUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    const response = NextResponse.json({
+      success: true,
+      message: 'Account deleted successfully'
+    });
+
+    // Clear the JWT authentication cookie
+    response.headers.set(
+      'Set-Cookie',
+      'accessToken=; Path=/; HttpOnly; Secure; SameSite=Strict; Expires=Thu, 01 Jan 1970 00:00:00 GMT'
+    );
+
+    return response;
+  } catch (error) {
+    console.error('Account deletion error:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
