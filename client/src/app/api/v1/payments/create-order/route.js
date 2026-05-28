@@ -65,7 +65,9 @@ export async function POST(req) {
         goldRateLocked: pricing.liveRateUsed,
         makingChargesLocked: pricing.makingCharges,
         gemstonesValueLocked: pricing.gemstoneValue,
-        finalPriceLocked: pricing.finalPrice
+        finalPriceLocked: pricing.finalPrice,
+        image: product.images && product.images[0] ? product.images[0] : '/placeholder.jpg',
+        slug: product.slug
       });
     }
 

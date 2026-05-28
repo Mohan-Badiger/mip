@@ -55,14 +55,14 @@ export async function GET(req) {
         tax: order.taxAmount,
         total: order.grandTotal,
         items: order.items.map(item => ({
-          id: item.product?._id?.toString() || item._id.toString(),
+          id: item.product?._id?.toString() || item._id?.toString() || 'deleted',
           name: item.name,
           price: item.finalPriceLocked / (item.quantity || 1),
           quantity: item.quantity,
           weight: `${item.metalWeightLocked}g`,
           metal: `${item.metalPurityLocked}`,
-          image: item.product?.images?.[0] || '/placeholder.jpg',
-          slug: item.product?.slug || ''
+          image: item.product?.images?.[0] || item.image || '/placeholder.jpg',
+          slug: item.product?.slug || item.slug || ''
         }))
       };
     });

@@ -58,25 +58,69 @@ export default function CartPage() {
   const [activeOrderId, setActiveOrderId] = useState('');
 
 
-  // 1. Promo codes
-  const handleApplyPromo = (e) => {
-    e.preventDefault();
-    setPromoError('');
-    const code = promoCode.trim().toUpperCase();
+  // Dynamic Applicable Coupons list
+  const [applicableCoupons, setApplicapleCoupons] = useState([]);
+  const [promoLoading, setPromoLoading] = useState(false);
 
-    if (code === 'WELCOME10') {
-      const discount = Math.round(cartTotal * 0.10);
-      setAppliedPromo({ code: 'WELCOME10', discount });
-    } else if (code === 'MIPGOLD') {
-      const discount = 1500;
-      if (cartTotal < 10000) {
-        setPromoError('MIPGOLD is only applicable on orders above ₹10,000');
-      } else {
-        setAppliedPromo({ code: 'MIPGOLD', discount });
+  React.useEffect(() => {
+    async function fetchApplicable() {
+      try {
+        const res = await fetch('/api/v1/coupons/applicable');
+        const data = await res.json();
+        if (data.success) {
+          setApplicapleCoupons(data.coupons || []);
+        }
+      } catch (err) {
+        console.error('Error fetching coupons:', err);
       }
-    } else {
-      setPromoError('Invalid coupon code. Try WELCOME10 or MIPGOLD');
     }
+    if (isMounted) {
+      fetchApplicable();
+    }
+  }, [isMounted, isLoggedIn, user]);
+
+  // 1. Promo codes
+  const applyPromoCode = async (codeStr) => {
+    setPromoError('');
+    const code = codeStr.trim().toUpperCase();
+
+    if (!code) {
+      setPromoError('Please enter a coupon code.');
+      return;
+    }
+
+    if (!isLoggedIn) {
+      setPromoError('Please log in to apply promo codes.');
+      return;
+    }
+
+    setPromoLoading(true);
+    try {
+      const res = await fetch('/api/v1/coupons/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, cartTotal })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setAppliedPromo({
+          code: data.coupon.code,
+          discount: data.coupon.discount
+        });
+      } else {
+        setPromoError(data.error || 'Failed to apply coupon.');
+      }
+    } catch (err) {
+      console.error(err);
+      setPromoError('Network error validation promo code.');
+    } finally {
+      setPromoLoading(false);
+    }
+  };
+
+  const handleApplyPromo = async (e) => {
+    e.preventDefault();
+    await applyPromoCode(promoCode);
   };
 
   const handleRemovePromo = () => {
@@ -446,7 +490,7 @@ export default function CartPage() {
   return (
     <PageLayout>
       <div className="bg-bg-cream min-h-screen py-10 md:py-16 text-text-dark">
-        <div className="max-w-[1400px] mx-auto px-4 md:px-8">
+        <div className="max-w-350 mx-auto px-4 md:px-8">
 
           {/* Header Banner */}
           <div className="mb-10 text-center md:text-left">
@@ -545,12 +589,12 @@ export default function CartPage() {
                               src={item.product.image}
                               alt={item.product.name}
                               fill
-                              className="object-cover hover:scale-102 transition-transform duration-500"
+                              className="object-cover hover:scale-[1.02] transition-transform duration-500"
                             />
                           </div>
 
                           {/* Detail & Price Grid */}
-                          <div className="flex-1 flex flex-col justify-between min-h-[128px] w-full pr-8">
+                          <div className="flex-1 flex flex-col justify-between min-h-32 w-full pr-8">
 
                             {/* Product Info */}
                             <div className="space-y-2">
@@ -559,27 +603,42 @@ export default function CartPage() {
                                 {item.product.sku || '41363440'}
                               </span>
 
-                              <Link
-                                href={`/products/${item.product.slug}`}
-                                className="font-secondary text-base md:text-lg text-brand-brown hover:text-brand-gold transition-colors block font-semibold leading-snug"
-                              >
-                                {item.product.name}
-                              </Link>
+                              {item.product.isUnavailable ? (
+                                <span className="font-secondary text-base md:text-lg text-rose-600 block font-semibold leading-snug">
+                                  {item.product.name}
+                                </span>
+                              ) : (
+                                <Link
+                                  href={`/products/${item.product.slug}`}
+                                  className="font-secondary text-base md:text-lg text-brand-brown hover:text-brand-gold transition-colors block font-semibold leading-snug"
+                                >
+                                  {item.product.name}
+                                </Link>
+                              )}
 
                               {/* Specifications Row - Made fonts slightly larger/clearer & modern layout */}
-                              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-xs font-primary text-gray-650">
-                                <span>Purity: <strong className="text-brand-brown font-semibold">{item.product.metal?.split(' ')[0] || '22 KT'}</strong></span>
-                                <span className="text-gray-300">•</span>
-                                <span>Metal weight: <strong className="text-brand-brown font-semibold">{metalWeightVal.toFixed(3)} g</strong></span>
-                                <span className="text-gray-300">•</span>
-                                <span>Gross weight: <strong className="text-brand-brown font-semibold">{grossWeightVal.toFixed(3)} g</strong></span>
-                              </div>
+                              {!item.product.isUnavailable && (
+                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-xs font-primary text-gray-650">
+                                  <span>Purity: <strong className="text-brand-brown font-semibold">{item.product.metal?.split(' ')[0] || '22 KT'}</strong></span>
+                                  <span className="text-gray-300">•</span>
+                                  <span>Metal weight: <strong className="text-brand-brown font-semibold">{metalWeightVal.toFixed(3)} g</strong></span>
+                                  <span className="text-gray-300">•</span>
+                                  <span>Gross weight: <strong className="text-brand-brown font-semibold">{grossWeightVal.toFixed(3)} g</strong></span>
+                                </div>
+                              )}
 
                               {/* Delivery Indicator - Clean and clear */}
-                              <p className="text-xs text-emerald-800 font-primary tracking-wide flex items-center gap-1.5 pt-1 font-medium">
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                Delivery by <span className="font-semibold">{deliveryDate}</span>
-                              </p>
+                              {item.product.isUnavailable ? (
+                                <p className="text-xs text-rose-600 font-primary tracking-wide flex items-center gap-1.5 pt-1 font-semibold">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                                  Item not available
+                                </p>
+                              ) : (
+                                <p className="text-xs text-emerald-800 font-primary tracking-wide flex items-center gap-1.5 pt-1 font-medium">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                  Delivery by <span className="font-semibold">{deliveryDate}</span>
+                                </p>
+                              )}
                             </div>
 
                             {/* Bottom row: Action Buttons (Favourite only, since Remove is at top right) and Price & Quantity */}
@@ -602,17 +661,18 @@ export default function CartPage() {
                                   <button
                                     onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
                                     className="p-2 hover:bg-gray-50 transition-colors cursor-pointer text-gray-500 hover:text-brand-brown disabled:opacity-50"
-                                    disabled={item.quantity <= 1}
+                                    disabled={item.quantity <= 1 || item.product.isUnavailable}
                                     aria-label="Decrease quantity"
                                   >
                                     <Minus className="w-3.5 h-3.5" />
                                   </button>
-                                  <span className="px-3.5 font-primary text-xs font-semibold text-brand-brown min-w-[24px] text-center">
+                                  <span className="px-3.5 font-primary text-xs font-semibold text-brand-brown min-w-6 text-center">
                                     {item.quantity}
                                   </span>
                                   <button
                                     onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                                    className="p-2 hover:bg-gray-50 transition-colors cursor-pointer text-gray-500 hover:text-brand-brown"
+                                    className="p-2 hover:bg-gray-50 transition-colors cursor-pointer text-gray-500 hover:text-brand-brown disabled:opacity-50"
+                                    disabled={item.product.isUnavailable}
                                     aria-label="Increase quantity"
                                   >
                                     <Plus className="w-3.5 h-3.5" />
@@ -621,20 +681,28 @@ export default function CartPage() {
 
                                 {/* Price tags stack: unboxed, clean, and highly legible */}
                                 <div className="text-right flex flex-col items-end">
-                                  <div className="flex items-baseline gap-2">
-                                    {originalPrice > priceVal && (
-                                      <span className="text-xs text-gray-400 line-through font-primary tracking-wide">
-                                        {formatPrice(originalPrice * item.quantity)}
-                                      </span>
-                                    )}
-                                    <span className="font-secondary text-base md:text-lg text-brand-brown font-bold leading-none tracking-wide">
-                                      {formatPrice(priceVal * item.quantity)}
+                                  {item.product.isUnavailable ? (
+                                    <span className="font-secondary text-sm md:text-base text-rose-650 font-bold leading-none tracking-wide">
+                                      Unavailable
                                     </span>
-                                  </div>
-                                  {originalPrice > priceVal && (
-                                    <span className="text-xs font-semibold text-emerald-700 tracking-wide font-primary mt-1 block">
-                                      Save {formatPrice(savingsVal * item.quantity)}
-                                    </span>
+                                  ) : (
+                                    <>
+                                      <div className="flex items-baseline gap-2">
+                                        {originalPrice > priceVal && (
+                                          <span className="text-xs text-gray-400 line-through font-primary tracking-wide">
+                                            {formatPrice(originalPrice * item.quantity)}
+                                          </span>
+                                        )}
+                                        <span className="font-secondary text-base md:text-lg text-brand-brown font-bold leading-none tracking-wide">
+                                          {formatPrice(priceVal * item.quantity)}
+                                        </span>
+                                      </div>
+                                      {originalPrice > priceVal && (
+                                        <span className="text-xs font-semibold text-emerald-700 tracking-wide font-primary mt-1 block">
+                                          Save {formatPrice(savingsVal * item.quantity)}
+                                        </span>
+                                      )}
+                                    </>
                                   )}
                                 </div>
 
@@ -724,27 +792,59 @@ export default function CartPage() {
                           type="text"
                           value={promoCode}
                           onChange={(e) => setPromoCode(e.target.value)}
-                          placeholder="e.g. WELCOME10"
+                          placeholder="ENTER PROMO CODE"
                           className="flex-1 text-xs border border-gray-200 px-3 py-2.5 focus:outline-none focus:border-brand-gold uppercase text-text-dark bg-bg-cream/20 font-primary"
                         />
                         <button
                           type="submit"
-                          className="bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white transition-colors px-4 py-2.5 text-xs font-semibold tracking-wider font-primary uppercase cursor-pointer"
+                          disabled={promoLoading}
+                          className="bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white transition-colors px-4 py-2.5 text-xs font-semibold tracking-wider font-primary uppercase cursor-pointer disabled:opacity-50"
                         >
-                          Apply
+                          {promoLoading ? 'Checking...' : 'Apply'}
                         </button>
                       </div>
                       {promoError && <p className="text-red-500 text-[10px] mt-1.5 font-medium">{promoError}</p>}
-                      <span className="text-[9px] text-gray-400 block mt-1.5 font-primary">Use <strong>WELCOME10</strong> (10% Off) or <strong>MIPGOLD</strong> (₹1,500 Off on orders above ₹10k)</span>
+                      
+                      {/* Dynamic Available Promos */}
+                      {applicableCoupons.length > 0 && (
+                        <div className="mt-3 space-y-1.5">
+                          <span className="text-[9px] tracking-wider text-brand-gold uppercase font-bold block">Available Coupons:</span>
+                          <div className="grid gap-1">
+                            {applicableCoupons.map((coupon) => (
+                              <button
+                                key={coupon._id}
+                                type="button"
+                                onClick={async () => {
+                                  setPromoCode(coupon.code);
+                                  await applyPromoCode(coupon.code);
+                                }}
+                                className="text-left text-[11px] p-1.5 border border-dashed border-brand-gold/20 hover:border-brand-gold/60 bg-bg-cream/30 hover:bg-bg-cream/50 transition-colors cursor-pointer group flex justify-between items-start"
+                              >
+                                <div>
+                                  <span className="font-mono font-bold text-brand-brown group-hover:text-brand-gold">{coupon.code}</span>
+                                  {coupon.firstTimeOnly && (
+                                    <span className="ml-1.5 px-1 bg-amber-50 text-amber-700 text-[8px] font-bold rounded">New User</span>
+                                  )}
+                                  <p className="text-[9px] text-gray-400 font-primary mt-0.5">{coupon.description}</p>
+                                </div>
+                                <span className="font-semibold text-brand-brown text-[10px]">
+                                  {coupon.discountType === 'percentage' ? `${coupon.discountValue}% OFF` : `₹${coupon.discountValue} OFF`}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </form>
                   )}
 
                   {/* Checkout Button */}
                   <button
                     onClick={handleProceedToCheckout}
-                    className="w-full bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white py-4 font-primary text-xs font-semibold tracking-[0.2em] uppercase transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                    disabled={cartItems.some(item => item.product.isUnavailable)}
+                    className="w-full bg-brand-brown hover:bg-brand-gold hover:text-brand-brown disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed text-white py-4 font-primary text-xs font-semibold tracking-[0.2em] uppercase transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <Lock className="w-3.5 h-3.5" /> Proceed to Checkout
+                    <Lock className="w-3.5 h-3.5" /> {cartItems.some(item => item.product.isUnavailable) ? "Remove Unavailable Items" : "Proceed to Checkout"}
                   </button>
 
                 </div>
@@ -779,7 +879,7 @@ export default function CartPage() {
               className="bg-white w-full max-w-2xl border border-brand-gold/30 shadow-2xl relative z-10 overflow-hidden my-auto rounded-sm"
             >
               {/* Header Gold Gradient Accent */}
-              <div className="h-1.5 bg-gradient-to-r from-brand-brown via-brand-gold to-brand-brown" />
+              <div className="h-1.5 bg-linear-to-r from-brand-brown via-brand-gold to-brand-brown" />
 
               {/* Backdrop Blur Overlay when submitting to Razorpay */}
               <AnimatePresence>
@@ -792,7 +892,7 @@ export default function CartPage() {
                   >
                     <div className="w-12 h-12 rounded-full border-2 border-brand-gold border-t-transparent animate-spin mb-4" />
                     <span className="font-primary text-[10px] tracking-[0.25em] uppercase font-bold text-brand-brown">Securing Transaction...</span>
-                    <p className="font-primary text-[11px] text-gray-400 mt-1.5 max-w-[280px] leading-relaxed mb-5">
+                    <p className="font-primary text-[11px] text-gray-400 mt-1.5 max-w-70 leading-relaxed mb-5">
                       Please complete the payment process in the secure Razorpay overlay.
                     </p>
 
@@ -885,7 +985,7 @@ export default function CartPage() {
                     <div className="mb-10">
                       <div className="flex items-center justify-between max-w-md mx-auto relative px-2">
                         {/* Background connection line */}
-                        <div className="absolute top-4.5 left-6 right-6 h-[2px] bg-gray-100 -z-0">
+                        <div className="absolute top-4.5 left-6 right-6 h-0.5 bg-gray-100 z-0">
                           <div
                             className="h-full bg-brand-gold transition-all duration-500"
                             style={{ width: checkoutStep === 1 ? '0%' : checkoutStep === 2 ? '50%' : '100%' }}
@@ -935,7 +1035,7 @@ export default function CartPage() {
                     )}
 
                     {/* Step Contents */}
-                    <div className="min-h-[280px]">
+                    <div className="min-h-70">
                       {checkoutStep === 1 && (
                         <motion.div
                           initial={{ opacity: 0, x: -10 }}
@@ -1025,7 +1125,7 @@ export default function CartPage() {
                                       handleSelectAddress(idx);
                                       setValidationError('');
                                     }}
-                                    className={`p-3.5 border cursor-pointer relative transition-all duration-300 rounded-sm flex flex-col justify-between min-w-[230px] max-w-[250px] shrink-0
+                                    className={`p-3.5 border cursor-pointer relative transition-all duration-300 rounded-sm flex flex-col justify-between min-w-57.5 max-w-62.5 shrink-0
                                       ${addressMode === 'saved' && selectedAddressIndex === idx
                                         ? 'border-brand-gold bg-bg-cream/20 shadow-sm ring-1 ring-brand-gold/15'
                                         : 'border-gray-205 border-gray-200 hover:border-gray-300 bg-white'}`}
@@ -1188,7 +1288,7 @@ export default function CartPage() {
                                         ? 'bg-brand-brown border-brand-brown text-white'
                                         : 'bg-white border-gray-300 hover:border-brand-gold'}`}
                                   >
-                                    {saveAddressChecked && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                                    {saveAddressChecked && <Check className="w-2.5 h-2.5 stroke-3" />}
                                   </button>
                                 </div>
                                 <label
@@ -1332,7 +1432,7 @@ export default function CartPage() {
                                     ? 'bg-brand-brown border-brand-brown text-white'
                                     : 'bg-white border-gray-300 hover:border-brand-gold'}`}
                               >
-                                {acceptTerms && <Check className="w-3 h-3 stroke-[3]" />}
+                                {acceptTerms && <Check className="w-3 h-3 stroke-3" />}
                               </button>
                             </div>
                             <div className="text-[11px] leading-snug text-gray-550 font-primary">

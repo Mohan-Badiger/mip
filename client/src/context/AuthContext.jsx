@@ -323,6 +323,29 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const deleteAccount = async () => {
+    try {
+      const res = await fetch('/api/v1/auth/profile', {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (data.success) {
+        setOrders([]);
+        setWishlist([]);
+        localStorage.removeItem('mip_user_orders');
+        localStorage.removeItem('mip_user_wishlist');
+        localStorage.setItem('mip_is_logged_in', 'false');
+        setUser(null);
+        return { success: true };
+      } else {
+        return { success: false, error: data.error || 'Failed to delete account' };
+      }
+    } catch (err) {
+      console.error('Delete account error:', err);
+      return { success: false, error: err.message };
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -345,7 +368,8 @@ export function AuthProvider({ children }) {
         register,
         sendOtp,
         verifyOtp,
-        resetPassword
+        resetPassword,
+        deleteAccount
       }}
     >
       {children}

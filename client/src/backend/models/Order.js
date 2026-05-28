@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const OrderItemSchema = new mongoose.Schema({
-  product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
+  product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
   name: { type: String, required: true },
   quantity: { type: Number, required: true, min: 1 },
   metalPurityLocked: { type: String, required: true },
@@ -9,7 +9,9 @@ const OrderItemSchema = new mongoose.Schema({
   goldRateLocked: { type: Number, required: true },
   makingChargesLocked: { type: Number, required: true },
   gemstonesValueLocked: { type: Number, default: 0 },
-  finalPriceLocked: { type: Number, required: true }
+  finalPriceLocked: { type: Number, required: true },
+  image: { type: String },
+  slug: { type: String }
 });
 
 const OrderSchema = new mongoose.Schema({

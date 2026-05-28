@@ -18,15 +18,16 @@ export function CartProvider({ children }) {
       if (!p) return null;
       return {
         product: {
-          id: p._id,
-          slug: p.slug,
+          id: p._id || p.id,
+          slug: p.slug || '',
           name: p.name,
           image: p.images && p.images[0] ? p.images[0] : '/images/placeholder.png',
-          price: p.pricing?.finalPrice || p.price,
+          price: p.pricing?.finalPrice || p.price || 0,
           weight: p.metalWeight ? p.metalWeight + 'g' : '—',
           metal: p.metalPurity && p.metalType ? `${p.metalPurity} ${p.metalType.toUpperCase()}` : '—',
           stone: p.gemstones && p.gemstones[0] ? (p.gemstones[0].type.charAt(0).toUpperCase() + p.gemstones[0].type.slice(1)) : null,
-          tag: p.tag || null
+          tag: p.tag || null,
+          isUnavailable: item.isUnavailable || p.isUnavailable || false
         },
         quantity: item.quantity
       };
@@ -185,8 +186,8 @@ export function CartProvider({ children }) {
   };
 
   // Derive counts
-  const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
-  const cartTotal = cartItems.reduce((total, item) => total + (item.product.price * item.quantity), 0);
+  const cartCount = cartItems.reduce((total, item) => total + (item.product.isUnavailable ? 0 : item.quantity), 0);
+  const cartTotal = cartItems.reduce((total, item) => total + (item.product.isUnavailable ? 0 : item.product.price * item.quantity), 0);
 
   return (
     <CartContext.Provider
