@@ -34,8 +34,40 @@ export async function GET(req) {
     const validatedItems = [];
 
     for (const item of cart.items) {
-      if (!item.product || !item.product.isActive) {
-        // Skip/remove deleted or inactive products from display cart
+      if (!item.product) {
+        // Product was hard-deleted from database
+        validatedItems.push({
+          _id: item._id,
+          isUnavailable: true,
+          product: {
+            _id: 'deleted-item-' + item._id,
+            name: 'Product Unavailable',
+            images: ['/images/placeholder.png'],
+            price: 0,
+            metalWeight: 0,
+            metalPurity: '',
+            metalType: '',
+            isActive: false,
+            isUnavailable: true
+          },
+          quantity: item.quantity,
+          itemTotal: 0
+        });
+        continue;
+      }
+
+      if (!item.product.isActive) {
+        // Product is inactive (disabled by admin)
+        validatedItems.push({
+          _id: item._id,
+          isUnavailable: true,
+          product: {
+            ...item.product.toObject(),
+            isUnavailable: true
+          },
+          quantity: item.quantity,
+          itemTotal: 0
+        });
         continue;
       }
 
