@@ -3,6 +3,7 @@ import dbConnect from '@/lib/dbConnect';
 import GoldRate from '@/lib/models/GoldRate';
 import { logAdminAction } from '@/lib/auditLogger';
 import { triggerClientRevalidate } from '@/lib/revalidateHelper';
+import { withAuth } from '@/lib/withAuth';
 
 const DEFAULT_RATES = [
   { metal: 'gold', purity: '18KT', pricePerGram: 6000 },
@@ -12,7 +13,7 @@ const DEFAULT_RATES = [
   { metal: 'platinum', purity: '950PT', pricePerGram: 3200 }
 ];
 
-export async function GET() {
+export const GET = withAuth(async function GET() {
   try {
     await dbConnect();
     let rates = await GoldRate.find({});
@@ -27,9 +28,9 @@ export async function GET() {
     console.error('Error fetching gold rates:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
-}
+});
 
-export async function PUT(req) {
+export const PUT = withAuth(async function PUT(req) {
   try {
     await dbConnect();
     const body = await req.json();
@@ -75,4 +76,4 @@ export async function PUT(req) {
     console.error('Error updating gold rates:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
-}
+}, ['admin']);
