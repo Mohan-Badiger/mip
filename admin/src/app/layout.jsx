@@ -1,8 +1,6 @@
 import { Work_Sans } from "next/font/google";
 import "./globals.css";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
-import { Topbar } from "@/components/topbar";
+import { AdminShell } from "@/components/admin-shell";
 
 const workSans = Work_Sans({
   subsets: ["latin"],
@@ -21,15 +19,7 @@ export default function RootLayout({ children }) {
       className={`${workSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex bg-background font-sans">
-        <SidebarProvider>
-          <AppSidebar />
-          <div className="flex flex-col flex-1 min-w-0">
-            <Topbar />
-            <main className="flex-1 w-full max-w-480 mx-auto p-4 md:p-8 overflow-y-auto">
-              {children}
-            </main>
-          </div>
-        </SidebarProvider>
+        <AdminShell>{children}</AdminShell>
       </body>
     </html>
   );
