@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { triggerClientRevalidate } from '@/lib/revalidateHelper';
 import { logAdminAction } from '@/lib/auditLogger';
+import { withAuth } from '@/lib/withAuth';
 
-export async function POST(req) {
+export const POST = withAuth(async function POST(req) {
   try {
     const body = await req.json();
     const { tag } = body;
@@ -29,4 +30,4 @@ export async function POST(req) {
     console.error('Error triggering manual revalidation:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
-}
+}, ['admin']);

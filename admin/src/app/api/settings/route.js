@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import Settings from '@/lib/models/Settings';
 import { logAdminAction } from '@/lib/auditLogger';
+import { withAuth } from '@/lib/withAuth';
 
-export async function GET(req) {
+export const GET = withAuth(async function GET(req) {
   try {
     await dbConnect();
     let settings = await Settings.findOne();
@@ -21,9 +22,9 @@ export async function GET(req) {
     console.error('Error fetching settings:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
-}
+});
 
-export async function PUT(req) {
+export const PUT = withAuth(async function PUT(req) {
   try {
     await dbConnect();
     const body = await req.json();
@@ -64,4 +65,4 @@ export async function PUT(req) {
     console.error('Error updating settings:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
-}
+}, ['admin']);

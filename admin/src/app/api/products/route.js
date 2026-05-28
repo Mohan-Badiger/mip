@@ -4,8 +4,9 @@ import Product from '@/lib/models/Product';
 import Category from '@/lib/models/Category';
 import Collection from '@/lib/models/Collection';
 import { logAdminAction } from '@/lib/auditLogger';
+import { withAuth } from '@/lib/withAuth';
 
-export async function GET(req) {
+export const GET = withAuth(async function GET(req) {
   try {
     await dbConnect();
     
@@ -46,9 +47,9 @@ export async function GET(req) {
     console.error('Error fetching products:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
-}
+});
 
-export async function POST(req) {
+export const POST = withAuth(async function POST(req) {
   try {
     await dbConnect();
     const body = await req.json();
@@ -120,9 +121,9 @@ export async function POST(req) {
     console.error('Error creating product:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
-}
+}, ['admin', 'catalog-manager']);
 
-export async function PUT(req) {
+export const PUT = withAuth(async function PUT(req) {
   try {
     await dbConnect();
     const body = await req.json();
@@ -173,9 +174,9 @@ export async function PUT(req) {
     console.error('Error updating product:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
-}
+}, ['admin', 'catalog-manager']);
 
-export async function DELETE(req) {
+export const DELETE = withAuth(async function DELETE(req) {
   try {
     await dbConnect();
     const { searchParams } = new URL(req.url);
@@ -205,4 +206,4 @@ export async function DELETE(req) {
     console.error('Error deleting product:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
-}
+}, ['admin']);
