@@ -22,11 +22,19 @@ export function Topbar() {
   const [rates, setRates] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [hasUnread, setHasUnread] = useState(true);
+  const notifRef = useRef(null);
+
   // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
         setMenuOpen(false);
+      }
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        setNotifOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -50,6 +58,58 @@ export function Topbar() {
     fetchRates();
     // Refresh every 5 minutes
     const interval = setInterval(fetchRates, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    async function loadNotifications() {
+      try {
+        const notifs = [];
+        
+        // 1. Fetch recent orders
+        const ordersRes = await fetch("/api/orders");
+        const ordersJson = await ordersRes.json();
+        if (ordersJson.success && Array.isArray(ordersJson.data)) {
+          const activeOrders = ordersJson.data.slice(0, 3);
+          activeOrders.forEach(order => {
+            notifs.push({
+              id: `order-${order._id}`,
+              type: "order",
+              title: "New Order Received",
+              message: `Order #${order.razorpayOrderId || order._id.slice(-6)} placed by ${order.user?.name || "Customer"} for ₹${(order.grandTotal || 0).toLocaleString('en-IN')}`,
+              time: new Date(order.createdAt).toLocaleDateString() + ' ' + new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              href: `/orders`
+            });
+          });
+        }
+
+        // 2. Fetch products for low stock
+        const productsRes = await fetch("/api/products");
+        const productsJson = await productsRes.json();
+        if (productsJson.success && Array.isArray(productsJson.data)) {
+          const lowStockProds = productsJson.data.filter(p => p.stock <= 3 && p.isActive).slice(0, 3);
+          lowStockProds.forEach(prod => {
+            notifs.push({
+              id: `stock-${prod._id}`,
+              type: "stock",
+              title: "Low Stock Alert",
+              message: `"${prod.name}" is running low! Only ${prod.stock} left in inventory.`,
+              time: "System Sync",
+              href: `/products`
+            });
+          });
+        }
+
+        setNotifications(notifs);
+        if (notifs.length === 0) {
+          setHasUnread(false);
+        }
+      } catch (err) {
+        console.error("Failed to compile admin notifications:", err);
+      }
+    }
+    loadNotifications();
+    const interval = setInterval(loadNotifications, 2 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -89,10 +149,67 @@ export function Topbar() {
             {silver && <span>SILVER: ₹{silver}/g</span>}
           </div>
         )}
-        <Button variant="outline" size="icon" className="relative">
-          <Bell className="h-4 w-4" />
-          <span className="absolute top-1 right-1 w-2 h-2 bg-red-600 rounded-full"></span>
-        </Button>
+        {/* Notifications Popover */}
+        <div className="relative" ref={notifRef}>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            className="relative cursor-pointer"
+            onClick={() => {
+              setNotifOpen(!notifOpen);
+              setHasUnread(false);
+            }}
+          >
+            <Bell className="h-4 w-4" />
+            {hasUnread && (
+              <span className="absolute top-1 right-1 w-2 h-2 bg-red-600 rounded-full"></span>
+            )}
+          </Button>
+
+          {notifOpen && (
+            <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-[#DED8D0] rounded-lg shadow-lg z-50 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
+              <div className="px-4 py-3 border-b border-[#DED8D0]/60 flex items-center justify-between">
+                <span className="text-xs font-heading font-bold uppercase tracking-wider text-text-dark">Notifications</span>
+                {notifications.length > 0 && (
+                  <button 
+                    onClick={() => {
+                      setNotifications([]);
+                      setHasUnread(false);
+                    }}
+                    className="text-[10px] text-muted-foreground hover:text-rose-600 transition-colors uppercase tracking-wider"
+                  >
+                    Clear All
+                  </button>
+                )}
+              </div>
+              <div className="max-h-80 overflow-y-auto divide-y divide-[#DED8D0]/40">
+                {notifications.length === 0 ? (
+                  <div className="p-6 text-center text-xs text-muted-foreground">
+                    No new alerts or notifications.
+                  </div>
+                ) : (
+                  notifications.map((item) => (
+                    <a 
+                      key={item.id} 
+                      href={item.href}
+                      onClick={() => setNotifOpen(false)}
+                      className="block p-3.5 hover:bg-bg-cream/40 transition-colors"
+                    >
+                      <div className="flex items-start gap-2.5">
+                        <div className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${item.type === 'order' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                        <div className="space-y-0.5">
+                          <p className="text-xs font-semibold text-text-dark">{item.title}</p>
+                          <p className="text-[11px] text-slate-600 leading-relaxed">{item.message}</p>
+                          <p className="text-[9px] text-muted-foreground">{item.time}</p>
+                        </div>
+                      </div>
+                    </a>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* User Menu */}
         <div className="relative" ref={menuRef}>
