@@ -3,6 +3,7 @@ import Razorpay from 'razorpay';
 import dbConnect from '@/backend/config/dbConnect';
 import Cart from '@/backend/models/Cart';
 import Order from '@/backend/models/Order';
+import Settings from '@/backend/models/Settings';
 import { calculateLiveProductPrice } from '@/backend/services/pricingService';
 import { authenticate } from '@/backend/middlewares/authMiddleware';
 
@@ -14,7 +15,7 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { shippingAddress } = await req.json();
+    const { shippingAddress, paymentMethod } = await req.json();
     if (!shippingAddress || !shippingAddress.street || !shippingAddress.city || !shippingAddress.state || !shippingAddress.pincode) {
       return NextResponse.json({ error: 'Incomplete shipping address provided' }, { status: 400 });
     }
@@ -75,6 +76,30 @@ export async function POST(req) {
     subTotal = Math.round(subTotal);
     taxAmount = Math.round(taxAmount);
     grandTotal = Math.round(grandTotal);
+
+    // Fetch active settings
+    const activeSettings = await Settings.findOne() || {};
+    const freeShippingThreshold = activeSettings.freeShippingThreshold ?? 50000;
+    const shippingCharge = activeSettings.shippingCharge ?? 250;
+    const insuranceFee = activeSettings.insuranceFee ?? 150;
+    const codAllowed = activeSettings.codAllowed ?? true;
+    const codLimit = activeSettings.codLimit ?? 20000;
+    const codExtraCharge = activeSettings.codExtraCharge ?? 100;
+
+    // Apply shipping & insurance
+    const shippingFee = grandTotal >= freeShippingThreshold ? 0 : shippingCharge;
+    grandTotal += shippingFee + insuranceFee;
+
+    // Apply COD surcharge & validation
+    if (paymentMethod === 'cod') {
+      if (!codAllowed) {
+        return NextResponse.json({ error: 'Cash on Delivery is currently disabled' }, { status: 400 });
+      }
+      if (grandTotal > codLimit) {
+        return NextResponse.json({ error: `Cash on Delivery is not allowed for orders exceeding ₹${codLimit.toLocaleString('en-IN')}` }, { status: 400 });
+      }
+      grandTotal += codExtraCharge;
+    }
 
     // 3. Initialize Order record (generate a placeholder first to get _id)
     const tempRazorpayOrderId = `temp_rp_${Math.random().toString(36).substring(7)}`;

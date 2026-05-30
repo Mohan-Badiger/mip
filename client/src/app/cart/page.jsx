@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect, react-hooks/purity */
 "use client";
 
 import React, { useState } from 'react';
@@ -13,6 +14,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import PageLayout from '@/components/global/PageLayout';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
+import { useSettings } from '@/context/SettingsContext';
 import { formatPrice, products } from '@/lib/products';
 
 export default function CartPage() {
@@ -26,6 +28,7 @@ export default function CartPage() {
   } = useCart();
 
   const { user, isLoggedIn, addOrder, openAuthModal, toggleWishlist, isWishlisted, updateProfile } = useAuth();
+  const { settings } = useSettings();
 
   const [promoCode, setPromoCode] = useState('');
   const [appliedPromo, setAppliedPromo] = useState(null); // { code, discount }
@@ -56,6 +59,12 @@ export default function CartPage() {
   const [saveAddressChecked, setSaveAddressChecked] = useState(true);
   const [activeRazorpayOrderId, setActiveRazorpayOrderId] = useState('');
   const [activeOrderId, setActiveOrderId] = useState('');
+
+  React.useEffect(() => {
+    if (isMounted && !settings.codAllowed && paymentMethod === 'cod') {
+      setPaymentMethod('card');
+    }
+  }, [isMounted, settings.codAllowed, paymentMethod]);
 
 
   // Dynamic Applicable Coupons list
@@ -131,7 +140,10 @@ export default function CartPage() {
 
   // Calculations
   const discountAmount = appliedPromo ? appliedPromo.discount : 0;
-  const finalTotal = Math.max(0, cartTotal - discountAmount);
+  const shippingFee = cartTotal >= settings.freeShippingThreshold ? 0 : settings.shippingCharge;
+  const insuranceFee = settings.insuranceFee || 0;
+  const codHandlingFee = (paymentMethod === 'cod' && settings.codAllowed) ? settings.codExtraCharge : 0;
+  const finalTotal = Math.max(0, cartTotal - discountAmount + shippingFee + insuranceFee + codHandlingFee);
 
   // Load Razorpay script dynamically
   React.useEffect(() => {
@@ -294,7 +306,7 @@ export default function CartPage() {
     }
 
     if (!acceptTerms) {
-      setValidationError("Please accept the MIP Jewellers Terms of Service and Privacy Policy to proceed.");
+      setValidationError(`Please accept the ${settings.brandName} Terms of Service and Privacy Policy to proceed.`);
       setIsSubmittingOrder(false);
       return;
     }
@@ -314,7 +326,7 @@ export default function CartPage() {
       const orderRes = await fetch('/api/v1/payments/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ shippingAddress })
+        body: JSON.stringify({ shippingAddress, paymentMethod })
       });
       const orderData = await orderRes.json();
 
@@ -380,7 +392,7 @@ export default function CartPage() {
           key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_mock',
           amount: orderData.amount,
           currency: orderData.currency,
-          name: 'MIP Jewellers',
+          name: settings.brandName,
           description: 'Secure Luxury Checkout',
           order_id: razorpayOrderId,
           handler: async function (response) {
@@ -753,9 +765,25 @@ export default function CartPage() {
                     </div>
 
                     <div className="flex justify-between text-gray-500">
-                      <span>Shipping & Insurance</span>
-                      <span className="text-emerald-600 font-medium tracking-wide uppercase text-[10px]">Free</span>
+                      <span>Shipping {shippingFee === 0 ? '(Free)' : ''}</span>
+                      <span className={shippingFee === 0 ? "text-emerald-600 font-medium tracking-wide uppercase text-[10px]" : "font-semibold text-gray-700"}>
+                        {shippingFee === 0 ? "Free" : formatPrice(shippingFee)}
+                      </span>
                     </div>
+
+                    {insuranceFee > 0 && (
+                      <div className="flex justify-between text-gray-500">
+                        <span>Transit Insurance</span>
+                        <span className="font-semibold text-gray-700">{formatPrice(insuranceFee)}</span>
+                      </div>
+                    )}
+
+                    {codHandlingFee > 0 && (
+                      <div className="flex justify-between text-gray-500">
+                        <span>COD Convenience Fee</span>
+                        <span className="font-semibold text-gray-700">{formatPrice(codHandlingFee)}</span>
+                      </div>
+                    )}
 
                     <div className="flex justify-between text-gray-500">
                       <span>BIS Hallmarking Fees</span>
@@ -1366,6 +1394,24 @@ export default function CartPage() {
                                   <span>-{formatPrice(appliedPromo.discount)}</span>
                                 </div>
                               )}
+                              <div className="flex justify-between">
+                                <span>Shipping {shippingFee === 0 ? '(Free)' : ''}</span>
+                                <span className={shippingFee === 0 ? "text-emerald-650 font-medium text-[11px]" : ""}>
+                                  {shippingFee === 0 ? "Free" : formatPrice(shippingFee)}
+                                </span>
+                              </div>
+                              {insuranceFee > 0 && (
+                                <div className="flex justify-between">
+                                  <span>Transit Insurance</span>
+                                  <span>{formatPrice(insuranceFee)}</span>
+                                </div>
+                              )}
+                              {codHandlingFee > 0 && (
+                                <div className="flex justify-between">
+                                  <span>COD Convenience Fee</span>
+                                  <span>{formatPrice(codHandlingFee)}</span>
+                                </div>
+                              )}
                               <div className="flex justify-between font-bold text-brand-brown text-sm pt-2 border-t border-dashed border-brand-gold/15">
                                 <span>Grand Total</span>
                                 <span>{formatPrice(finalTotal)}</span>
@@ -1399,25 +1445,51 @@ export default function CartPage() {
                               </div>
 
                               {/* Cash on Delivery */}
-                              <div
-                                onClick={() => setPaymentMethod('cod')}
-                                className={`p-4 border cursor-pointer flex items-start gap-3 transition-all duration-350 rounded-sm relative
-                                  ${paymentMethod === 'cod'
-                                    ? 'border-brand-gold bg-bg-cream/10 shadow-sm'
-                                    : 'border-gray-200 hover:border-gray-300 bg-white'}`}
-                              >
-                                <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 mt-0.5 transition-all
-                                  ${paymentMethod === 'cod' ? 'border-brand-gold text-brand-gold' : 'border-gray-300'}`}
+                              {settings.codAllowed ? (
+                                <div
+                                  onClick={() => {
+                                    const baseEstTotal = Math.max(0, cartTotal - discountAmount + shippingFee + insuranceFee);
+                                    if (baseEstTotal > settings.codLimit) {
+                                      setValidationError(`Cash on Delivery is limited to orders below ₹${settings.codLimit.toLocaleString('en-IN')}`);
+                                      return;
+                                    }
+                                    setPaymentMethod('cod');
+                                    setValidationError('');
+                                  }}
+                                  className={`p-4 border flex items-start gap-3 transition-all duration-350 rounded-sm relative
+                                    ${paymentMethod === 'cod'
+                                      ? 'border-brand-gold bg-bg-cream/10 shadow-sm'
+                                      : 'border-gray-200 hover:border-gray-300 bg-white'}
+                                    ${(Math.max(0, cartTotal - discountAmount + shippingFee + insuranceFee) > settings.codLimit) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                                 >
-                                  {paymentMethod === 'cod' && (
-                                    <span className="w-2 h-2 rounded-full bg-brand-gold" />
-                                  )}
+                                  <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 mt-0.5 transition-all
+                                    ${paymentMethod === 'cod' ? 'border-brand-gold text-brand-gold' : 'border-gray-300'}`}
+                                  >
+                                    {paymentMethod === 'cod' && (
+                                      <span className="w-2 h-2 rounded-full bg-brand-gold" />
+                                    )}
+                                  </div>
+                                  <div className="flex-1">
+                                    <span className="text-xs font-bold text-brand-brown block leading-tight mb-1">
+                                      Cash on Delivery (COD)
+                                      {Math.max(0, cartTotal - discountAmount + shippingFee + insuranceFee) > settings.codLimit && (
+                                        <span className="ml-1.5 text-[9px] text-red-500 font-normal normal-case">Limit Exceeded</span>
+                                      )}
+                                    </span>
+                                    <p className="text-[10px] text-gray-400 font-primary leading-normal">
+                                      Pay with cash upon secure delivery at your door (+₹{settings.codExtraCharge} convenience fee)
+                                    </p>
+                                  </div>
                                 </div>
-                                <div className="flex-1">
-                                  <span className="text-xs font-bold text-brand-brown block leading-tight mb-1">Cash on Delivery (COD)</span>
-                                  <p className="text-[10px] text-gray-400 font-primary leading-normal">Pay with cash upon secure delivery at your door</p>
+                              ) : (
+                                <div className="p-4 border border-dashed border-gray-200 bg-gray-50/50 rounded-sm flex items-start gap-3 opacity-60">
+                                  <div className="w-4 h-4 rounded-full border border-gray-300 shrink-0 mt-0.5 bg-gray-100" />
+                                  <div className="flex-1">
+                                    <span className="text-xs font-bold text-gray-400 block leading-tight mb-1">COD (Disabled)</span>
+                                    <p className="text-[10px] text-gray-400 font-primary leading-normal">Cash on Delivery is currently unavailable</p>
+                                  </div>
                                 </div>
-                              </div>
+                              )}
                             </div>
                           </div>
 
