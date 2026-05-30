@@ -1,6 +1,7 @@
 import { Work_Sans, Cinzel } from "next/font/google";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
+import { SettingsProvider } from "@/context/SettingsContext";
 import GoogleAnalytics from "@/components/global/GoogleAnalytics";
 import ClientAuthModal from "@/components/global/ClientAuthModal";
 import "./globals.css";
@@ -53,12 +54,14 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`${workSans.variable} ${cinzel.variable} antialiased font-primary`} suppressHydrationWarning>
         <GoogleAnalytics />
-        <AuthProvider>
-          <CartProvider>
-            {children}
-            <ClientAuthModal />
-          </CartProvider>
-        </AuthProvider>
+        <SettingsProvider>
+          <AuthProvider>
+            <CartProvider>
+              {children}
+              <ClientAuthModal />
+            </CartProvider>
+          </AuthProvider>
+        </SettingsProvider>
       </body>
     </html>
   );

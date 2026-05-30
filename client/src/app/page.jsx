@@ -15,6 +15,8 @@ import dbConnect from "@/backend/config/dbConnect";
 import Category from "@/backend/models/Category";
 import Collection from "@/backend/models/Collection";
 import CMS from "@/backend/models/CMS";
+import Settings from "@/backend/models/Settings";
+import AnnouncementBanner from "@/components/global/AnnouncementBanner";
 
 export const dynamic = "force-dynamic";
 
@@ -55,17 +57,21 @@ export default async function Home() {
   let dbCategories = [];
   let dbCollections = [];
   let cmsData = null;
+  let settingsData = null;
   try {
     await dbConnect();
     dbCategories = await Category.find({}).lean();
     dbCollections = await Collection.find({}).lean();
     cmsData = await CMS.findOne().lean();
+    settingsData = await Settings.findOne().lean();
   } catch (err) {
-    console.error("Failed to load categories/collections/CMS on homepage:", err);
+    console.error("Failed to load categories/collections/CMS/Settings on homepage:", err);
   }
   const serializedCategories = JSON.parse(JSON.stringify(dbCategories));
   const serializedCollections = JSON.parse(JSON.stringify(dbCollections));
   const serializedCms = cmsData ? JSON.parse(JSON.stringify(cmsData)) : null;
+  const serializedSettings = settingsData ? JSON.parse(JSON.stringify(settingsData)) : null;
+  const hasBanner = serializedSettings && serializedSettings.bannerEnabled && serializedSettings.bannerText;
 
   const sectionsToRender = (serializedCms && serializedCms.sections && serializedCms.sections.length > 0)
     ? serializedCms.sections.filter(s => s.active).sort((a, b) => a.order - b.order)
@@ -112,10 +118,11 @@ export default async function Home() {
       />
 
       <header className="fixed w-full top-0 z-50 shadow-sm flex flex-col">
+        <AnnouncementBanner />
         <TopBar />
         <Navbar />
       </header>
-      <div className="pt-22.5 md:pt-35">
+      <div className={hasBanner ? "pt-32.5 md:pt-45" : "pt-22.5 md:pt-35"}>
         {sectionsToRender.map((section) => {
           switch (section.id) {
             case "hero":
