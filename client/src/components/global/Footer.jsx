@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
+import { useSettings } from '@/context/SettingsContext';
 
 /* Inline social SVGs — no lucide-react dependency */
 const IgIcon  = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>;
@@ -66,14 +67,16 @@ function AccordionSection({ title, links }) {
 }
 
 export default function Footer() {
+  const { settings } = useSettings();
+
   return (
     <footer className="bg-brand-brown text-white/80">
 
       {/* ── Top row: brand + social (always visible) ── */}
-      <div className="max-w-[1920px] mx-auto px-5 md:px-8 pt-10 md:pt-14 pb-6 md:pb-0 border-b border-white/10 md:border-none">
+      <div className="max-w-480 mx-auto px-5 md:px-8 pt-10 md:pt-14 pb-6 md:pb-0 border-b border-white/10 md:border-none">
         <div className="flex items-center justify-between">
           <Link href="/">
-            <h3 className="font-secondary text-2xl tracking-[0.25em] text-brand-gold">mip</h3>
+            <h3 className="font-secondary text-2xl tracking-[0.25em] text-brand-gold">{settings.brandName.toLowerCase().replace(/\s+/g, '')}</h3>
             <p className="font-primary text-[10px] tracking-[0.2em] uppercase text-white/40 mt-0.5">Since 1925</p>
           </Link>
           {/* Social icons — always visible */}
@@ -102,33 +105,43 @@ export default function Footer() {
           <p className="font-primary text-[10px] tracking-[0.25em] uppercase text-white font-semibold mb-3">Contact</p>
           <ul className="space-y-2">
             <li>
-              <a href="tel:18001201925" className="font-primary text-sm text-white/65 hover:text-brand-gold transition-colors">
-                Toll Free: 1800-120-1925
+              <a href={`tel:${settings.supportPhone}`} className="font-primary text-sm text-white/65 hover:text-brand-gold transition-colors">
+                Toll Free: {settings.supportPhone}
               </a>
             </li>
             <li>
-              <a href="mailto:support@mip.com" className="font-primary text-sm text-white/65 hover:text-brand-gold transition-colors">
-                support@mip.com
+              <a href={`mailto:${settings.supportEmail}`} className="font-primary text-sm text-white/65 hover:text-brand-gold transition-colors">
+                {settings.supportEmail}
               </a>
             </li>
+            {settings.storeAddress && (
+              <li className="text-white/50 text-[11px] font-primary pt-1 leading-relaxed">
+                {settings.storeAddress}
+              </li>
+            )}
           </ul>
         </div>
       </div>
 
       {/* ── Desktop: 4-column grid ── */}
-      <div className="hidden md:block max-w-[1920px] mx-auto px-8 py-14">
+      <div className="hidden md:block max-w-480 mx-auto px-8 py-14">
         <div className="grid grid-cols-4 gap-12">
           {/* Brand column */}
           <div>
-            <p className="font-primary text-sm text-white/60 leading-relaxed mb-6">
-              A Legacy of Purity since 1925. Handcrafted 916 BIS Hallmarked jewellery blending timeless tradition with modern elegance.
+            <p className="font-primary text-xs text-white/60 leading-relaxed mb-4">
+              A Legacy of Purity since 1925. Handcrafted certified hallmarked jewelry blending timeless tradition with modern elegance.
             </p>
+            {settings.storeAddress && (
+              <p className="font-primary text-[11px] text-white/40 leading-relaxed mb-4">
+                {settings.storeAddress}
+              </p>
+            )}
             <div className="space-y-2">
-              <a href="tel:18001201925" className="block font-primary text-sm text-white/60 hover:text-brand-gold transition-colors">
-                1800-120-1925
+              <a href={`tel:${settings.supportPhone}`} className="block font-primary text-sm text-white/65 hover:text-brand-gold transition-colors">
+                {settings.supportPhone}
               </a>
-              <a href="mailto:support@mip.com" className="block font-primary text-sm text-white/60 hover:text-brand-gold transition-colors">
-                support@mip.com
+              <a href={`mailto:${settings.supportEmail}`} className="block font-primary text-sm text-white/65 hover:text-brand-gold transition-colors">
+                {settings.supportEmail}
               </a>
             </div>
           </div>
@@ -151,10 +164,9 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* ── Bottom bar ── */}
       <div className="border-t border-white/10">
-        <div className="max-w-[1920px] mx-auto px-5 md:px-8 py-4 flex flex-col md:flex-row items-center justify-between gap-2 text-[11px] font-primary text-white/35">
-          <p>&copy; {new Date().getFullYear()} MIP Jewellers. All Rights Reserved.</p>
+        <div className="max-w-480 mx-auto px-5 md:px-8 py-4 flex flex-col md:flex-row items-center justify-between gap-2 text-[11px] font-primary text-white/35">
+          <p>&copy; {new Date().getFullYear()} {settings.brandName}. All Rights Reserved.</p>
           <div className="flex gap-4">
             <Link href="/about#privacy" className="hover:text-white/60 transition-colors">Privacy</Link>
             <Link href="/about#terms" className="hover:text-white/60 transition-colors">Terms</Link>

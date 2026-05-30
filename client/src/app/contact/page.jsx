@@ -3,10 +3,12 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import PageLayout from '@/components/global/PageLayout';
 import { Mail, Phone, MapPin, Clock, Send, CheckCircle2 } from 'lucide-react';
+import { useSettings } from '@/context/SettingsContext';
 
 const SUBJECTS = ['General Enquiry', 'Order Support', 'Purchase Plan', 'Jewellery Customisation', 'Store Feedback', 'Other'];
 
 export default function ContactPage() {
+  const { settings } = useSettings();
   const [form, setForm] = useState({ name: '', email: '', phone: '', subject: SUBJECTS[0], message: '' });
   const [sent, setSent] = useState(false);
 
@@ -26,7 +28,7 @@ export default function ContactPage() {
       </div>
 
       {/* Breadcrumb */}
-      <nav className="max-w-[1920px] mx-auto px-4 md:px-16 py-4 border-b border-gray-100">
+      <nav className="max-w-480 mx-auto px-4 md:px-16 py-4 border-b border-gray-100">
         <ol className="flex items-center gap-2 text-[11px] font-primary text-gray-400 tracking-wide">
           <li><Link href="/" className="hover:text-brand-gold transition-colors">Home</Link></li>
           <li className="text-gray-300">/</li>
@@ -34,7 +36,7 @@ export default function ContactPage() {
         </ol>
       </nav>
 
-      <div className="max-w-[1920px] mx-auto px-4 md:px-16 py-12 md:py-16 pb-20">
+      <div className="max-w-480 mx-auto px-4 md:px-16 py-12 md:py-16 pb-20">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
 
           {/* Left: Contact Info */}
@@ -49,9 +51,9 @@ export default function ContactPage() {
 
             <div className="space-y-5">
               {[
-                { icon: Phone, label: 'Toll Free', value: '1800-120-1925', href: 'tel:18001201925' },
-                { icon: Mail,  label: 'Email',     value: 'support@mip.com', href: 'mailto:support@mip.com' },
-                { icon: MapPin, label: 'Head Office', value: 'Kochi, Kerala, India', href: null },
+                { icon: Phone, label: 'Toll Free', value: settings.supportPhone, href: `tel:${settings.supportPhone}` },
+                { icon: Mail,  label: 'Email',     value: settings.supportEmail, href: `mailto:${settings.supportEmail}` },
+                { icon: MapPin, label: 'Showroom & Head Office', value: settings.storeAddress || 'Kochi, Kerala, India', href: null },
                 { icon: Clock,  label: 'Hours',    value: 'Mon–Sun: 9:00 AM – 9:00 PM', href: null },
               ].map(({ icon: Icon, label, value, href }) => (
                 <div key={label} className="flex gap-3.5">
@@ -87,7 +89,7 @@ export default function ContactPage() {
           {/* Right: Form */}
           <div className="lg:col-span-2">
             {sent ? (
-              <div className="flex flex-col items-center justify-center h-full min-h-[360px] text-center gap-4">
+              <div className="flex flex-col items-center justify-center h-full min-h-90 text-center gap-4">
                 <CheckCircle2 className="w-14 h-14 text-brand-gold" strokeWidth={1} />
                 <h3 className="font-secondary text-2xl text-brand-brown">Message Sent!</h3>
                 <p className="font-primary text-sm text-gray-500 max-w-sm">Thank you for reaching out. Our team will get back to you within 24 hours.</p>

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
@@ -7,6 +8,7 @@ import { Search, MapPin, User, ShoppingBag, Menu, X, TrendingUp, ArrowUpRight, C
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
+import { useSettings } from '@/context/SettingsContext';
 import { formatPrice } from '@/lib/products';
 
 const TRENDING_SEARCHES = [
@@ -295,6 +297,7 @@ function SearchOverlay({ onClose }) {
 }
 
 export default function Navbar() {
+  const { settings } = useSettings();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [categoriesExpanded, setCategoriesExpanded] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
@@ -813,7 +816,7 @@ export default function Navbar() {
 
               {/* Contact at Bottom */}
               <div className="px-6 py-4 border-t border-black/5 bg-white/50">
-                <p className="text-[10px] text-gray-400 tracking-wide">1800-120-1925  ·  support@mip.com</p>
+                <p className="text-[10px] text-gray-400 tracking-wide">{settings.supportPhone}  ·  {settings.supportEmail}</p>
               </div>
             </motion.div>
           </div>

@@ -1,4 +1,5 @@
 import GoldRate from '../models/GoldRate';
+import Settings from '../models/Settings';
 
 // Standard market rate fallback constants (in INR) to keep system robust
 const DEFAULT_RATES = {
@@ -64,7 +65,18 @@ export async function calculateLiveProductPrice(product, preloadedRates = null) 
 
   // Base and Tax calculations
   const basePrice = rawMetalValue + makingCharges + gemstoneValue;
-  const tax = basePrice * 0.03; // 3% GST
+
+  let gstRate = 3.0;
+  try {
+    const activeSettings = await Settings.findOne();
+    if (activeSettings && activeSettings.gstRate !== undefined) {
+      gstRate = activeSettings.gstRate;
+    }
+  } catch (err) {
+    console.error('Failed to fetch GST rate from DB settings:', err);
+  }
+
+  const tax = basePrice * (gstRate / 100);
   const finalPrice = Math.round(basePrice + tax);
 
   return {
