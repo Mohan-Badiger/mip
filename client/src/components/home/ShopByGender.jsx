@@ -11,7 +11,7 @@ const genders = [
     sub: "For Her", 
     desc: "Curated Selection",
     img: "/images/shop_gender_women.png", 
-    href: "/collections?gender=women",
+    href: "/products?gender=women",
     num: "01" 
   },
   { 
@@ -19,7 +19,7 @@ const genders = [
     sub: "For Him", 
     desc: "Modern Classics",
     img: "/images/shop_gender_men.png", 
-    href: "/collections?gender=men",
+    href: "/products?gender=men",
     num: "02" 
   },
   { 
@@ -27,7 +27,7 @@ const genders = [
     sub: "For Them", 
     desc: "Joyful Adornments",
     img: "/images/shop_gender_kids.png", 
-    href: "/collections?gender=kids",
+    href: "/products?gender=kids",
     num: "03" 
   },
 ];

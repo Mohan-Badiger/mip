@@ -11,37 +11,37 @@ const COLLECTIONS = [
     title: "Aradhana",
     sub: "Inspired by our tradition",
     img: "/images/category_necklaces.png",
-    link: "/collections?category=necklaces"
+    link: "/products?category=necklaces"
   },
   {
     title: "Sunshine",
     sub: "A craft made to last over time",
     img: "/images/category_bangles.png",
-    link: "/collections?category=bangles"
+    link: "/products?category=bangles"
   },
   {
     title: "Kahani",
     sub: "Bridal Stories in Gold",
     img: "/images/category_chains.png",
-    link: "/collections?category=rings"
+    link: "/products?category=rings"
   },
   {
     title: "Rang Mahal",
     sub: "Semi Precious Stone Jewels",
     img: "/images/category_rings.png",
-    link: "/collections?category=earrings"
+    link: "/products?category=earrings"
   },
   {
     title: "Kerala",
     sub: "Embrace Culture Legacy",
     img: "/images/category_necklaces.png",
-    link: "/collections?category=necklaces"
+    link: "/products?category=necklaces"
   },
   {
     title: "Stones",
     sub: "Pure Gold Coins & Bars",
     img: "/images/category_bangles.png",
-    link: "/collections?category=coins-bars"
+    link: "/products?category=coins-bars"
   }
 ];
 
@@ -51,7 +51,7 @@ export default function CollectionsCards({ collections: propCollections, name })
         title: col.name,
         sub: col.description || "Themed Collection",
         img: col.bannerImage || "/images/category_bangles.png",
-        link: `/collections?collection=${col.slug}`
+        link: `/products?collection=${col.slug}`
       }))
     : COLLECTIONS;
 
