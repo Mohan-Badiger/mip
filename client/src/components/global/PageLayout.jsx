@@ -1,3 +1,4 @@
+"use client";
 import TopBar from '@/components/global/TopBar';
 import Navbar from '@/components/global/Navbar';
 import Footer from '@/components/global/Footer';

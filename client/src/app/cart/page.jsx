@@ -66,6 +66,23 @@ export default function CartPage() {
     }
   }, [isMounted, settings.codAllowed, paymentMethod]);
 
+  // Handle Quick Checkout / Buy Now query parameter
+  React.useEffect(() => {
+    if (isMounted) {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('checkout') === 'true') {
+        if (!isLoggedIn) {
+          openAuthModal();
+        } else {
+          setIsCheckoutOpen(true);
+        }
+        // Clean up url parameter
+        const newUrl = window.location.pathname;
+        window.history.replaceState(null, '', newUrl);
+      }
+    }
+  }, [isMounted, isLoggedIn]);
+
 
   // Dynamic Applicable Coupons list
   const [applicableCoupons, setApplicapleCoupons] = useState([]);
