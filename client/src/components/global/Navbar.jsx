@@ -75,7 +75,7 @@ function SearchOverlay({ onClose }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (query.trim()) {
-      router.push(`/collections?search=${encodeURIComponent(query.trim())}`);
+      router.push(`/products?search=${encodeURIComponent(query.trim())}`);
       onClose();
     }
   };
@@ -178,7 +178,7 @@ function SearchOverlay({ onClose }) {
                       {results.length} result{results.length !== 1 ? 's' : ''} for &ldquo;{query}&rdquo;
                     </span>
                     <button
-                      onClick={() => { router.push(`/collections?search=${encodeURIComponent(query.trim())}`); onClose(); }}
+                      onClick={() => { router.push(`/products?search=${encodeURIComponent(query.trim())}`); onClose(); }}
                       className="text-[10px] font-primary tracking-widest uppercase text-brand-gold hover:text-brand-brown transition-colors font-semibold flex items-center gap-1"
                     >
                       View all <ArrowUpRight className="w-3 h-3" />
@@ -351,7 +351,7 @@ export default function Navbar() {
   const handleMobileSearch = (e) => {
     e.preventDefault();
     if (mobileSearchQuery.trim()) {
-      router.push(`/collections?search=${encodeURIComponent(mobileSearchQuery.trim())}`);
+      router.push(`/products?search=${encodeURIComponent(mobileSearchQuery.trim())}`);
       setDrawerOpen(false);
     }
   };
@@ -362,7 +362,7 @@ export default function Navbar() {
     { label: 'CHAINS', href: '/collections/chains' },
     { label: 'RINGS', href: '/collections/rings' },
     { label: 'COINS & BARS', href: '/collections/coins-bars' },
-    { label: 'ALL JEWELLERY', href: '/collections' },
+    { label: 'ALL JEWELLERY', href: '/products' },
     { label: 'COLLECTIONS', href: '/collections' },
   ];
 
@@ -775,7 +775,7 @@ export default function Navbar() {
                               { label: 'CHAINS', href: '/collections/chains' },
                               { label: 'RINGS', href: '/collections/rings' },
                               { label: 'COINS & BARS', href: '/collections/coins-bars' },
-                              { label: 'ALL JEWELLERY', href: '/collections' },
+                              { label: 'ALL JEWELLERY', href: '/products' },
                             ].map((cat) => (
                               <li key={cat.label}>
                                 <Link

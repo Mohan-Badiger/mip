@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Heart, ShoppingBag, Shield, RotateCcw, Truck, ChevronDown, ChevronUp, ArrowUpRight, Check } from 'lucide-react';
+import { Heart, ShoppingBag, Shield, RotateCcw, Truck, ChevronDown, ChevronUp, ArrowUpRight, Check, CreditCard } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import PageLayout from '@/components/global/PageLayout';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
@@ -123,11 +124,17 @@ export default function ProductClient({ product, rawProduct, related }) {
   const wishlisted = authMounted ? isWishlisted(product.id) : false;
   const { addToCart } = useCart();
   const [added, setAdded] = useState(false);
+  const router = useRouter();
 
   const handleAddToCart = () => {
     addToCart(product, 1);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
+  };
+
+  const handleBuyNow = async () => {
+    await addToCart(product, 1);
+    router.push('/cart?checkout=true');
   };
 
   const faqs = [
@@ -231,19 +238,25 @@ export default function ProductClient({ product, rawProduct, related }) {
                 onClick={handleAddToCart}
                 disabled={added}
                 className={`flex-1 transition-all duration-300 font-primary text-xs font-semibold tracking-[0.2em] uppercase py-4 flex items-center justify-center gap-2 cursor-pointer ${added
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-brand-brown hover:bg-brand-gold text-white'
+                  ? 'bg-emerald-600 border border-emerald-650 text-white'
+                  : 'border border-brand-brown text-brand-brown hover:bg-brand-brown hover:text-white bg-transparent'
                   }`}
               >
                 {added ? (
                   <>
-                    <Check className="w-4 h-4" /> Added to Cart
+                    <Check className="w-4 h-4" /> Added
                   </>
                 ) : (
                   <>
                     <ShoppingBag className="w-4 h-4" /> Add to Cart
                   </>
                 )}
+              </button>
+              <button
+                onClick={handleBuyNow}
+                className="flex-1 bg-brand-gold hover:bg-brand-brown text-white transition-all duration-300 font-primary text-xs font-semibold tracking-[0.2em] uppercase py-4 flex items-center justify-center gap-2 cursor-pointer border border-brand-gold hover:border-brand-brown shadow-sm"
+              >
+                <CreditCard className="w-4 h-4" /> Buy Now
               </button>
               <button
                 onClick={() => toggleWishlist(product)}
