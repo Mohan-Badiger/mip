@@ -179,10 +179,35 @@ export default function OrderDetailsPage({ params }) {
   const router = useRouter();
   const { id } = React.use(params);
   const { orders, isMounted, isLoggedIn, fetchOrders } = useAuth();
+  const [isRefreshing, setIsRefreshing] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    async function loadData() {
+      if (isMounted && isLoggedIn) {
+        setIsRefreshing(true);
+        try {
+          await fetchOrders();
+        } catch (err) {
+          console.error('Error refreshing orders:', err);
+        } finally {
+          if (active) {
+            setIsRefreshing(false);
+          }
+        }
+      } else if (isMounted) {
+        setIsRefreshing(false);
+      }
+    }
+    loadData();
+    return () => {
+      active = false;
+    };
+  }, [isMounted, isLoggedIn]);
   
   const order = orders.find(o => o.id === id);
 
-  if (!isMounted) {
+  if (!isMounted || isRefreshing) {
     return (
       <PageLayout>
         <div className="flex items-center justify-center min-h-[60vh] bg-bg-cream">

@@ -17,13 +17,13 @@ function getSpecsAndBreakdown(product, rawProduct) {
   const metalType = rawProduct?.metalType || 'gold';
   const purity = rawProduct?.metalPurity || '22KT';
   const metalWeightVal = rawProduct?.metalWeight || 11.9;
-  
+
   // Calculate stone weight
   let stoneWeightVal = 0;
   let stoneType = 'RUBY';
   let stoneCount = 1;
   let stoneValueVal = 0;
-  
+
   if (rawProduct?.gemstones && rawProduct.gemstones.length > 0) {
     const gem = rawProduct.gemstones[0];
     stoneType = gem.type.toUpperCase();
@@ -37,22 +37,22 @@ function getSpecsAndBreakdown(product, rawProduct) {
   }
 
   const grossWeightVal = metalWeightVal + stoneWeightVal;
-  
+
   // Get pricing fields
   const liveRate = rawProduct?.pricing?.liveRateUsed || 7200;
   const rawMetalValue = rawProduct?.pricing?.rawMetalValue || (metalWeightVal * liveRate);
   const makingCharges = rawProduct?.pricing?.makingCharges || 37264.62;
   const stoneValue = rawProduct?.pricing?.gemstoneValue || stoneValueVal;
-  
+
   const subtotal = rawMetalValue + makingCharges + stoneValue;
   const gst = subtotal * 0.03;
   const productTotal = subtotal + gst;
-  
+
   const grandTotal = product.price || 230962;
   const discount = Math.max(0, productTotal - grandTotal);
-  
+
   const useExactPromptValues = sku === '47114441' || (product.price === 230962) || (sku.includes('MIP-BANGLES-1002'));
-  
+
   if (useExactPromptValues) {
     return {
       sku: '47114441',
@@ -146,19 +146,19 @@ export default function ProductClient({ product, rawProduct, related }) {
   const breakdown = getSpecsAndBreakdown(product, rawProduct);
 
   // Fallback thumbnails
-  const thumbnails = rawProduct.images && rawProduct.images.length > 0 
-    ? rawProduct.images 
+  const thumbnails = rawProduct.images && rawProduct.images.length > 0
+    ? rawProduct.images
     : [product.image];
 
   // Repeat image for styling/strips if only one is available
-  const imageStrip = thumbnails.length >= 4 
-    ? thumbnails 
+  const imageStrip = thumbnails.length >= 4
+    ? thumbnails
     : [...thumbnails, ...Array(4 - thumbnails.length).fill(product.image)];
 
   return (
     <PageLayout>
       {/* Breadcrumb */}
-      <nav className="max-w-[1920px] mx-auto px-4 md:px-16 pt-[26px] pb-4 md:pt-7 md:pb-4 border-b border-gray-100">
+      <nav className="max-w-480 mx-auto px-4 md:px-16 pt-6.5 pb-4 md:pt-7 md:pb-4 border-b border-gray-100">
         <ol className="flex items-center gap-2 text-[11px] font-primary text-gray-400 tracking-wide">
           <li><Link href="/" className="hover:text-brand-gold transition-colors">Home</Link></li>
           <li className="text-gray-300">/</li>
@@ -166,24 +166,24 @@ export default function ProductClient({ product, rawProduct, related }) {
           <li className="text-gray-300">/</li>
           <li><Link href={`/collections/${product.category}`} className="hover:text-brand-gold transition-colors">{product.categoryLabel}</Link></li>
           <li className="text-gray-300">/</li>
-          <li className="text-brand-brown truncate max-w-[120px] md:max-w-none">{product.name}</li>
+          <li className="text-brand-brown truncate max-w-30 md:max-w-none">{product.name}</li>
         </ol>
       </nav>
 
       {/* Product Detail */}
-      <div className="max-w-[1920px] mx-auto px-4 md:px-16 py-8 md:py-12">
+      <div className="max-w-480 mx-auto px-4 md:px-16 py-8 md:py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16">
 
           {/* Left: Image Gallery */}
           <div className="flex flex-col gap-3">
             <div className="relative aspect-square w-full bg-gray-50 overflow-hidden">
-              <Image 
-                src={selectedImage} 
-                alt={product.name} 
-                fill 
-                sizes="(max-width: 768px) 100vw, 50vw" 
-                className="object-cover" 
-                priority 
+              <Image
+                src={selectedImage}
+                alt={product.name}
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
+                priority
               />
               {product.tag && (
                 <span className="absolute top-4 left-4 font-primary text-[9px] tracking-widest uppercase bg-brand-brown text-white px-2.5 py-1">
@@ -194,12 +194,11 @@ export default function ProductClient({ product, rawProduct, related }) {
             {/* Thumbnail strip */}
             <div className="grid grid-cols-4 gap-2">
               {imageStrip.slice(0, 4).map((img, i) => (
-                <div 
-                  key={i} 
+                <div
+                  key={i}
                   onClick={() => setSelectedImage(img)}
-                  className={`relative aspect-square bg-gray-50 overflow-hidden cursor-pointer border transition-colors ${
-                    selectedImage === img ? 'border-brand-gold' : 'border-transparent hover:border-brand-gold'
-                  }`}
+                  className={`relative aspect-square bg-gray-50 overflow-hidden cursor-pointer border transition-colors ${selectedImage === img ? 'border-brand-gold' : 'border-transparent hover:border-brand-gold'
+                    }`}
                 >
                   <Image src={img} alt={`View ${i + 1}`} fill sizes="25vw" className="object-cover" />
                 </div>
@@ -400,8 +399,8 @@ export default function ProductClient({ product, rawProduct, related }) {
                         </div>
                         {breakdown.summary.discount !== '₹ 0.00' && breakdown.summary.discount !== '₹ 0' && (
                           <div className="flex justify-between text-emerald-600 font-semibold">
-                             <span>Discount</span>
-                             <span>{breakdown.summary.discount}</span>
+                            <span>Discount</span>
+                            <span>{breakdown.summary.discount}</span>
                           </div>
                         )}
                         <div className="border-t border-brand-gold/25 pt-2.5 flex justify-between text-sm font-bold text-brand-brown">
@@ -485,7 +484,7 @@ export default function ProductClient({ product, rawProduct, related }) {
       {/* Related Products */}
       {related.length > 0 && (
         <section className="border-t border-gray-100 py-14 bg-bg-cream">
-          <div className="max-w-[1920px] mx-auto px-4 md:px-16">
+          <div className="max-w-480 mx-auto px-4 md:px-16">
             <h2 className="font-secondary text-2xl md:text-3xl text-brand-brown mb-8">You May Also Like</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
               {related.map((p) => (
