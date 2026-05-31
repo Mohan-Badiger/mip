@@ -772,7 +772,6 @@ export default function UnifiedCMSPage() {
         </div>
       )}
 
-      {/* Hero Slide Form Dialog Modal */}
       <Dialog open={isSlideModalOpen} onOpenChange={setIsSlideModalOpen}>
         <DialogContent className="w-full max-w-[calc(100%-2rem)] sm:max-w-xl md:max-w-3xl lg:max-w-4xl max-h-[92vh] overflow-y-auto p-0 rounded-2xl border-[#DED8D0] shadow-2xl bg-white font-sans **:data-[slot=dialog-close]:text-white/80 **:data-[slot=dialog-close]:hover:text-white **:data-[slot=dialog-close]:hover:bg-white/10 **:data-[slot=dialog-close]:top-4 **:data-[slot=dialog-close]:right-4">
           <div className="bg-text-dark text-bg-cream p-5 rounded-t-2xl relative overflow-hidden border-b border-brand-gold">
