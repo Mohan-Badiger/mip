@@ -100,7 +100,7 @@ export default async function Home() {
     "url": baseUrl,
     "potentialAction": {
       "@type": "SearchAction",
-      "target": `${baseUrl}/collections?search={search_term_string}`,
+      "target": `${baseUrl}/products?search={search_term_string}`,
       "query-input": "required name=search_term_string"
     }
   };
