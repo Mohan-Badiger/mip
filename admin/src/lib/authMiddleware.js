@@ -17,7 +17,7 @@ export async function authenticateAdmin(req) {
     } else {
       // 2. Fallback to cookies
       const cookieHeader = req.headers.get('cookie') || '';
-      const match = cookieHeader.match(/accessToken=([^;]+)/);
+      const match = cookieHeader.match(/adminAccessToken=([^;]+)/);
       if (match) token = match[1];
     }
 

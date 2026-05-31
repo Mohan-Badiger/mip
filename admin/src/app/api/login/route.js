@@ -55,7 +55,7 @@ export async function POST(req) {
       }
     });
 
-    response.headers.set('Set-Cookie', `accessToken=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`);
+    response.headers.set('Set-Cookie', `adminAccessToken=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`);
 
     return response;
   } catch (error) {

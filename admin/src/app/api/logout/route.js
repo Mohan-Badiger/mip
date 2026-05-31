@@ -5,7 +5,7 @@ export async function POST() {
     const response = NextResponse.json({ success: true, message: 'Logged out successfully' });
     
     // Clear cookie by setting expiration in the past
-    response.headers.set('Set-Cookie', 'accessToken=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0');
+    response.headers.set('Set-Cookie', 'adminAccessToken=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0');
     
     return response;
   } catch (error) {
