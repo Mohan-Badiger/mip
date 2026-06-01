@@ -516,12 +516,15 @@ export default function OrdersPage() {
 
                     {/* Calculations & Payment Details */}
                     <div className="bg-slate-50/50 p-4 border border-slate-100 rounded-xl shadow-sm space-y-2">
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-450 mb-2 font-sans">Razorpay Transaction Details</h4>
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-450 mb-2 font-sans">Transaction Details</h4>
                       <p className="text-xs text-slate-605">
-                        <span className="font-medium text-slate-500">Order ID:</span> <span className="font-mono bg-white px-1.5 py-0.5 border rounded-xs">{selectedOrder.razorpayOrderId}</span>
+                        <span className="font-medium text-slate-500">Payment Method:</span> <span className="font-semibold uppercase text-slate-700 bg-white px-1.5 py-0.5 border rounded-xs">{selectedOrder.paymentMethod || 'Online'}</span>
                       </p>
                       <p className="text-xs text-slate-605">
-                        <span className="font-medium text-slate-500">Payment ID:</span> <span className="font-mono bg-white px-1.5 py-0.5 border rounded-xs">{selectedOrder.razorpayPaymentId || "None"}</span>
+                        <span className="font-medium text-slate-500">Gateway Order ID:</span> <span className="font-mono bg-white px-1.5 py-0.5 border rounded-xs">{selectedOrder.razorpayOrderId}</span>
+                      </p>
+                      <p className="text-xs text-slate-605">
+                        <span className="font-medium text-slate-500">Payment Transaction ID:</span> <span className="font-mono bg-white px-1.5 py-0.5 border rounded-xs">{selectedOrder.razorpayPaymentId || "None"}</span>
                       </p>
                     </div>
 
@@ -623,6 +626,20 @@ export default function OrdersPage() {
                         <span>GST (3%):</span>
                         <span className="font-mono font-medium text-slate-700">₹{selectedOrder.taxAmount?.toLocaleString("en-IN")}</span>
                       </div>
+                      {selectedOrder.couponCode && (
+                        <div className="flex justify-between items-center text-slate-500">
+                          <span>Coupon Applied:</span>
+                          <span className="font-mono text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 border border-emerald-200 rounded uppercase">
+                            {selectedOrder.couponCode}
+                          </span>
+                        </div>
+                      )}
+                      {selectedOrder.discountAmount > 0 && (
+                        <div className="flex justify-between text-slate-500">
+                          <span>Discount Amount:</span>
+                          <span className="font-mono font-medium text-emerald-600">-₹{selectedOrder.discountAmount?.toLocaleString("en-IN")}</span>
+                        </div>
+                      )}
                       <div className="flex justify-between font-bold text-slate-800 border-t border-slate-200 pt-3 mt-1.5">
                         <span>Grand Total:</span>
                         <span className="font-mono text-sm text-slate-900 font-extrabold">₹{selectedOrder.grandTotal?.toLocaleString("en-IN")}</span>
