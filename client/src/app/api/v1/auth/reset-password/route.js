@@ -7,7 +7,7 @@ import User from '@/backend/models/User';
 import Otp from '@/backend/models/Otp';
 import { rateLimit } from '@/backend/lib/rateLimit';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback_jwt_secret_token_key';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Input validation schema to prevent NoSQL query injection and ensure type-safety
 const resetPasswordSchema = z.object({
@@ -19,6 +19,10 @@ const resetPasswordSchema = z.object({
 export async function POST(req) {
   try {
     await dbConnect();
+    if (!JWT_SECRET) {
+      return NextResponse.json({ error: 'JWT_SECRET is not configured on the server.' }, { status: 500 });
+    }
+
     
     // Get client IP for rate limiting
     const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || '127.0.0.1';

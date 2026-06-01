@@ -116,24 +116,3 @@ export async function GET() {
   }
 }
 
-export async function POST(req) {
-  try {
-    await dbConnect();
-    const { metal, purity, pricePerGram } = await req.json();
-
-    if (!metal || !purity || !pricePerGram) {
-      return NextResponse.json({ error: 'Missing metal, purity, or price fields' }, { status: 400 });
-    }
-
-    // Upsert rate
-    const updatedRate = await GoldRate.findOneAndUpdate(
-      { metal, purity },
-      { pricePerGram },
-      { new: true, upsert: true }
-    );
-
-    return NextResponse.json({ success: true, rate: updatedRate });
-  } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-}
