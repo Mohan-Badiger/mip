@@ -1,6 +1,6 @@
 export async function triggerClientRevalidate(tag) {
   try {
-    const clientUrl = process.env.CLIENT_URL || 'http://localhost:3000';
+    const clientUrl = process.env.CLIENT_URL || 'http://localhost:3001';
     const secret = process.env.REVALIDATION_SECRET || 'mip-secret';
     
     // Construct the endpoint target on client

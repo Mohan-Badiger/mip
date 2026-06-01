@@ -2,11 +2,16 @@ import jwt from 'jsonwebtoken';
 import dbConnect from './dbConnect';
 import User from './models/User';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback_jwt_secret_token_key';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function authenticateAdmin(req) {
   try {
     await dbConnect();
+    if (!JWT_SECRET) {
+      console.error('[AUTH ERROR] JWT_SECRET environment variable is not defined.');
+      return null;
+    }
+
     
     // 1. Read authorization header
     const authHeader = req.headers.get('authorization');

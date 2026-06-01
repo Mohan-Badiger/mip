@@ -35,7 +35,8 @@ export function withAuth(handler, requiredRoles) {
         }
       }
 
-      // Inject user into context so handlers can access it
+      // Inject user into request and context so downstream logs/handlers can access it
+      req.user = user;
       const augmentedCtx = { ...ctx, user };
       return handler(req, augmentedCtx);
     } catch (error) {
