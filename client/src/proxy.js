@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-export function middleware(request) {
+export function proxy(request) {
   const response = NextResponse.next();
   const isProd = process.env.NODE_ENV === 'production';
 
@@ -45,7 +45,7 @@ export function middleware(request) {
   return response;
 }
 
-// Config to apply middleware to all page/api routes except static assets
+// Config to apply proxy to all page/api routes except static assets
 export const config = {
   matcher: [
     // Apply to all routes except files in public folder, next internal resources, static directories, etc.
