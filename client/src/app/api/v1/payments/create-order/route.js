@@ -167,6 +167,7 @@ export async function POST(req) {
       discountAmount,
       razorpayOrderId: tempRazorpayOrderId,
       paymentStatus: 'pending',
+      paymentMethod: paymentMethod || 'card',
       orderStatus: 'received'
     });
 

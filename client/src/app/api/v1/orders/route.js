@@ -46,7 +46,7 @@ export async function GET(req) {
         id: order._id.toString(),
         razorpayOrderId: order.razorpayOrderId,
         date: new Date(order.createdAt).toISOString().split('T')[0],
-        paymentMethod: methodLabel,
+        paymentMethod: order.paymentMethod || methodLabel,
         paymentStatus: order.paymentStatus,
         status: clientStatus,
         orderStatus: order.orderStatus,
@@ -54,6 +54,8 @@ export async function GET(req) {
         subtotal: order.subTotal,
         tax: order.taxAmount,
         total: order.grandTotal,
+        discount: order.discountAmount || 0,
+        couponCode: order.couponCode || null,
         items: order.items.map(item => ({
           id: item.product?._id?.toString() || item._id?.toString() || 'deleted',
           name: item.name,

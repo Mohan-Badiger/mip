@@ -397,12 +397,20 @@ export default function OrderDetailsPage({ params }) {
                     <span>Subtotal</span>
                     <span className="font-semibold text-slate-700">{formatPrice(order.subtotal || order.total)}</span>
                   </div>
-                  {order.discount > 0 && (
-                    <div className="flex justify-between text-emerald-700 font-semibold bg-emerald-50/50 p-2 border border-emerald-100/50">
-                      <span>Promo Discount</span>
-                      <span>-{formatPrice(order.discount)}</span>
-                    </div>
-                  )}
+                   {order.discount > 0 && (
+                     <div className="flex flex-col gap-1.5 bg-emerald-50/50 p-2 border border-emerald-100/50">
+                       {order.couponCode && (
+                         <div className="flex justify-between items-center text-[10px] text-emerald-800 font-bold uppercase tracking-wider">
+                           <span>Coupon:</span>
+                           <span className="bg-white border px-1 py-0.5 rounded">{order.couponCode}</span>
+                         </div>
+                       )}
+                       <div className="flex justify-between text-emerald-700 font-semibold">
+                         <span>Promo Discount</span>
+                         <span>-{formatPrice(order.discount)}</span>
+                       </div>
+                     </div>
+                   )}
                   <div className="flex justify-between">
                     <span>BIS Hallmarking & QA</span>
                     <span className="text-emerald-700 font-bold uppercase text-[9px] tracking-wide">Included</span>
