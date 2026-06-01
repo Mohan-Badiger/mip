@@ -1,6 +1,8 @@
 import nodemailer from 'nodemailer';
 import fs from 'fs';
 import path from 'path';
+import dbConnect from '../config/dbConnect';
+import Settings from '../models/Settings';
 
 /**
  * Sends a beautifully styled premium HTML OTP verification email to the user.
@@ -193,21 +195,43 @@ export async function sendOtpEmail(email, otp, type) {
 </html>
   `;
 
-  // Attempt sending via SMTP if settings are provided
-  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+  // Attempt sending via SMTP if settings are provided (checking DB settings first, falling back to process.env)
+  let smtpHost = process.env.SMTP_HOST;
+  let smtpPort = parseInt(process.env.SMTP_PORT || '587');
+  let smtpUser = process.env.SMTP_USER;
+  let smtpPass = process.env.SMTP_PASS;
+  let smtpSecure = process.env.SMTP_SECURE === 'true';
+  let smtpFrom = process.env.SMTP_FROM || process.env.SMTP_USER;
+
+  try {
+    await dbConnect();
+    const settings = await Settings.findOne();
+    if (settings) {
+      if (settings.smtpHost) smtpHost = settings.smtpHost;
+      if (settings.smtpPort) smtpPort = settings.smtpPort;
+      if (settings.smtpUser) smtpUser = settings.smtpUser;
+      if (settings.smtpPass) smtpPass = settings.smtpPass;
+      if (settings.smtpPort === 465) smtpSecure = true;
+      if (settings.smtpUser) smtpFrom = settings.supportEmail || settings.smtpUser;
+    }
+  } catch (dbErr) {
+    console.error('[SMTP DB ERROR] Failed to fetch SMTP config from DB, falling back to environment variables:', dbErr.message);
+  }
+
+  if (smtpHost && smtpUser && smtpPass) {
     try {
       const transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: parseInt(process.env.SMTP_PORT || '587'),
-        secure: process.env.SMTP_SECURE === 'true',
+        host: smtpHost,
+        port: smtpPort,
+        secure: smtpSecure,
         auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS
+          user: smtpUser,
+          pass: smtpPass
         }
       });
 
       await transporter.sendMail({
-        from: `"MIP Jewellers" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+        from: `"MIP Jewellers" <${smtpFrom || smtpUser}>`,
         to: email,
         subject: `MIP Verification Code: ${otp}`,
         html
@@ -234,6 +258,6 @@ export async function sendOtpEmail(email, otp, type) {
     } catch (err) {
       console.warn('[MOCK EMAIL] Failed to write mock email html file:', err.message);
     }
-    console.log(`[MOCK EMAIL] SMTP credentials not set. Code: ${otp}. View at: http://localhost:3000/mock-emails/last-otp-email.html`);
+    console.log(`[MOCK EMAIL] SMTP credentials not set. Code: ${otp}. View at: http://localhost:3001/mock-emails/last-otp-email.html`);
   }
 }

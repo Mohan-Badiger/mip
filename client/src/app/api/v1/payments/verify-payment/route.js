@@ -67,16 +67,54 @@ export async function POST(req) {
       return NextResponse.json({ success: true, message: 'Order already processed', order });
     }
 
-    // 3. Decrement Inventory Stock with transaction checks
-    for (const item of order.items) {
-      const product = await Product.findById(item.product);
-      if (product) {
-        product.stock = Math.max(0, product.stock - item.quantity);
-        await product.save();
+    // 3. Decrement Inventory Stock atomically with rollbacks if stock is unavailable
+    let stockError = null;
+    const decrementedProducts = [];
+    
+    try {
+      for (const item of order.items) {
+        // Attempt to atomically decrement stock only if there is enough stock
+        const updatedProduct = await Product.findOneAndUpdate(
+          { _id: item.product, stock: { $gte: item.quantity } },
+          { $inc: { stock: -item.quantity } },
+          { new: true }
+        );
+
+        if (!updatedProduct) {
+          stockError = `Product "${item.name}" is out of stock or has insufficient quantity`;
+          break;
+        }
+        
+        decrementedProducts.push({ productId: item.product, quantity: item.quantity });
       }
+      
+      if (stockError) {
+        // Rollback any stock decrements we already did for this order
+        for (const rolledBack of decrementedProducts) {
+          await Product.updateOne(
+            { _id: rolledBack.productId },
+            { $inc: { stock: rolledBack.quantity } }
+          );
+        }
+        throw new Error(stockError);
+      }
+    } catch (err) {
+      // Payment was verified/taken, but items are out of stock.
+      // Set orderStatus to 'cancelled' and paymentStatus to 'captured'.
+      order.paymentStatus = 'captured';
+      order.orderStatus = 'cancelled';
+      order.razorpayPaymentId = razorpayPaymentId;
+      order.razorpaySignature = razorpaySignature || 'mock_sig_dev';
+      await order.save();
+      
+      return NextResponse.json({
+        success: false,
+        error: `Payment was successful, but the items went out of stock during checkout: ${err.message}. Customer support will contact you for a refund.`,
+        order
+      }, { status: 409 });
     }
 
-    // 4. Update order payment statuses
+    // 4. Update order payment statuses on success
     order.paymentStatus = 'captured';
     order.orderStatus = 'processing';
     order.razorpayPaymentId = razorpayPaymentId;

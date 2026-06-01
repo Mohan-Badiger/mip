@@ -2,7 +2,10 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/backend/config/dbConnect';
 import Coupon from '@/backend/models/Coupon';
 import Order from '@/backend/models/Order';
+import Cart from '@/backend/models/Cart';
+import Settings from '@/backend/models/Settings';
 import { authenticate } from '@/backend/middlewares/authMiddleware';
+import { calculateLiveProductPrice } from '@/backend/services/pricingService';
 
 export async function POST(req) {
   try {
@@ -57,9 +60,31 @@ export async function POST(req) {
     } else if (coupon.discountType === 'flat') {
       discount = coupon.discountValue;
     } else if (coupon.discountType === 'free-making') {
-      // Free making charge is handled as a flat discount based on user selection or we can just apply a flat rate if stored,
-      // here we treat the discountValue itself as the making charges discount or default to a flat discount value.
-      discount = coupon.discountValue || 1000;
+      // Calculate actual making charges savings dynamically from the user's DB Cart
+      const cart = await Cart.findOne({ user: user._id }).populate('items.product');
+      let totalMakingChargesSaved = 0;
+      if (cart && cart.items.length > 0) {
+        // Fetch active GST settings to properly discount tax on making charges
+        const activeSettings = await Settings.findOne() || {};
+        const gstRate = activeSettings.gstRate ?? 3.0;
+
+        for (const item of cart.items) {
+          if (item.product && item.product.isActive) {
+            const pricing = await calculateLiveProductPrice(item.product);
+            
+            // Calculate final price difference with vs without making charges
+            const rawMetalValue = pricing.rawMetalValue;
+            const stoneValue = pricing.stoneValue;
+            const basePriceWithoutMaking = rawMetalValue + stoneValue;
+            const taxWithoutMaking = basePriceWithoutMaking * (gstRate / 100);
+            const finalPriceWithoutMaking = Math.round(basePriceWithoutMaking + taxWithoutMaking);
+
+            const itemSaving = (pricing.finalPrice - finalPriceWithoutMaking) * item.quantity;
+            totalMakingChargesSaved += itemSaving;
+          }
+        }
+      }
+      discount = totalMakingChargesSaved || coupon.discountValue || 1000;
     }
 
     // Cap discount at cartTotal
