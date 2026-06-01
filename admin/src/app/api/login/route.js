@@ -4,11 +4,15 @@ import jwt from 'jsonwebtoken';
 import dbConnect from '@/lib/dbConnect';
 import User from '@/lib/models/User';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback_jwt_secret_token_key';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function POST(req) {
   try {
     await dbConnect();
+    if (!JWT_SECRET) {
+      return NextResponse.json({ success: false, error: 'JWT_SECRET is not configured on the server.' }, { status: 500 });
+    }
+
     const { email, password } = await req.json();
 
     if (!email || !password) {
