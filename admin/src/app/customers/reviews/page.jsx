@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -85,32 +85,86 @@ const INITIAL_REVIEWS = [
 ];
 
 export default function CustomerReviewsPage() {
-  const [reviews, setReviews] = useState(INITIAL_REVIEWS);
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL"); // ALL, PENDING, APPROVED, HIDDEN
   const [ratingFilter, setRatingFilter] = useState(0); // 0 means all stars
+
+  useEffect(() => {
+    async function loadReviews() {
+      try {
+        const res = await fetch('/api/reviews');
+        const data = await res.json();
+        if (data.success) {
+          const reviewsToSet = data.data.map(r => ({ ...r, id: r._id }));
+          setReviews(reviewsToSet);
+        }
+      } catch (err) {
+        console.error('Failed to load reviews:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadReviews();
+  }, []);
 
   // Calculate review stats
   const totalReviews = reviews.length;
   const approvedCount = reviews.filter(r => r.approved && !r.hidden).length;
   const pendingCount = reviews.filter(r => !r.approved && !r.hidden).length;
-  const avgRating = (reviews.reduce((acc, curr) => acc + curr.rating, 0) / totalReviews).toFixed(1);
+  const avgRating = totalReviews > 0 
+    ? (reviews.reduce((acc, curr) => acc + curr.rating, 0) / totalReviews).toFixed(1)
+    : "0.0";
 
   // Status transitions
-  const handleApprove = (id) => {
-    setReviews(prev =>
-      prev.map(r => (r.id === id ? { ...r, approved: true, hidden: false } : r))
-    );
+  const handleApprove = async (id) => {
+    try {
+      const res = await fetch(`/api/reviews/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ approved: true, hidden: false })
+      });
+      if (res.ok) {
+        setReviews(prev =>
+          prev.map(r => (r.id === id ? { ...r, approved: true, hidden: false } : r))
+        );
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleReject = (id) => {
-    setReviews(prev => prev.filter(r => r.id !== id));
+  const handleReject = async (id) => {
+    try {
+      const res = await fetch(`/api/reviews/${id}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        setReviews(prev => prev.filter(r => r.id !== id));
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleToggleHide = (id) => {
-    setReviews(prev =>
-      prev.map(r => (r.id === id ? { ...r, hidden: !r.hidden } : r))
-    );
+  const handleToggleHide = async (id) => {
+    const rev = reviews.find(r => r.id === id);
+    if (!rev) return;
+    try {
+      const res = await fetch(`/api/reviews/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hidden: !rev.hidden })
+      });
+      if (res.ok) {
+        setReviews(prev =>
+          prev.map(r => (r.id === id ? { ...r, hidden: !rev.hidden } : r))
+        );
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const getRatingStats = (stars) => {
@@ -136,12 +190,12 @@ export default function CustomerReviewsPage() {
   });
 
   return (
-    <div className="flex-1 space-y-8 p-6 md:p-10 bg-[#FAF8F5] min-h-screen font-sans">
+    <div className="flex-1 space-y-8 p-6 md:p-10 bg-bg-cream min-h-screen font-sans">
       
       {/* Header Panel */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#DED8D0] pb-6">
         <div className="space-y-1">
-          <h1 className="text-3xl md:text-4xl font-heading tracking-wide text-[#1A1A1A] font-semibold uppercase">
+          <h1 className="text-3xl md:text-4xl font-heading tracking-wide text-text-dark font-semibold uppercase">
             Product Reviews & Moderation
           </h1>
           <p className="text-xs text-muted-foreground">
@@ -159,7 +213,7 @@ export default function CustomerReviewsPage() {
           </CardHeader>
           <CardContent className="pb-6">
             <div className="flex items-baseline gap-2">
-              <span className="text-5xl font-extrabold font-heading text-[#1A1A1A]">{avgRating}</span>
+              <span className="text-5xl font-extrabold font-heading text-text-dark">{avgRating}</span>
               <span className="text-sm text-muted-foreground">/ 5.0</span>
             </div>
             <div className="flex items-center gap-1 mt-2.5">
@@ -168,7 +222,7 @@ export default function CustomerReviewsPage() {
                   key={i}
                   className={`w-5 h-5 ${
                     i < Math.round(parseFloat(avgRating))
-                      ? "fill-[#B39254] text-[#B39254]"
+                      ? "fill-brand-gold text-brand-gold"
                       : "text-slate-200"
                   }`}
                 />
@@ -183,7 +237,7 @@ export default function CustomerReviewsPage() {
         {/* Rating Breakdown Card */}
         <Card className="border-[#DED8D0] bg-white shadow-sm md:col-span-2">
           <CardHeader className="pb-3">
-            <CardTitle className="text-xs font-heading uppercase tracking-wider text-[#1A1A1A]">Star Rating Distribution</CardTitle>
+            <CardTitle className="text-xs font-heading uppercase tracking-wider text-text-dark">Star Rating Distribution</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             {[5, 4, 3, 2, 1].map((stars) => {
@@ -191,11 +245,11 @@ export default function CustomerReviewsPage() {
               return (
                 <div key={stars} className="flex items-center gap-4 text-xs">
                   <span className="w-12 font-semibold text-slate-700 flex items-center gap-0.5 justify-end">
-                    {stars} <Star className="w-3.5 h-3.5 fill-[#B39254] text-[#B39254]" />
+                    {stars} <Star className="w-3.5 h-3.5 fill-brand-gold text-brand-gold" />
                   </span>
-                  <div className="flex-1 h-2 bg-[#FAF8F5] border border-[#DED8D0]/40 rounded-full overflow-hidden">
+                  <div className="flex-1 h-2 bg-bg-cream border border-[#DED8D0]/40 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-[#B39254] rounded-full transition-all duration-500"
+                      className="h-full bg-brand-gold rounded-full transition-all duration-500"
                       style={{ width: `${percentage}%` }}
                     />
                   </div>
@@ -225,7 +279,7 @@ export default function CustomerReviewsPage() {
               <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-heading flex items-center gap-1">
                 <Filter className="w-3.5 h-3.5" /> Status:
               </span>
-              <div className="flex items-center gap-1 bg-[#FAF8F5] border border-[#DED8D0] p-1 rounded-md">
+              <div className="flex items-center gap-1 bg-bg-cream border border-[#DED8D0] p-1 rounded-md">
                 {[
                   { value: "ALL", label: "All" },
                   { value: "PENDING", label: `Pending (${pendingCount})` },
@@ -237,8 +291,8 @@ export default function CustomerReviewsPage() {
                     variant="ghost"
                     className={`h-7 px-3 text-[10px] uppercase tracking-wider rounded shadow-none
                       ${statusFilter === opt.value 
-                        ? "bg-white border border-[#DED8D0] text-[#1A1A1A] font-semibold"
-                        : "text-muted-foreground hover:text-[#1A1A1A] hover:bg-muted/40"}`}
+                        ? "bg-white border border-[#DED8D0] text-text-dark font-semibold"
+                        : "text-muted-foreground hover:text-text-dark hover:bg-muted/40"}`}
                     onClick={() => setStatusFilter(opt.value)}
                   >
                     {opt.label}
@@ -268,7 +322,11 @@ export default function CustomerReviewsPage() {
 
       {/* Reviews Grid */}
       <div className="grid gap-6 md:grid-cols-2">
-        {filteredReviews.length === 0 ? (
+        {loading ? (
+          <div className="col-span-2 text-center py-20 bg-white border border-dashed border-[#DED8D0] rounded-lg text-muted-foreground text-xs font-mono">
+            Loading reviews from database...
+          </div>
+        ) : filteredReviews.length === 0 ? (
           <div className="col-span-2 text-center py-20 bg-white border border-dashed border-[#DED8D0] rounded-lg text-muted-foreground text-xs font-mono">
             No customer reviews found matching the selected filters.
           </div>
@@ -278,18 +336,18 @@ export default function CustomerReviewsPage() {
               key={rev.id}
               className={`overflow-hidden transition-all duration-300 flex flex-col justify-between bg-white border
                 ${rev.hidden 
-                  ? "border-[#DED8D0]/60 opacity-60 bg-[#FAF8F5]/30 border-dashed" 
+                  ? "border-[#DED8D0]/60 opacity-60 bg-bg-cream/30 border-dashed" 
                   : "border-[#DED8D0] hover:shadow-sm"}`}
             >
               <div>
-                <CardHeader className="bg-[#FAF8F5]/60 pb-3 border-b border-[#DED8D0]/50">
+                <CardHeader className="bg-bg-cream/60 pb-3 border-b border-[#DED8D0]/50">
                   <div className="flex justify-between items-start gap-4">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-[#FAF8F5] border border-[#DED8D0] flex items-center justify-center text-[#B39254] font-semibold text-xs font-heading">
+                      <div className="w-8 h-8 rounded-full bg-bg-cream border border-[#DED8D0] flex items-center justify-center text-brand-gold font-semibold text-xs font-heading">
                         {rev.author.substring(0, 2).toUpperCase()}
                       </div>
                       <div>
-                        <CardTitle className="text-xs font-bold text-[#1A1A1A] flex items-center gap-1.5">
+                        <CardTitle className="text-xs font-bold text-text-dark flex items-center gap-1.5">
                           {rev.author}
                           <span className="text-[9px] text-muted-foreground font-normal font-mono">• {rev.date}</span>
                         </CardTitle>
@@ -304,7 +362,7 @@ export default function CustomerReviewsPage() {
                             key={idx}
                             className={`w-3.5 h-3.5 ${
                               idx < rev.rating
-                                ? "fill-[#B39254] text-[#B39254]"
+                                ? "fill-brand-gold text-brand-gold"
                                 : "text-slate-200"
                             }`}
                           />
@@ -328,8 +386,8 @@ export default function CustomerReviewsPage() {
                   </div>
 
                   <div className="mt-2.5">
-                    <span className="text-[9px] uppercase tracking-widest text-[#B39254] font-semibold">Reviewed Product:</span>
-                    <span className="text-xs text-[#1A1A1A] block font-medium font-heading">{rev.product}</span>
+                    <span className="text-[9px] uppercase tracking-widest text-brand-gold font-semibold">Reviewed Product:</span>
+                    <span className="text-xs text-text-dark block font-medium font-heading">{rev.product}</span>
                   </div>
                 </CardHeader>
                 <CardContent className="pt-4 pb-6">
@@ -340,7 +398,7 @@ export default function CustomerReviewsPage() {
               </div>
 
               {/* Action Toolbar */}
-              <CardContent className="pt-0 border-t border-[#DED8D0]/60 py-3 flex justify-between items-center bg-[#FAF8F5]/30">
+              <CardContent className="pt-0 border-t border-[#DED8D0]/60 py-3 flex justify-between items-center bg-bg-cream/30">
                 <span className="text-[9px] text-muted-foreground font-mono">ID: {rev.id}</span>
                 <div className="flex items-center gap-2">
                   {!rev.approved && !rev.hidden && (
@@ -348,9 +406,9 @@ export default function CustomerReviewsPage() {
                       <Button
                         size="sm"
                         onClick={() => handleApprove(rev.id)}
-                        className="h-8 bg-[#1A1A1A] hover:bg-[#2C2C2C] text-[#FAF8F5] text-[10px] uppercase tracking-wider flex items-center gap-1 px-4 shadow-none"
+                        className="h-8 bg-text-dark hover:bg-[#2C2C2C] text-bg-cream text-[10px] uppercase tracking-wider flex items-center gap-1 px-4 shadow-none"
                       >
-                        <Check className="w-3 h-3 text-[#B39254]" /> Approve
+                        <Check className="w-3 h-3 text-brand-gold" /> Approve
                       </Button>
                       <Button
                         size="sm"
@@ -369,7 +427,7 @@ export default function CustomerReviewsPage() {
                         size="sm"
                         variant="ghost"
                         onClick={() => handleToggleHide(rev.id)}
-                        className="h-8 text-slate-600 hover:text-[#1A1A1A] hover:bg-slate-100 text-[10px] uppercase tracking-wider flex items-center gap-1"
+                        className="h-8 text-slate-600 hover:text-text-dark hover:bg-slate-100 text-[10px] uppercase tracking-wider flex items-center gap-1"
                       >
                         {rev.hidden ? (
                           <>
