@@ -58,7 +58,7 @@ export default function PurchasePlanBanner({ name }) {
               src="/images/purchase_plan_model_transparent.png"
               alt="MIP My Choice Model"
               fill
-              sizes="100vw"
+              sizes="(max-width: 768px) 92vw, (max-width: 1024px) 75vw, 35vw"
               className="object-contain object-bottom"
               priority
             />

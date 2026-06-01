@@ -462,7 +462,7 @@ function AccountDashboardContent() {
                     </div>
                   ) : (
                     <div className="space-y-6">
-                      {orders.map((order) => {
+                      {orders.map((order, idx) => {
                         const statusStyles = {
                           pending: 'bg-amber-50 text-amber-800 border-amber-100',
                           processing: 'bg-indigo-50 text-indigo-800 border-indigo-100',
@@ -474,7 +474,7 @@ function AccountDashboardContent() {
                         };
 
                         return (
-                          <div key={order.id} className="border border-brand-gold/15 bg-white shadow-2xs hover:shadow-xs transition-all hover:border-brand-gold/30 overflow-hidden flex flex-col">
+                          <div key={`${order.id || idx}-${idx}`} className="border border-brand-gold/15 bg-white shadow-2xs hover:shadow-xs transition-all hover:border-brand-gold/30 overflow-hidden flex flex-col">
 
                             {/* Card Header metadata strip */}
                             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-100 bg-slate-50/60 px-5 py-4 text-[11px] font-primary text-gray-500">

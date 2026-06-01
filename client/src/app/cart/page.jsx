@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PageLayout from '@/components/global/PageLayout';
+import JewelryLoader from '@/components/global/JewelryLoader';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useSettings } from '@/context/SettingsContext';
@@ -343,8 +344,8 @@ export default function CartPage() {
       const orderRes = await fetch('/api/v1/payments/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          shippingAddress, 
+        body: JSON.stringify({
+          shippingAddress,
           paymentMethod,
           promoCode: appliedPromo ? appliedPromo.code : null
         })
@@ -362,14 +363,20 @@ export default function CartPage() {
       setActiveOrderId(orderId);
 
       // In local dev/mock, or for COD, we can verify immediately
-      if (paymentMethod === 'cod' || razorpayOrderId.startsWith('order_mock_') || !window.Razorpay) {
+      const isDevOrTestMock = process.env.NODE_ENV === 'development' ||
+        !process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
+        process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID.startsWith('rzp_test_');
+
+      if (paymentMethod === 'cod' || (isDevOrTestMock && (razorpayOrderId.startsWith('order_mock_') || !window.Razorpay))) {
         // Complete mock/COD payment verification
         const verifyRes = await fetch('/api/v1/payments/verify-payment', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             razorpayOrderId,
-            razorpayPaymentId: 'pay_mock_' + Math.floor(100000 + Math.random() * 900000),
+            razorpayPaymentId: paymentMethod === 'cod'
+              ? 'cod_mock_' + Math.floor(100000 + Math.random() * 900000)
+              : 'pay_mock_' + Math.floor(100000 + Math.random() * 900000),
             razorpaySignature: 'mock_sig_dev'
           })
         });
@@ -408,6 +415,11 @@ export default function CartPage() {
           setIsSubmittingOrder(false);
         }
       } else {
+        if (!window.Razorpay) {
+          alert('Razorpay payment gateway failed to load. Please check your internet connection and reload the page.');
+          setIsSubmittingOrder(false);
+          return;
+        }
         // Razorpay payment integration logic
         const options = {
           key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_mock',
@@ -853,7 +865,7 @@ export default function CartPage() {
                         </button>
                       </div>
                       {promoError && <p className="text-red-500 text-[10px] mt-1.5 font-medium">{promoError}</p>}
-                      
+
                       {/* Dynamic Available Promos */}
                       {applicableCoupons.length > 0 && (
                         <div className="mt-3 space-y-1.5">
@@ -937,68 +949,19 @@ export default function CartPage() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-white/80 backdrop-blur-md z-30 flex flex-col items-center justify-center p-6 text-center"
+                    className="absolute inset-0 bg-black/30 backdrop-blur-xs z-30 flex items-center justify-center p-4"
                   >
-                    <div className="w-12 h-12 rounded-full border-2 border-brand-gold border-t-transparent animate-spin mb-4" />
-                    <span className="font-primary text-[10px] tracking-[0.25em] uppercase font-bold text-brand-brown">Securing Transaction...</span>
-                    <p className="font-primary text-[11px] text-gray-400 mt-1.5 max-w-70 leading-relaxed mb-5">
-                      Please complete the payment process in the secure Razorpay overlay.
-                    </p>
-
-                    {/* Test mode bypass with dummy transition */}
-                    {(process.env.NODE_ENV === 'development' || !process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID.startsWith('rzp_test_')) && (
-                      <button
-                        type="button"
-                        onClick={async () => {
-                          try {
-                            const verifyRes = await fetch('/api/v1/payments/verify-payment', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({
-                                razorpayOrderId: activeRazorpayOrderId,
-                                razorpayPaymentId: 'pay_mock_' + Math.floor(100000 + Math.random() * 900000),
-                                razorpaySignature: 'mock_sig_dev'
-                              })
-                            });
-                            const verifyData = await verifyRes.json();
-                            if (verifyRes.ok && verifyData.success) {
-                              const newOrder = {
-                                id: activeOrderId,
-                                items: cartItems.map(item => ({
-                                  id: item.product.id,
-                                  name: item.product.name,
-                                  price: item.product.price,
-                                  quantity: item.quantity,
-                                  weight: item.product.weight || '—',
-                                  metal: item.product.metal || '—',
-                                  image: item.product.image
-                                })),
-                                subtotal: cartTotal,
-                                discount: discountAmount,
-                                total: finalTotal,
-                                paymentMethod: paymentMethod
-                              };
-                              addOrder(newOrder);
-                              await saveAddressIfChecked();
-                              setGeneratedOrderId(activeOrderId);
-                              setOrderSuccess(true);
-                              clearCart();
-                              setAppliedPromo(null);
-                            } else {
-                              alert(verifyData.error || 'Mock verification failed');
-                            }
-                          } catch (err) {
-                            console.error(err);
-                            alert('Error verifying mock payment');
-                          } finally {
-                            setIsSubmittingOrder(false);
-                          }
-                        }}
-                        className="px-5 py-3 border border-brand-gold hover:bg-brand-gold hover:text-brand-brown text-brand-gold font-primary text-[10px] font-bold tracking-[0.2em] uppercase transition-all duration-300 shadow-md cursor-pointer rounded-xs"
-                      >
-                        Bypass with Dummy Payment
-                      </button>
-                    )}
+                    <div className="bg-white p-7 rounded-lg shadow-2xl border border-brand-gold/20 max-w-[320px] w-full flex flex-col items-center text-center select-none">
+                      <JewelryLoader
+                        size="md"
+                        label={paymentMethod === 'cod' ? "Processing checkout..." : "Connecting to secure gateway..."}
+                      />
+                      {paymentMethod === 'card' && (
+                        <p className="font-primary text-[9px] text-gray-400 mt-2 max-w-70 leading-relaxed tracking-wide">
+                          Please complete the transaction in the secure Razorpay overlay.
+                        </p>
+                      )}
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
