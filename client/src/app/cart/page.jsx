@@ -343,7 +343,11 @@ export default function CartPage() {
       const orderRes = await fetch('/api/v1/payments/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ shippingAddress, paymentMethod })
+        body: JSON.stringify({ 
+          shippingAddress, 
+          paymentMethod,
+          promoCode: appliedPromo ? appliedPromo.code : null
+        })
       });
       const orderData = await orderRes.json();
 

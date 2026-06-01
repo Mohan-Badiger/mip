@@ -32,6 +32,9 @@ const OrderSchema = new mongoose.Schema({
   razorpayPaymentId: { type: String },
   razorpaySignature: { type: String },
   
+  couponCode: { type: String },
+  discountAmount: { type: Number, default: 0 },
+  
   orderStatus: { type: String, enum: ['received', 'processing', 'shipped', 'delivered', 'cancelled'], default: 'received', index: true },
   trackingId: { type: String }
 }, { timestamps: true });

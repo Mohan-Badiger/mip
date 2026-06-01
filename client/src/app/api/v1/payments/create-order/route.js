@@ -4,6 +4,7 @@ import dbConnect from '@/backend/config/dbConnect';
 import Cart from '@/backend/models/Cart';
 import Order from '@/backend/models/Order';
 import Settings from '@/backend/models/Settings';
+import Coupon from '@/backend/models/Coupon';
 import { calculateLiveProductPrice } from '@/backend/services/pricingService';
 import { authenticate } from '@/backend/middlewares/authMiddleware';
 
@@ -15,7 +16,7 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { shippingAddress, paymentMethod } = await req.json();
+    const { shippingAddress, paymentMethod, promoCode } = await req.json();
     if (!shippingAddress || !shippingAddress.street || !shippingAddress.city || !shippingAddress.state || !shippingAddress.pincode) {
       return NextResponse.json({ error: 'Incomplete shipping address provided' }, { status: 400 });
     }
@@ -101,6 +102,58 @@ export async function POST(req) {
       grandTotal += codExtraCharge;
     }
 
+    // Apply coupon discount if promoCode is provided
+    let discountAmount = 0;
+    let validCouponCode = null;
+
+    if (promoCode) {
+      const coupon = await Coupon.findOne({ code: promoCode.trim().toUpperCase(), isActive: true });
+      if (coupon) {
+        const isNotExpired = new Date(coupon.expiryDate) >= new Date();
+        const meetsMinCart = grandTotal >= coupon.minCartValue;
+        
+        let valid = isNotExpired && meetsMinCart;
+
+        if (valid && coupon.firstTimeOnly) {
+          const orderCount = await Order.countDocuments({
+            user: user._id,
+            orderStatus: { $ne: 'cancelled' }
+          });
+          if (orderCount > 0) {
+            valid = false;
+          }
+        }
+
+        if (valid) {
+          validCouponCode = coupon.code;
+          if (coupon.discountType === 'percentage') {
+            discountAmount = Math.round(grandTotal * (coupon.discountValue / 100));
+          } else if (coupon.discountType === 'flat') {
+            discountAmount = coupon.discountValue;
+          } else if (coupon.discountType === 'free-making') {
+            let totalMakingChargesSaved = 0;
+            const gstRate = activeSettings.gstRate ?? 3.0;
+
+            for (const cartItem of cart.items) {
+              if (cartItem.product && cartItem.product.isActive) {
+                const pricing = await calculateLiveProductPrice(cartItem.product);
+                const rawMetalValue = pricing.rawMetalValue;
+                const stoneValue = pricing.stoneValue;
+                const basePriceWithoutMaking = rawMetalValue + stoneValue;
+                const taxWithoutMaking = basePriceWithoutMaking * (gstRate / 100);
+                const finalPriceWithoutMaking = Math.round(basePriceWithoutMaking + taxWithoutMaking);
+                totalMakingChargesSaved += (pricing.finalPrice - finalPriceWithoutMaking) * cartItem.quantity;
+              }
+            }
+            discountAmount = totalMakingChargesSaved || coupon.discountValue || 1000;
+          }
+          discountAmount = Math.min(discountAmount, grandTotal);
+        }
+      }
+    }
+
+    grandTotal = Math.max(0, grandTotal - discountAmount);
+
     // 3. Initialize Order record (generate a placeholder first to get _id)
     const tempRazorpayOrderId = `temp_rp_${Math.random().toString(36).substring(7)}`;
     const order = new Order({
@@ -110,6 +163,8 @@ export async function POST(req) {
       subTotal,
       taxAmount,
       grandTotal,
+      couponCode: validCouponCode,
+      discountAmount,
       razorpayOrderId: tempRazorpayOrderId,
       paymentStatus: 'pending',
       orderStatus: 'received'
@@ -127,12 +182,6 @@ export async function POST(req) {
       try {
         const razorpay = new Razorpay({ key_id, key_secret });
         
-        // Cap the amount in test mode to avoid transaction ceiling limits (e.g. ₹1,00,000)
-        const isTestKey = key_id.startsWith('rzp_test_');
-        if (isTestKey && grandTotal > 50000) {
-          finalAmount = 50000 * 100; // Cap to ₹50,000 in test mode so it passes standard limits
-        }
-
         const options = {
           amount: finalAmount, // Razorpay works in paise
           currency: 'INR',
