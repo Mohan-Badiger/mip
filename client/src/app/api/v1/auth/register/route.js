@@ -5,8 +5,7 @@ import { z } from 'zod';
 import dbConnect from '@/backend/config/dbConnect';
 import User from '@/backend/models/User';
 import { rateLimit } from '@/backend/lib/rateLimit';
-
-const JWT_SECRET = process.env.JWT_SECRET;
+import { JWT_SECRET } from '@/backend/config/env';
 
 // Input validation schema to prevent NoSQL query injection and enforce type-safety
 const registerSchema = z.object({
