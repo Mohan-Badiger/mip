@@ -644,6 +644,22 @@ export default function OrdersPage() {
                         <span>Grand Total:</span>
                         <span className="font-mono text-sm text-slate-900 font-extrabold">₹{selectedOrder.grandTotal?.toLocaleString("en-IN")}</span>
                       </div>
+
+                      <div className="flex justify-between text-xs font-semibold text-slate-500 border-t border-slate-200 pt-2 mt-1">
+                        <span>Amount Paid:</span>
+                        <span className="font-mono text-slate-705">
+                          ₹{selectedOrder.paymentMethod === 'cod' && selectedOrder.paymentStatus === 'pending'
+                            ? '0'
+                            : selectedOrder.grandTotal?.toLocaleString("en-IN")}
+                        </span>
+                      </div>
+
+                      {selectedOrder.paymentMethod === 'cod' && selectedOrder.paymentStatus === 'pending' && (
+                        <div className="flex justify-between text-xs font-bold text-amber-700 mt-1">
+                          <span>To Pay on Delivery:</span>
+                          <span className="font-mono">₹{selectedOrder.grandTotal?.toLocaleString("en-IN")}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

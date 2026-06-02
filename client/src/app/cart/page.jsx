@@ -60,6 +60,8 @@ export default function CartPage() {
   const [saveAddressChecked, setSaveAddressChecked] = useState(true);
   const [activeRazorpayOrderId, setActiveRazorpayOrderId] = useState('');
   const [activeOrderId, setActiveOrderId] = useState('');
+  const [successOrderTotal, setSuccessOrderTotal] = useState(0);
+  const [successOrderPaymentMethod, setSuccessOrderPaymentMethod] = useState('');
 
   React.useEffect(() => {
     if (isMounted && !settings.codAllowed && paymentMethod === 'cod') {
@@ -406,6 +408,8 @@ export default function CartPage() {
           await saveAddressIfChecked();
 
           setGeneratedOrderId(orderId);
+          setSuccessOrderTotal(finalTotal);
+          setSuccessOrderPaymentMethod(paymentMethod);
           setIsSubmittingOrder(false);
           setOrderSuccess(true);
           clearCart();
@@ -473,6 +477,8 @@ export default function CartPage() {
                 await saveAddressIfChecked();
 
                 setGeneratedOrderId(orderId);
+                setSuccessOrderTotal(finalTotal);
+                setSuccessOrderPaymentMethod(paymentMethod);
                 setOrderSuccess(true);
                 clearCart();
                 setAppliedPromo(null);
@@ -516,6 +522,8 @@ export default function CartPage() {
     setCheckoutStep(1);
     if (orderSuccess) {
       setOrderSuccess(false);
+      setSuccessOrderTotal(0);
+      setSuccessOrderPaymentMethod('');
       setCheckoutName('');
       setCheckoutPhone('');
       setCheckoutEmail('');
@@ -1576,14 +1584,24 @@ export default function CartPage() {
                         </p>
                         <p className="flex items-center gap-1.5"><strong className="text-brand-brown font-bold">Payment Status:</strong>
                           <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-850 bg-emerald-50 px-2 py-0.5 rounded-sm uppercase tracking-wider leading-none">
-                            {paymentMethod === 'cod' ? 'Pending COD' : 'Verified Secure'}
+                            {successOrderPaymentMethod === 'cod' ? 'Pending COD' : 'Verified Secure'}
                           </span>
                         </p>
                       </div>
 
-                      <div className="pt-2 border-t border-dashed border-brand-gold/15 mt-2 flex justify-between items-baseline font-secondary">
-                        <span className="text-brand-brown text-xs font-bold uppercase tracking-wider">Amount Paid:</span>
-                        <span className="text-base font-bold text-brand-brown">{formatPrice(finalTotal)}</span>
+                      <div className="pt-2 border-t border-dashed border-brand-gold/15 mt-2 space-y-1.5 font-secondary">
+                        <div className="flex justify-between items-baseline">
+                          <span className="text-brand-brown text-xs font-bold uppercase tracking-wider">Amount Paid:</span>
+                          <span className="text-base font-bold text-brand-brown">
+                            {successOrderPaymentMethod === 'cod' ? formatPrice(0) : formatPrice(successOrderTotal)}
+                          </span>
+                        </div>
+                        {successOrderPaymentMethod === 'cod' && (
+                          <div className="flex justify-between items-baseline text-amber-800">
+                            <span className="text-brand-brown text-xs font-bold uppercase tracking-wider">To Pay on Delivery:</span>
+                            <span className="text-base font-bold">{formatPrice(successOrderTotal)}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
 

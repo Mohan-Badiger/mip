@@ -424,6 +424,22 @@ export default function OrderDetailsPage({ params }) {
                     <span>Grand Total</span>
                     <span>{formatPrice(order.total)}</span>
                   </div>
+
+                  <div className="flex justify-between text-xs font-semibold text-gray-550 border-t border-slate-100 pt-2.5 mt-1.5">
+                    <span>Amount Paid</span>
+                    <span>
+                      {order.paymentMethod === 'cod' && order.paymentStatus === 'pending'
+                        ? formatPrice(0)
+                        : formatPrice(order.total)}
+                    </span>
+                  </div>
+
+                  {order.paymentMethod === 'cod' && order.paymentStatus === 'pending' && (
+                    <div className="flex justify-between text-xs font-bold text-amber-700 mt-1.5">
+                      <span>To Pay on Delivery</span>
+                      <span>{formatPrice(order.total)}</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
