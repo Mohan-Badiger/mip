@@ -421,8 +421,18 @@ export default function CartPage() {
           return;
         }
         // Razorpay payment integration logic
+        let rzpKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_mock';
+        if (typeof rzpKey === 'string') {
+          rzpKey = rzpKey.trim();
+          if (rzpKey.startsWith('"') && rzpKey.endsWith('"')) {
+            rzpKey = rzpKey.slice(1, -1);
+          }
+          if (rzpKey.startsWith("'") && rzpKey.endsWith("'")) {
+            rzpKey = rzpKey.slice(1, -1);
+          }
+        }
         const options = {
-          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_mock',
+          key: rzpKey,
           amount: orderData.amount,
           currency: orderData.currency,
           name: settings.brandName,

@@ -1,8 +1,7 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
 import dbConnect from '../config/dbConnect';
-
-const JWT_SECRET = process.env.JWT_SECRET;
+import { JWT_SECRET } from '../config/env';
 
 export async function authenticate(req) {
   try {
