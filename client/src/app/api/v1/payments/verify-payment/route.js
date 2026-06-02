@@ -6,6 +6,7 @@ import Order from '@/backend/models/Order';
 import Product from '@/backend/models/Product';
 import Cart from '@/backend/models/Cart';
 import { authenticate } from '@/backend/middlewares/authMiddleware';
+import { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } from '@/backend/config/env';
 
 export async function POST(req) {
   try {
@@ -39,8 +40,8 @@ export async function POST(req) {
       isVerified = true;
     } else {
       // 2. Online Payment Signature Validation
-      const key_secret = process.env.RAZORPAY_KEY_SECRET;
-      const key_id = process.env.RAZORPAY_KEY_ID;
+      const key_secret = RAZORPAY_KEY_SECRET;
+      const key_id = RAZORPAY_KEY_ID;
 
       const isTestMode = !key_id || key_id.startsWith('rzp_test_');
 
