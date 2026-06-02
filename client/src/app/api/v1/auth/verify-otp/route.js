@@ -5,8 +5,7 @@ import dbConnect from '@/backend/config/dbConnect';
 import User from '@/backend/models/User';
 import Otp from '@/backend/models/Otp';
 import { rateLimit, resetRateLimit } from '@/backend/lib/rateLimit';
-
-const JWT_SECRET = process.env.JWT_SECRET;
+import { JWT_SECRET } from '@/backend/config/env';
 
 // Input validation schema to prevent NoSQL query injection and ensure type-safety
 const verifyOtpSchema = z.object({

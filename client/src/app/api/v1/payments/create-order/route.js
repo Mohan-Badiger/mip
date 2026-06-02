@@ -7,6 +7,7 @@ import Settings from '@/backend/models/Settings';
 import Coupon from '@/backend/models/Coupon';
 import { calculateLiveProductPrice } from '@/backend/services/pricingService';
 import { authenticate } from '@/backend/middlewares/authMiddleware';
+import { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } from '@/backend/config/env';
 
 export async function POST(req) {
   try {
@@ -174,8 +175,8 @@ export async function POST(req) {
     await order.save();
 
     // 4. Connect to Razorpay
-    const key_id = process.env.RAZORPAY_KEY_ID;
-    const key_secret = process.env.RAZORPAY_KEY_SECRET;
+    const key_id = RAZORPAY_KEY_ID;
+    const key_secret = RAZORPAY_KEY_SECRET;
     let finalRazorpayOrderId = '';
     let finalAmount = grandTotal * 100;
 
