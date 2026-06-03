@@ -6,6 +6,7 @@ import User from '@/backend/models/User';
 import Otp from '@/backend/models/Otp';
 import { rateLimit, resetRateLimit } from '@/backend/lib/rateLimit';
 import { JWT_SECRET } from '@/backend/config/env';
+import { sendWelcomeEmail } from '@/backend/services/emailService';
 
 // Input validation schema to prevent NoSQL query injection and ensure type-safety
 const verifyOtpSchema = z.object({
@@ -88,6 +89,11 @@ export async function POST(req) {
       });
 
       await user.save();
+
+      // Send Welcome Onboarding Email asynchronously
+      sendWelcomeEmail(normalizedEmail, user).catch(err => {
+        console.error('[EMAIL ERROR] Failed to send welcome onboarding email:', err);
+      });
 
       // Clean up the verified registration OTP
       await Otp.deleteOne({ _id: otpRecord._id });
