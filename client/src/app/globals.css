@@ -53,3 +53,11 @@
   animation: shimmer 2s infinite;
   content: '';
 }
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
