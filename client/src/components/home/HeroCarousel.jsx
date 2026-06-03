@@ -76,6 +76,10 @@ export default function HeroCarousel({ slides: propSlides }) {
   const [direction, setDirection] = useState(1); // 1 = forward, -1 = backward
   const [paused, setPaused] = useState(false);
 
+  // Swipe support states
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+
   const goTo = useCallback((idx, dir = 1) => {
     setDirection(dir);
     setCurrent(idx);
@@ -101,6 +105,29 @@ export default function HeroCarousel({ slides: propSlides }) {
     return () => clearInterval(timer);
   }, [paused, activeSlides.length]);
 
+  // Touch handlers for mobile swipe
+  const handleTouchStart = (e) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+    if (isLeftSwipe) {
+      next();
+    } else if (isRightSwipe) {
+      prev();
+    }
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
+
   const slide = activeSlides[current] || activeSlides[0] || {};
 
   const variants = {
@@ -115,9 +142,12 @@ export default function HeroCarousel({ slides: propSlides }) {
         className="relative w-full overflow-hidden rounded-xl md:rounded-sm shadow-lg"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
         {/* ── Slide ── */}
-        <div className="relative w-full h-112.5 md:h-120">
+        <div className="relative w-full h-90 xs:h-[400px] sm:h-110 md:h-120 lg:h-130">
           <AnimatePresence custom={direction} initial={false} mode="sync">
             <motion.div
               key={current}
@@ -153,10 +183,22 @@ export default function HeroCarousel({ slides: propSlides }) {
               <div className={`absolute inset-0 ${slide.overlay || ""}`} />
 
               {/* Text Content */}
-              <div className="absolute inset-0 flex items-center px-6 md:px-16 lg:px-20">
+              <div className="absolute inset-0 flex items-center justify-center md:justify-start px-4 sm:px-6 md:px-16 lg:px-20">
                 <div
-                  className={`max-w-[90%] md:max-w-[50%] lg:max-w-[45%] flex flex-col gap-2 md:gap-3
-                  ${slide.textSide === 'right' ? 'ml-auto text-right items-end' : 'mr-auto text-left items-start'}`}
+                  className={`
+                    flex flex-col gap-2 md:gap-3 transition-all duration-300
+                    /* Mobile card structure (glassmorphism with a glossy reflection look) */
+                    w-[92%] xs:w-[85%] sm:w-[75%] p-5 sm:p-7 shadow-[inset_0_1px_2px_rgba(255,255,255,0.55),0_10px_30px_rgba(0,0,0,0.06)] backdrop-blur-lg border rounded-sm text-center items-center
+                    ${slide.textColor === 'text-white'
+                      ? 'bg-black/35 border-white/20 text-white'
+                      : 'bg-white/40 border-white/50 text-brand-brown'}
+                    
+                    /* Desktop styling overrides (flat transparent overlay text) */
+                    md:w-auto md:max-w-[50%] lg:max-w-[45%] md:bg-transparent md:backdrop-blur-none md:border-none md:p-0 md:shadow-none
+                    ${slide.textSide === 'right'
+                      ? 'md:ml-auto md:text-right md:items-end'
+                      : 'md:mr-auto md:text-left md:items-start'}
+                  `}
                 >
                   {/* Tag */}
                   <motion.span
@@ -173,8 +215,7 @@ export default function HeroCarousel({ slides: propSlides }) {
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.35, duration: 0.65 }}
-                    className={`font-secondary text-2xl sm:text-3xl md:text-4xl lg:text-5xl leading-tight ${slide.textColor || "text-brand-brown"}`}
-                    style={{ whiteSpace: 'pre-line' }}
+                    className={`font-secondary text-xl sm:text-2xl md:text-4xl lg:text-5xl leading-tight whitespace-normal md:whitespace-pre-line ${slide.textColor || "text-brand-brown"}`}
                   >
                     {slide.collectionName || slide.collection}
                   </motion.h2>
@@ -184,8 +225,7 @@ export default function HeroCarousel({ slides: propSlides }) {
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.45, duration: 0.6 }}
-                    className={`font-primary text-xs sm:text-sm md:text-base leading-relaxed ${slide.subtitleColor || "text-brand-brown/70"}`}
-                    style={{ whiteSpace: 'pre-line' }}
+                    className={`font-primary text-[11px] sm:text-sm md:text-base leading-relaxed whitespace-normal md:whitespace-pre-line ${slide.subtitleColor || "text-brand-brown/70"}`}
                   >
                     {slide.title}
                   </motion.p>
@@ -196,7 +236,7 @@ export default function HeroCarousel({ slides: propSlides }) {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.5, duration: 0.55 }}
-                      className={`font-secondary text-lg md:text-2xl lg:text-3xl font-normal ${slide.textColor || "text-brand-brown"}`}
+                      className={`font-secondary text-base md:text-2xl lg:text-3xl font-normal ${slide.textColor || "text-brand-brown"}`}
                     >
                       {slide.price}
                     </motion.p>
@@ -208,7 +248,7 @@ export default function HeroCarousel({ slides: propSlides }) {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.55, duration: 0.55 }}
-                    className={`mt-1 md:mt-2 inline-block font-primary text-[10px] md:text-xs font-semibold tracking-[0.2em] uppercase pb-0.5 border-b
+                    className={`mt-1.5 md:mt-2 inline-block font-primary text-[10px] md:text-xs font-semibold tracking-[0.2em] uppercase pb-0.5 border-b
                     ${slide.textColor === 'text-white'
                         ? 'border-white/70 text-white hover:border-white'
                         : 'border-brand-gold text-brand-brown hover:text-brand-gold'}
@@ -221,17 +261,17 @@ export default function HeroCarousel({ slides: propSlides }) {
             </motion.div>
           </AnimatePresence>
 
-          {/* ── Narrow Arrow Buttons ── */}
+          {/* ── Narrow Arrow Buttons (Hidden on mobile touch screen to avoid overlaps) ── */}
           <button
             onClick={prev}
-            className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-20 h-10 w-6 md:h-14 md:w-8 flex items-center justify-center bg-white/30 hover:bg-white/60 backdrop-blur-sm transition-all duration-200 rounded-sm group"
+            className="hidden md:flex absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-20 h-10 w-6 md:h-14 md:w-8 items-center justify-center bg-white/30 hover:bg-white/60 backdrop-blur-sm transition-all duration-200 rounded-sm group"
             aria-label="Previous slide"
           >
             <ChevronLeft className="w-4 h-4 md:w-5 md:h-5 text-white group-hover:text-brand-brown transition-colors" strokeWidth={1.5} />
           </button>
           <button
             onClick={next}
-            className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-20 h-10 w-6 md:h-14 md:w-8 flex items-center justify-center bg-white/30 hover:bg-white/60 backdrop-blur-sm transition-all duration-200 rounded-sm group"
+            className="hidden md:flex absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-20 h-10 w-6 md:h-14 md:w-8 items-center justify-center bg-white/30 hover:bg-white/60 backdrop-blur-sm transition-all duration-200 rounded-sm group"
             aria-label="Next slide"
           >
             <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-white group-hover:text-brand-brown transition-colors" strokeWidth={1.5} />
