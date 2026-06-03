@@ -7,6 +7,7 @@ import Product from '@/backend/models/Product';
 import Cart from '@/backend/models/Cart';
 import { authenticate } from '@/backend/middlewares/authMiddleware';
 import { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } from '@/backend/config/env';
+import { sendOrderConfirmationEmail } from '@/backend/services/emailService';
 
 export async function POST(req) {
   try {
@@ -165,6 +166,11 @@ export async function POST(req) {
 
     // 6. Clear User Shopping Cart state
     await Cart.deleteOne({ user: user._id });
+
+    // Send Order Confirmation Email asynchronously
+    sendOrderConfirmationEmail(user.email, order, user).catch(err => {
+      console.error('[EMAIL ERROR] Failed to send order confirmation email:', err);
+    });
 
     return NextResponse.json({
       success: true,
