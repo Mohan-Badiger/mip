@@ -7,7 +7,8 @@ const CartItemSchema = new mongoose.Schema({
 
 const CartSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true, index: true },
-  items: [CartItemSchema]
+  items: [CartItemSchema],
+  abandonedEmailSent: { type: Boolean, default: false }
 }, { timestamps: true });
 
 export default mongoose.models.Cart || mongoose.model('Cart', CartSchema);
