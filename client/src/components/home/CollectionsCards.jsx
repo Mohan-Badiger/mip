@@ -72,17 +72,22 @@ export default function CollectionsCards({ collections: propCollections, name })
         </div>
       </div>
 
-      {/* Mobile-first scroll container that scales to a grid on larger viewports */}
-      <div className="flex lg:grid overflow-x-auto lg:overflow-x-visible snap-x snap-mandatory lg:snap-none scrollbar-none gap-5 lg:gap-6 pb-6 lg:pb-0 lg:grid-cols-6">
+      {/* Swipe indicator (visible only on mobile) */}
+      <span className="lg:hidden text-[8px] tracking-[0.25em] text-brand-gold/70 uppercase block text-center -mt-6 mb-8 font-primary animate-pulse">
+        Swipe to explore &rarr;
+      </span>
+
+      {/* Mobile-first scroll track that becomes a grid on desktop */}
+      <div className="flex lg:grid overflow-x-auto lg:overflow-x-visible snap-x snap-mandatory lg:snap-none scrollbar-none gap-4 sm:gap-5 lg:gap-6 pb-6 lg:pb-0 lg:grid-cols-6 scroll-smooth">
         {displayCollections.map((item, idx) => (
           <div
             key={item.title}
-            className="w-[72vw] sm:w-[40vw] lg:w-auto shrink-0 snap-center lg:snap-align-none"
+            className="w-[43vw] xs:w-[38vw] sm:w-[28vw] lg:w-auto shrink-0 snap-center lg:snap-align-none"
           >
             <FadeInUp delay={idx * 0.08}>
               <Link href={item.link} className="group block">
                 {/* Indian Royal Arch Frame Container */}
-                <div className="relative p-2 border border-brand-gold/25 rounded-t-full bg-white transition-all duration-[0.6s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:border-brand-gold/70 group-hover:shadow-[0_20px_50px_rgba(179,146,84,0.12)]">
+                <div className="relative p-1.5 border border-brand-gold/25 rounded-t-full bg-white transition-all duration-[0.6s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:border-brand-gold/70 group-hover:shadow-[0_20px_50px_rgba(179,146,84,0.12)]">
 
                   {/* Perfect Arch Shape Image Mask */}
                   <div className="relative aspect-3/4 w-full overflow-hidden rounded-t-full bg-gray-50">
@@ -90,7 +95,7 @@ export default function CollectionsCards({ collections: propCollections, name })
                       src={item.img}
                       alt={item.title}
                       fill
-                      sizes="(max-width: 768px) 75vw, (max-width: 1024px) 40vw, 16vw"
+                      sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 16vw"
                       className="object-cover transition-transform duration-[1.8s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-105"
                     />
 
@@ -100,13 +105,13 @@ export default function CollectionsCards({ collections: propCollections, name })
                 </div>
 
                 {/* Typography details block */}
-                <div className="mt-5 text-center px-2">
-                  <h3 className="font-secondary text-lg md:text-xl text-brand-brown tracking-wide mb-1 flex items-center justify-center gap-1 group-hover:text-brand-gold transition-colors duration-300">
+                <div className="mt-4 text-center px-1">
+                  <h3 className="font-secondary text-sm sm:text-base md:text-xl text-brand-brown tracking-wide mb-1 flex items-center justify-center gap-1 group-hover:text-brand-gold transition-colors duration-300">
                     {item.title}
-                    <ArrowUpRight className="w-4 h-4 text-brand-gold/40 group-hover:text-brand-gold transition-all duration-300 transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    <ArrowUpRight className="w-3.5 h-3.5 text-brand-gold/40 group-hover:text-brand-gold transition-all duration-300 transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                   </h3>
                   {item.sub && (
-                    <p className="font-primary text-[10px] md:text-[11px] text-gray-400 tracking-wider uppercase">
+                    <p className="font-primary text-[9px] md:text-[11px] text-gray-400 tracking-wider uppercase leading-normal">
                       {item.sub}
                     </p>
                   )}
