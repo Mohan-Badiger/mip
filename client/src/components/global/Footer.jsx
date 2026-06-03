@@ -74,7 +74,7 @@ export default function Footer() {
 
       {/* ── Top row: brand + social (always visible) ── */}
       <div className="max-w-480 mx-auto px-5 md:px-8 pt-10 md:pt-14 pb-6 md:pb-0 border-b border-white/10 md:border-none">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0">
           <Link href="/">
             <h3 className="font-secondary text-2xl tracking-[0.25em] text-brand-gold">{settings.brandName.toLowerCase().replace(/\s+/g, '')}</h3>
             <p className="font-primary text-[10px] tracking-[0.2em] uppercase text-white/40 mt-0.5">Since 1925</p>
@@ -125,7 +125,7 @@ export default function Footer() {
 
       {/* ── Desktop: 4-column grid ── */}
       <div className="hidden md:block max-w-480 mx-auto px-8 py-14">
-        <div className="grid grid-cols-4 gap-12">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-10 lg:gap-12">
           {/* Brand column */}
           <div>
             <p className="font-primary text-xs text-white/60 leading-relaxed mb-4">
