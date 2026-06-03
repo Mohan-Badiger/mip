@@ -4,6 +4,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { SettingsProvider } from "@/context/SettingsContext";
 import GoogleAnalytics from "@/components/global/GoogleAnalytics";
 import ClientAuthModal from "@/components/global/ClientAuthModal";
+import WhatsAppButton from "@/components/global/WhatsAppButton";
 import "./globals.css";
 
 const workSans = Work_Sans({
@@ -59,6 +60,7 @@ export default function RootLayout({ children }) {
             <CartProvider>
               {children}
               <ClientAuthModal />
+              <WhatsAppButton />
             </CartProvider>
           </AuthProvider>
         </SettingsProvider>
