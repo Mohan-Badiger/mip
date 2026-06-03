@@ -16,6 +16,7 @@ import {
   Users,
   RotateCcw,
   UserCheck,
+  Mail,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -65,6 +66,7 @@ const sidebarGroups = [
     label: "Customers",
     items: [
       { title: "Customers", url: "/customers", icon: Users },
+      { title: "Subscribers", url: "/customers/subscribers", icon: Mail },
       { title: "Reviews", url: "/customers/reviews", icon: MessageSquare },
     ]
   },
