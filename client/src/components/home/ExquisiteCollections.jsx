@@ -32,7 +32,7 @@ export default function ExquisiteCollections({ name }) {
               {/* Main portrait — spans 2 rows on left */}
               <div className="relative aspect-3/4 w-full overflow-hidden rounded-sm shadow-md">
                 <Image
-                  src="/images/exquisite_model.png"
+                  src="/images/exquisite_model.webp"
                   alt="Exquisite jewellery model"
                   fill
                   sizes="55vw"
@@ -43,7 +43,7 @@ export default function ExquisiteCollections({ name }) {
               <div className="flex flex-col gap-3">
                 <div className="relative aspect-square w-full overflow-hidden rounded-sm shadow-md">
                   <Image
-                    src="/images/category_necklaces.png"
+                    src="/images/category_necklaces.webp"
                     alt="Bridal necklace"
                     fill
                     sizes="25vw"
@@ -52,7 +52,7 @@ export default function ExquisiteCollections({ name }) {
                 </div>
                 <div className="relative aspect-square w-full overflow-hidden rounded-sm shadow-md">
                   <Image
-                    src="/images/category_bangles.png"
+                    src="/images/category_bangles.webp"
                     alt="Gold bangles"
                     fill
                     sizes="25vw"
@@ -91,7 +91,7 @@ export default function ExquisiteCollections({ name }) {
               viewport={{ once: true }}
               className="absolute left-[58%] -translate-x-1/2 z-10 w-112.5 h-137.5"
             >
-              <Image src="/images/exquisite_model.png" alt="Exquisite model" fill sizes="50vw" className="object-cover" />
+              <Image src="/images/exquisite_model.webp" alt="Exquisite model" fill sizes="50vw" className="object-cover" />
             </motion.div>
 
             {/* Left Product */}
@@ -102,7 +102,7 @@ export default function ExquisiteCollections({ name }) {
               viewport={{ once: true }}
               className="absolute bottom-0 left-[18%] z-20 w-87.5 h-62.5 shadow-2xl"
             >
-              <Image src="/images/category_necklaces.png" alt="Necklace" fill sizes="33vw" className="object-cover" />
+              <Image src="/images/category_necklaces.webp" alt="Necklace" fill sizes="33vw" className="object-cover" />
             </motion.div>
 
             {/* Right Product */}
@@ -113,7 +113,7 @@ export default function ExquisiteCollections({ name }) {
               viewport={{ once: true }}
               className="absolute bottom-12 right-[5%] z-20 w-55 h-70 shadow-2xl"
             >
-              <Image src="/images/category_bangles.png" alt="Earrings" fill sizes="25vw" className="object-cover" />
+              <Image src="/images/category_bangles.webp" alt="Earrings" fill sizes="25vw" className="object-cover" />
             </motion.div>
           </div>
         </div>

@@ -10,7 +10,7 @@ const genders = [
     label: "Women", 
     sub: "For Her", 
     desc: "Curated Selection",
-    img: "/images/shop_gender_women.png", 
+    img: "/images/shop_gender_women.webp", 
     href: "/products?gender=women",
     num: "01" 
   },
@@ -18,7 +18,7 @@ const genders = [
     label: "Men", 
     sub: "For Him", 
     desc: "Modern Classics",
-    img: "/images/shop_gender_men.png", 
+    img: "/images/shop_gender_men.webp", 
     href: "/products?gender=men",
     num: "02" 
   },
@@ -26,7 +26,7 @@ const genders = [
     label: "Kids", 
     sub: "For Them", 
     desc: "Joyful Adornments",
-    img: "/images/shop_gender_kids.png", 
+    img: "/images/shop_gender_kids.webp", 
     href: "/products?gender=kids",
     num: "03" 
   },

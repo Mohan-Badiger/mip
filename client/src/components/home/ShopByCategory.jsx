@@ -6,12 +6,12 @@ import { ArrowUpRight } from 'lucide-react';
 import FadeInUp from '@/components/global/FadeInUp';
 
 const CATEGORIES = [
-  { name: "Bangles", slug: "bangles", subtitle: "Curated Cuffs", img: "/images/category_bangles.png" },
-  { name: "Chains", slug: "chains", subtitle: "Sleek Links", img: "/images/category_chains.png" },
-  { name: "Earrings", slug: "earrings", subtitle: "Delicate Studs", img: "/images/category_earrings.png" },
-  { name: "Necklaces", slug: "necklaces", subtitle: "Royal Chokers", img: "/images/category_necklaces.png" },
-  { name: "Coins", slug: "coins-bars", subtitle: "Pure Assets", img: "/images/category_coins.png" },
-  { name: "Rings", slug: "rings", subtitle: "Timeless Bands", img: "/images/category_rings.png" },
+  { name: "Bangles", slug: "bangles", subtitle: "Curated Cuffs", img: "/images/category_bangles.webp" },
+  { name: "Chains", slug: "chains", subtitle: "Sleek Links", img: "/images/category_chains.webp" },
+  { name: "Earrings", slug: "earrings", subtitle: "Delicate Studs", img: "/images/category_earrings.webp" },
+  { name: "Necklaces", slug: "necklaces", subtitle: "Royal Chokers", img: "/images/category_necklaces.webp" },
+  { name: "Coins", slug: "coins-bars", subtitle: "Pure Assets", img: "/images/category_coins.webp" },
+  { name: "Rings", slug: "rings", subtitle: "Timeless Bands", img: "/images/category_rings.webp" },
 ];
 
 const GIFT_TIERS = [
@@ -19,21 +19,21 @@ const GIFT_TIERS = [
     title: "Under ₹15,000",
     label: "Gifts of Light",
     sub: "Spark joy with every sparkle",
-    img: "/images/gift_under_15k.png",
+    img: "/images/gift_under_15k.webp",
     link: "/collections"
   },
   {
     title: "Under ₹50,000",
     label: "Treasured Tokens",
     sub: "Gifts that spark a million memories",
-    img: "/images/gift_under_50k.png",
+    img: "/images/gift_under_50k.webp",
     link: "/collections"
   },
   {
     title: "Under ₹70,000",
     label: "Timeless Legacies",
     sub: "Mark your moments with a timeless piece",
-    img: "/images/gift_under_70k.png",
+    img: "/images/gift_under_70k.webp",
     link: "/collections"
   }
 ];
@@ -53,7 +53,7 @@ export default function ShopByCategory({ categories: propCategories, name }) {
         name: cat.name || cat.label,
         slug: cat.slug,
         subtitle: SUBTITLES[cat.slug] || cat.description || "Exquisite Designs",
-        img: cat.image || "/images/placeholder.png"
+        img: cat.image || "/images/placeholder.webp"
       }))
     : CATEGORIES;
 
