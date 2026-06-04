@@ -29,7 +29,7 @@ export const metadata = {
     siteName: "MIP Jewellers",
     images: [
       {
-        url: "/images/hero_slide_1.png",
+        url: "/images/hero_slide_1.webp",
         width: 1200,
         height: 630,
         alt: "MIP Jewellers Heritage Collection",
@@ -42,7 +42,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "MIP Jewellers Online | Buy Latest Gold, Diamonds, Silver Jewellery",
     description: "Handcrafted Indian luxury gold, diamonds, and silver jewellery since 1925.",
-    images: ["/images/hero_slide_1.png"],
+    images: ["/images/hero_slide_1.webp"],
   },
   robots: {
     index: true,

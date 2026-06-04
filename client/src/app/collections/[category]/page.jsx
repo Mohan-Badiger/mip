@@ -9,12 +9,12 @@ import CategoryClient from './CategoryClient';
 import PageLayout from '@/components/global/PageLayout';
 
 const HERO_IMAGES = {
-  earrings: '/images/hero_slide_1.png',
+  earrings: '/images/hero_slide_1.webp',
   bangles: '/images/category_bangles_1779203423031.png',
   chains: '/images/luxury_gold_hero_1779199654262.png',
   rings: '/images/modern_diamonds_1779199687171.png',
-  'coins-bars': '/images/hero_slide_3.png',
-  necklaces: '/images/hero_slide_4.png',
+  'coins-bars': '/images/hero_slide_3.webp',
+  necklaces: '/images/hero_slide_4.webp',
 };
 
 async function getCategoryData(slug) {
@@ -43,7 +43,7 @@ async function getCategoryProducts(categoryId) {
           id: p._id.toString(),
           slug: p.slug,
           name: p.name,
-          image: p.images[0] || '/images/placeholder.png',
+          image: p.images[0] || '/images/placeholder.webp',
           price: pricing.finalPrice,
           weight: p.metalWeight + 'g',
           metal: `${p.metalPurity} ${p.metalType.charAt(0).toUpperCase() + p.metalType.slice(1)}`,
@@ -83,7 +83,7 @@ export async function generateMetadata({ params }) {
       url: `${baseUrl}/collections/${cat.slug}`,
       images: [
         {
-          url: cat.image || HERO_IMAGES[cat.slug] || '/images/placeholder.png',
+          url: cat.image || HERO_IMAGES[cat.slug] || '/images/placeholder.webp',
           alt: cat.name,
         }
       ],
@@ -93,7 +93,7 @@ export async function generateMetadata({ params }) {
       card: 'summary_large_image',
       title,
       description,
-      images: [cat.image || HERO_IMAGES[cat.slug] || '/images/placeholder.png'],
+      images: [cat.image || HERO_IMAGES[cat.slug] || '/images/placeholder.webp'],
     }
   };
 }

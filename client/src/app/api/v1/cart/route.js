@@ -42,7 +42,7 @@ export async function GET(req) {
           product: {
             _id: 'deleted-item-' + item._id,
             name: 'Product Unavailable',
-            images: ['/images/placeholder.png'],
+            images: ['/images/placeholder.webp'],
             price: 0,
             metalWeight: 0,
             metalPurity: '',

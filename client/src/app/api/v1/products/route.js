@@ -12,10 +12,10 @@ export async function GET(req) {
   try {
     await dbConnect();
 
-    // Auto-seed Category and Product collections if empty or if existing products lack gender field
+    // Auto-seed Category and Product collections if empty, incomplete, or lacking gender field
     const firstProduct = await Product.findOne({});
     const productCount = await Product.countDocuments();
-    if (productCount === 0 || (firstProduct && !firstProduct.gender)) {
+    if (productCount < 36 || (firstProduct && !firstProduct.gender)) {
       if (productCount > 0) {
         await Product.deleteMany({});
       }
