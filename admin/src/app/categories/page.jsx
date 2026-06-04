@@ -41,6 +41,8 @@ export default function CategoriesPage() {
     image: ""
   });
 
+  const [uploading, setUploading] = useState(false);
+
   async function loadData() {
     try {
       setLoading(true);
@@ -79,18 +81,39 @@ export default function CategoriesPage() {
     setIsDialogOpen(true);
   };
 
-  const handleFileUpload = (e) => {
+  const handleFileUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setFormData(prev => ({
-        ...prev,
-        image: reader.result
-      }));
-    };
-    reader.readAsDataURL(file);
+    setUploading(true);
+    try {
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+      });
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: base64 })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setFormData(prev => ({
+          ...prev,
+          image: data.url
+        }));
+      } else {
+        alert(data.error || "Failed to upload image");
+      }
+    } catch (err) {
+      console.error("Upload failed:", err);
+      alert("Error uploading image");
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSaveCategory = async (e) => {
@@ -356,11 +379,21 @@ export default function CategoriesPage() {
                         type="file"
                         accept="image/*"
                         onChange={handleFileUpload}
-                        className="absolute inset-0 opacity-0 cursor-pointer"
+                        disabled={uploading}
+                        className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed"
                       />
-                      <UploadCloud className="w-6 h-6 text-slate-400 group-hover:text-primary transition-colors mb-1" />
-                      <span className="text-xs font-semibold text-slate-600">Upload Image File</span>
-                      <span className="text-[9px] text-slate-400">Drag & drop or click</span>
+                      {uploading ? (
+                        <>
+                          <Loader2 className="w-6 h-6 text-slate-400 animate-spin mb-1" />
+                          <span className="text-xs font-semibold text-slate-600">Uploading to Cloudinary...</span>
+                        </>
+                      ) : (
+                        <>
+                          <UploadCloud className="w-6 h-6 text-slate-400 group-hover:text-primary transition-colors mb-1" />
+                          <span className="text-xs font-semibold text-slate-600">Upload Image File</span>
+                          <span className="text-[9px] text-slate-400">Drag & drop or click</span>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
