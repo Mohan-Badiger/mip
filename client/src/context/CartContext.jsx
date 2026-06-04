@@ -21,7 +21,7 @@ export function CartProvider({ children }) {
           id: p._id || p.id,
           slug: p.slug || '',
           name: p.name,
-          image: p.images && p.images[0] ? p.images[0] : '/images/placeholder.png',
+          image: p.images && p.images[0] ? p.images[0] : '/images/placeholder.webp',
           price: p.pricing?.finalPrice || p.price || 0,
           weight: p.metalWeight ? p.metalWeight + 'g' : '—',
           metal: p.metalPurity && p.metalType ? `${p.metalPurity} ${p.metalType.toUpperCase()}` : '—',

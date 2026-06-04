@@ -55,7 +55,7 @@ export default function PurchasePlanBanner({ name }) {
             {/* Soft gold glow behind the model */}
             <div className="absolute inset-x-0 bottom-0 top-1/4 bg-[radial-gradient(circle_at_center,rgba(181,147,91,0.25)_0%,transparent_70%)] opacity-80" />
             <Image
-              src="/images/purchase_plan_model_transparent.png"
+              src="/images/purchase_plan_model_transparent.webp"
               alt="MIP My Choice Model"
               fill
               sizes="(max-width: 768px) 92vw, (max-width: 1024px) 75vw, 35vw"
@@ -122,7 +122,7 @@ export default function PurchasePlanBanner({ name }) {
             {/* Soft gold radial glow behind model */}
             <div className="absolute inset-x-0 bottom-0 top-1/3 bg-[radial-gradient(circle_at_center,rgba(181,147,91,0.30)_0%,transparent_70%)] opacity-80" />
             <Image
-              src="/images/purchase_plan_model_transparent.png"
+              src="/images/purchase_plan_model_transparent.webp"
               alt="MIP My Choice Model"
               fill
               sizes="35vw"
