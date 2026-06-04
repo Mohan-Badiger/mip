@@ -53,7 +53,7 @@ async function getRelatedProducts(product) {
           id: p._id.toString(),
           slug: p.slug,
           name: p.name,
-          image: p.images[0] || '/images/placeholder.png',
+          image: p.images[0] || '/images/placeholder.webp',
           price: pricing.finalPrice
         };
       })
@@ -90,7 +90,7 @@ export async function generateMetadata({ params }) {
       url: `${baseUrl}/products/${product.slug}`,
       images: [
         {
-          url: product.images[0] || '/images/placeholder.png',
+          url: product.images[0] || '/images/placeholder.webp',
           alt: product.name,
         }
       ],
@@ -100,7 +100,7 @@ export async function generateMetadata({ params }) {
       card: 'summary_large_image',
       title,
       description,
-      images: [product.images[0] || '/images/placeholder.png'],
+      images: [product.images[0] || '/images/placeholder.webp'],
     }
   };
 }
@@ -128,7 +128,7 @@ export default async function ProductPage({ params }) {
     id: rawProduct._id.toString(),
     slug: rawProduct.slug,
     name: rawProduct.name,
-    image: rawProduct.images[0] || '/images/placeholder.png',
+    image: rawProduct.images[0] || '/images/placeholder.webp',
     price: rawProduct.pricing?.finalPrice || rawProduct.price,
     weight: rawProduct.metalWeight + 'g',
     metal: `${rawProduct.metalPurity} ${rawProduct.metalType.charAt(0).toUpperCase() + rawProduct.metalType.slice(1)}`,

@@ -13,7 +13,7 @@ export default function CollectionsShowcase({ collections = [] }) {
       _id: "col-1",
       name: "Aradhana Collection",
       description: "Inspired by our rich Indian royal traditions, featuring meticulously crafted heritage gold sets. Each piece reflects centuries of Nakashi and Kundan craftsmanship, tailored for the modern bride seeking timeless legacy.",
-      bannerImage: "/images/category_necklaces.png",
+      bannerImage: "/images/category_necklaces.webp",
       slug: "necklaces",
       specs: [
         "Metal Purity: 22 Karat BIS Hallmarked Gold",
@@ -31,7 +31,7 @@ export default function CollectionsShowcase({ collections = [] }) {
       _id: "col-2",
       name: "Sunshine Series",
       description: "Traditional kadas to modern stacks designed with gold craftsmanship made to last over time. Combining geometric purity with structural grace, these bangles are designed to be layered and cherished daily.",
-      bannerImage: "/images/category_bangles.png",
+      bannerImage: "/images/category_bangles.webp",
       slug: "bangles",
       specs: [
         "Metal Purity: 22 Karat Yellow Gold",
@@ -49,7 +49,7 @@ export default function CollectionsShowcase({ collections = [] }) {
       _id: "col-3",
       name: "Kahani Bridal",
       description: "Capturing wedding stories in gold, eternity bands, and premium solitaires designed for couples. Hand-selected diamonds of exceptional color and clarity, set in handcrafted gold and platinum to last a lifetime.",
-      bannerImage: "/images/category_rings.png",
+      bannerImage: "/images/category_rings.webp",
       slug: "rings",
       specs: [
         "Metal Purity: 18KT & 22KT Gold / 950 Platinum",
@@ -103,7 +103,7 @@ export default function CollectionsShowcase({ collections = [] }) {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(179,146,84,0.15),transparent_60%)]" />
           <div className="absolute left-0 bottom-0 top-0 w-full md:w-[60%] lg:w-[50%] h-full">
             <Image
-              src="/images/exquisite_model.png"
+              src="/images/exquisite_model.webp"
               alt="The Signature Collections"
               fill
               priority
@@ -151,7 +151,7 @@ export default function CollectionsShowcase({ collections = [] }) {
                     <div className="border border-brand-gold/20 p-2 bg-white rounded-md transition-all duration-700 ease-out group-hover:border-brand-gold/60 shadow-[0_4px_30px_rgba(78,54,41,0.03)] group-hover:shadow-[0_20px_60px_rgba(179,146,84,0.1)]">
                       <div className="relative aspect-4/3 w-full overflow-hidden rounded bg-bg-cream">
                         <Image
-                          src={collection.bannerImage || "/images/category_bangles.png"}
+                          src={collection.bannerImage || "/images/category_bangles.webp"}
                           alt={collection.name}
                           fill
                           sizes="(max-width: 1024px) 100vw, 45vw"

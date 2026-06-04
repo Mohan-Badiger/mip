@@ -9,6 +9,7 @@ import JewelryLoader from '@/components/global/JewelryLoader';
 import { categories, formatPrice } from '@/lib/products';
 import { useAuth } from '@/context/AuthContext';
 import { useSearchParams } from 'next/navigation';
+import { preloadProductImage } from '@/lib/image-prefetch';
 
 const METALS = ['22KT Gold', '18KT Gold', '24KT Gold', 'Silver'];
 const STONES = ['Diamond', 'Ruby', 'Pearl', 'Emerald'];
@@ -165,7 +166,7 @@ function CatalogContent() {
 
   const [colName, setColName] = useState('All Jewellery');
   const [colDesc, setColDesc] = useState('Explore our complete handcrafted collections. Gold, diamonds, platinum and precious gemstones curated for every generation.');
-  const [colBanner, setColBanner] = useState('/images/exquisite_model.png');
+  const [colBanner, setColBanner] = useState('/images/exquisite_model.webp');
 
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedGenders, setSelectedGenders] = useState([]);
@@ -217,7 +218,7 @@ function CatalogContent() {
             slug: p.slug,
             name: p.name,
             category: p.category?.slug || p.category,
-            image: p.images[0] || '/images/placeholder.png',
+            image: p.images[0] || '/images/placeholder.webp',
             price: p.pricing?.finalPrice || p.price,
             weight: p.metalWeight + 'g',
             metal: `${p.metalPurity} ${p.metalType.charAt(0).toUpperCase() + p.metalType.slice(1)}`,
@@ -232,7 +233,7 @@ function CatalogContent() {
             if (withCol && withCol.collectionRef) {
               setColName(withCol.collectionRef.name);
               setColDesc(withCol.collectionRef.description || 'Exclusive themed collection.');
-              setColBanner(withCol.collectionRef.bannerImage || '/images/exquisite_model.png');
+              setColBanner(withCol.collectionRef.bannerImage || '/images/exquisite_model.webp');
             }
           }
         }
@@ -400,7 +401,7 @@ function CatalogContent() {
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 gap-y-10">
                 {filtered.map((product) => (
-                  <div key={product.id} className="group">
+                  <div key={product.id} className="group" onMouseEnter={() => preloadProductImage(product.image)}>
                     <Link href={`/products/${product.slug}`}>
                       <div className="relative aspect-square w-full overflow-hidden bg-gray-50 mb-3">
                         <Image
