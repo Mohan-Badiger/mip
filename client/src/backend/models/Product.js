@@ -28,6 +28,7 @@ const ProductSchema = new mongoose.Schema({
   
   stock: { type: Number, required: true, default: 1 },
   tag: { type: String, trim: true }, // e.g. 'New Arrival', 'Bestseller', 'Limited Edition'
+  certification: { type: String, trim: true }, // e.g. 'BIS Hallmark 916', 'GIA Certified'
   isActive: { type: Boolean, default: true, index: true },
   gender: { type: String, enum: ['Women', 'Men', 'Kids'], default: 'Women', index: true }
 }, { timestamps: true });
