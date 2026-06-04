@@ -103,6 +103,7 @@ export const POST = withAuth(async function POST(req) {
       gemstones: body.gemstones || [],
       stock: body.stock !== undefined ? Number(body.stock) : 1,
       tag: body.tag || '',
+      certification: body.certification || '',
       isActive: body.isActive !== undefined ? body.isActive : true,
       gender: body.gender || 'Women'
     });
