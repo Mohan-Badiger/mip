@@ -40,6 +40,7 @@ export default function ProductsPage() {
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [uploading, setUploading] = useState(false);
   
   // Dialog controls
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -62,6 +63,7 @@ export default function ProductsPage() {
     gemstones: [],
     stock: 1,
     tag: "",
+    certification: "",
     isActive: true,
     gender: "Women"
   });
@@ -134,6 +136,7 @@ export default function ProductsPage() {
       gemstones: [],
       stock: 1,
       tag: "",
+      certification: "",
       isActive: true,
       gender: "Women"
     });
@@ -158,6 +161,7 @@ export default function ProductsPage() {
       gemstones: product.gemstones || [],
       stock: product.stock !== undefined ? product.stock : 1,
       tag: product.tag || "",
+      certification: product.certification || "",
       isActive: product.isActive !== undefined ? product.isActive : true,
       gender: product.gender || "Women"
     });
@@ -194,20 +198,41 @@ export default function ProductsPage() {
     }));
   };
 
-  const handleFileUpload = (e) => {
+  const handleFileUpload = async (e) => {
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
 
-    files.forEach(file => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({
-          ...prev,
-          images: [...(prev.images || []), reader.result]
-        }));
-      };
-      reader.readAsDataURL(file);
-    });
+    setUploading(true);
+    try {
+      for (const file of files) {
+        const base64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = error => reject(error);
+        });
+
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image: base64 })
+        });
+        const data = await res.json();
+        if (data.success) {
+          setFormData(prev => ({
+            ...prev,
+            images: [...(prev.images || []), data.url]
+          }));
+        } else {
+          alert(data.error || "Failed to upload image");
+        }
+      }
+    } catch (err) {
+      console.error("Upload failed:", err);
+      alert("Error uploading image");
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSaveProduct = async (e) => {
@@ -474,11 +499,21 @@ export default function ProductsPage() {
                       multiple
                       accept="image/*"
                       onChange={handleFileUpload}
-                      className="absolute inset-0 opacity-0 cursor-pointer"
+                      disabled={uploading}
+                      className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed"
                     />
-                    <UploadCloud className="w-6 h-6 text-slate-400 group-hover:text-primary transition-colors mb-1" />
-                    <span className="text-xs font-semibold text-slate-600">Upload Image Files</span>
-                    <span className="text-[9px] text-slate-400">Drag & drop or click</span>
+                    {uploading ? (
+                      <>
+                        <Loader2 className="w-6 h-6 text-slate-400 animate-spin mb-1" />
+                        <span className="text-xs font-semibold text-slate-600">Uploading to Cloudinary...</span>
+                      </>
+                    ) : (
+                      <>
+                        <UploadCloud className="w-6 h-6 text-slate-400 group-hover:text-primary transition-colors mb-1" />
+                        <span className="text-xs font-semibold text-slate-600">Upload Image Files</span>
+                        <span className="text-[9px] text-slate-400">Drag & drop or click</span>
+                      </>
+                    )}
                   </div>
                   <span className="text-[9px] text-slate-400 font-medium block mt-1">
                     * The first image in the previews is the primary catalog display thumbnail.
@@ -649,6 +684,17 @@ export default function ProductsPage() {
                         onChange={(e) => setFormData(prev => ({ ...prev, tag: e.target.value }))}
                       />
                     </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="prod-cert" className="text-[10px] font-bold text-slate-500 tracking-wider uppercase">Quality Certification</Label>
+                    <Input
+                      id="prod-cert"
+                      placeholder="e.g. BIS HALLMARK 916, GIA Certified"
+                      className="bg-white border-slate-200 text-sm shadow-sm"
+                      value={formData.certification}
+                      onChange={(e) => setFormData(prev => ({ ...prev, certification: e.target.value }))}
+                    />
                   </div>
                 </div>
 
