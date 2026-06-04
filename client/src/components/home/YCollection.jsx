@@ -31,7 +31,7 @@ export default function YCollection({ name }) {
             {/* Tall portrait */}
             <div className="relative w-[55%] shrink-0 aspect-2/3 overflow-hidden bg-transparent">
               <Image
-                src="/images/y_young_girl_1.png"
+                src="/images/y_young_girl_1.webp"
                 alt="Y Collection Model"
                 fill
                 sizes="55vw"
@@ -49,7 +49,7 @@ export default function YCollection({ name }) {
               {/* Small accent image */}
               <div className="relative w-full aspect-square overflow-hidden bg-transparent mt-4">
                 <Image
-                  src="/images/y_young_girl_4.png"
+                  src="/images/y_young_girl_4.webp"
                   alt="Y Collection Detail"
                   fill
                   sizes="40vw"
@@ -86,7 +86,7 @@ export default function YCollection({ name }) {
             className="absolute left-[8%] top-0 z-20 w-95 h-125"
           >
             <Image
-              src="/images/y_young_girl_1.png"
+              src="/images/y_young_girl_1.webp"
               alt="Y Collection Model"
               fill
               sizes="30vw"
@@ -106,7 +106,7 @@ export default function YCollection({ name }) {
             className="absolute right-[30%] -top-10 z-10 w-50 h-60"
           >
             <Image
-              src="/images/y_young_girl_2.png"
+              src="/images/y_young_girl_2.webp"
               alt="Y Collection Detail"
               fill
               sizes="15vw"
@@ -123,7 +123,7 @@ export default function YCollection({ name }) {
             className="absolute right-[4%] -bottom-10 z-30 w-90 h-125"
           >
             <Image
-              src="/images/y_young_girl_3.png"
+              src="/images/y_young_girl_3.webp"
               alt="Y Collection Fashion"
               fill
               sizes="22vw"
@@ -146,7 +146,7 @@ export default function YCollection({ name }) {
             className="absolute -bottom-25 left-[47%] z-20 w-65 h-65 rounded-t-full overflow-hidden"
           >
             <Image
-              src="/images/y_young_girl_4.png"
+              src="/images/y_young_girl_4.webp"
               alt="Y Collection Accent"
               fill
               sizes="10vw"

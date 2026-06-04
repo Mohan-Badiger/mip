@@ -138,7 +138,7 @@ export default function StoresClient() {
         {/* Background Image with luxury aesthetic */}
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-90"
-          style={{ backgroundImage: "url('/images/showroom_banner_bg.png')" }}
+          style={{ backgroundImage: "url('/images/showroom_banner_bg.webp')" }}
         />
         {/* Subtle dark overlay to ensure text contrast */}
         <div className="absolute inset-0 bg-black/35" />

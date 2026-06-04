@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import PageLayout from '@/components/global/PageLayout';
 import { formatPrice } from '@/lib/products';
 import { useAuth } from '@/context/AuthContext';
+import { preloadProductImage } from '@/lib/image-prefetch';
 
 const METALS = ['22KT Gold', '18KT Gold', '24KT Gold', 'Silver'];
 const STONES = ['Diamond', 'Ruby', 'Pearl', 'Emerald'];
@@ -203,7 +204,7 @@ export default function CategoryClient({ categorySlug, categoryLabel, categoryDe
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 gap-y-10">
                 {filtered.map((product) => (
-                  <div key={product.id} className="group">
+                  <div key={product.id} className="group" onMouseEnter={() => preloadProductImage(product.image)}>
                     <Link href={`/products/${product.slug}`}>
                       <div className="relative aspect-square w-full overflow-hidden bg-gray-50 mb-3">
                         <Image 
