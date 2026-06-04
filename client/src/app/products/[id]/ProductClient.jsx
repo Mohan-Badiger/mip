@@ -90,7 +90,7 @@ function getSpecsAndBreakdown(product, rawProduct) {
     grossWeight: `${grossWeightVal.toFixed(3)} g`,
     metalWeight: `${metalWeightVal.toFixed(3)} g`,
     stoneWeight: `${stoneWeightVal.toFixed(3)} g`,
-    certification: metalType === 'gold' ? `BIS HALLMARK ${purity.slice(0, 2)}` : 'IGI Certified',
+    certification: rawProduct?.certification || (metalType === 'gold' ? `BIS HALLMARK ${purity.slice(0, 2)}` : 'IGI Certified'),
     width: product.category === 'rings' ? '3.2 mm' : '7.5 mm',
     thickness: product.category === 'rings' ? '1.2 mm' : '1.7 mm',
     height: product.category === 'rings' ? '20.5 mm' : '63.5 mm',
@@ -216,6 +216,27 @@ export default function ProductClient({ product, rawProduct, related }) {
               <p className="font-secondary text-2xl md:text-3xl text-brand-brown">{formatPrice(product.price)}</p>
               <p className="font-primary text-xs text-gray-400 pb-1 tracking-wide">incl. of all taxes</p>
             </div>
+
+            {/* Stock Availability */}
+            {rawProduct && rawProduct.stock !== undefined && (
+              <div className="mb-6">
+                {rawProduct.stock > 0 ? (
+                  <span className={`inline-flex items-center gap-1.5 font-primary text-[10px] tracking-wider uppercase font-semibold px-2.5 py-1 rounded-sm ${
+                    rawProduct.stock <= 5 
+                      ? 'bg-rose-50 text-rose-700 border border-rose-100' 
+                      : 'bg-emerald-50 text-emerald-700 border border-emerald-100'
+                  }`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${rawProduct.stock <= 5 ? 'bg-rose-600 animate-pulse' : 'bg-emerald-600'}`} />
+                    {rawProduct.stock <= 5 ? `Only ${rawProduct.stock} Left in Stock!` : `In Stock (${rawProduct.stock} units)`}
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 font-primary text-[10px] tracking-wider uppercase font-semibold px-2.5 py-1 rounded-sm bg-slate-100 text-slate-650 border border-slate-200">
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-500" />
+                    Out of Stock
+                  </span>
+                )}
+              </div>
+            )}
 
             {/* Key details */}
             <div className="grid grid-cols-3 gap-3 mb-6 border-y border-gray-100 py-5">
