@@ -25,12 +25,12 @@ export async function GET() {
 
     if (!isCacheValid) {
       try {
-        // Fetch prices in USD (per troy ounce)
+        // Fetch prices in USD (per troy ounce) with a 5-second timeout (LOW-02)
         const [xauRes, xagRes, xptRes, exRes] = await Promise.all([
-          fetch('https://api.gold-api.com/price/XAU'),
-          fetch('https://api.gold-api.com/price/XAG'),
-          fetch('https://api.gold-api.com/price/XPT'),
-          fetch('https://open.er-api.com/v6/latest/USD')
+          fetch('https://api.gold-api.com/price/XAU', { signal: AbortSignal.timeout(5000) }),
+          fetch('https://api.gold-api.com/price/XAG', { signal: AbortSignal.timeout(5000) }),
+          fetch('https://api.gold-api.com/price/XPT', { signal: AbortSignal.timeout(5000) }),
+          fetch('https://open.er-api.com/v6/latest/USD', { signal: AbortSignal.timeout(5000) })
         ]);
 
         const safeJson = async (res) => {
@@ -112,7 +112,8 @@ export async function GET() {
 
     return NextResponse.json({ success: true, rates });
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Error in gold-rates API:', error);
+    return NextResponse.json({ error: 'An unexpected error occurred while fetching gold rates.' }, { status: 500 });
   }
 }
 

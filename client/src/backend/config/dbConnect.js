@@ -18,6 +18,19 @@ if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
 }
 
+if (!global.mongooseListenersRegistered) {
+  mongoose.connection.on('error', (err) => console.error('MongoDB connection error:', err));
+  mongoose.connection.on('disconnected', () => {
+    console.warn('MongoDB disconnected! Clearing cached connection.');
+    if (global.mongoose) {
+      global.mongoose.conn = null;
+      global.mongoose.promise = null;
+    }
+  });
+  mongoose.connection.on('connected', () => console.log('MongoDB connected successfully.'));
+  global.mongooseListenersRegistered = true;
+}
+
 export default async function dbConnect() {
   if (cached.conn) {
     return cached.conn;
