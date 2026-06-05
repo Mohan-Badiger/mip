@@ -38,7 +38,9 @@ const SettingsSchema = new mongoose.Schema({
 
   // Returns Policy
   allowReturns: { type: Boolean, default: true },
-  returnPeriodDays: { type: Number, default: 7 }
+  returnPeriodDays: { type: Number, default: 7 },
+  // Enforce singleton pattern at the database level
+  isSingleton: { type: Boolean, default: true, unique: true, enum: [true] }
 }, { timestamps: true });
 
 export default mongoose.models.Settings || mongoose.model('Settings', SettingsSchema);

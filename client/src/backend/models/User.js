@@ -14,10 +14,12 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, index: true, lowercase: true },
   password: { type: String, required: true }, // Hashed password
   phone: { type: String, unique: true, index: true, required: true },
-  role: { type: String, enum: ['customer', 'sales-rep', 'admin', 'catalog-manager', 'cms-editor'], default: 'customer' },
+  role: { type: String, enum: ['customer', 'sales-rep', 'admin', 'catalog-manager', 'cms-editor'], default: 'customer', index: true },
   status: { type: String, enum: ['Active', 'Suspended'], default: 'Active' },
   addresses: [AddressSchema],
   isEmailVerified: { type: Boolean, default: false },
+  failedLoginAttempts: { type: Number, default: 0 },
+  lockoutUntil: { type: Date },
   refreshToken: { type: String }
 }, { timestamps: true });
 

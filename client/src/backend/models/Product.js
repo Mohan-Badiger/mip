@@ -36,4 +36,7 @@ const ProductSchema = new mongoose.Schema({
 // Text indexing for fast fuzzy searching in queries
 ProductSchema.index({ name: 'text', description: 'text', sku: 'text' });
 
+// Compound index for category listings sorted by date
+ProductSchema.index({ isActive: 1, category: 1, createdAt: -1 });
+
 export default mongoose.models.Product || mongoose.model('Product', ProductSchema);

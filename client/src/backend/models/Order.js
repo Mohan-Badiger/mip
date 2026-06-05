@@ -42,4 +42,7 @@ const OrderSchema = new mongoose.Schema({
   trackingId: { type: String }
 }, { timestamps: true });
 
+OrderSchema.index({ user: 1, createdAt: -1 });
+OrderSchema.index({ orderStatus: 1, createdAt: -1 });
+
 export default mongoose.models.Order || mongoose.model('Order', OrderSchema);
