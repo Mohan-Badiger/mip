@@ -57,9 +57,48 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
     }
 
+    // Check if user account is suspended
+    if (user.status === 'Suspended') {
+      return NextResponse.json({ error: 'Account has been suspended. Please contact support.' }, { status: 403 });
+    }
+
+    // Check if user is temporarily locked out
+    if (user.lockoutUntil && user.lockoutUntil > new Date()) {
+      const remainingMinutes = Math.ceil((user.lockoutUntil - new Date()) / 60000);
+      return NextResponse.json({
+        error: `Account is temporarily locked. Please try again in ${remainingMinutes} minute(s).`
+      }, { status: 423 });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
+      user.failedLoginAttempts = (user.failedLoginAttempts || 0) + 1;
+      let errorMessage = 'Invalid email or password';
+      let status = 401;
+
+      if (user.failedLoginAttempts >= 20) {
+        user.status = 'Suspended';
+        errorMessage = 'Account has been suspended due to too many failed login attempts. Please contact support.';
+        status = 403;
+      } else if (user.failedLoginAttempts >= 10) {
+        user.lockoutUntil = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
+        errorMessage = 'Too many failed login attempts. Account locked for 30 minutes.';
+        status = 423;
+      } else if (user.failedLoginAttempts >= 5) {
+        user.lockoutUntil = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+        errorMessage = 'Too many failed login attempts. Account locked for 5 minutes.';
+        status = 423;
+      }
+
+      await user.save();
+      return NextResponse.json({ error: errorMessage }, { status });
+    }
+
+    // Reset lockout counters on successful login
+    if (user.failedLoginAttempts > 0 || user.lockoutUntil) {
+      user.failedLoginAttempts = 0;
+      user.lockoutUntil = undefined;
+      await user.save();
     }
 
     // Create JWT Token
@@ -86,7 +125,8 @@ export async function POST(req) {
 
     return response;
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Login API error:', error);
+    return NextResponse.json({ error: 'An unexpected error occurred during login.' }, { status: 500 });
   }
 }
 
