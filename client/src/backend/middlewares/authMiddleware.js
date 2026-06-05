@@ -36,6 +36,12 @@ export async function authenticate(req) {
     }
 
     const user = await User.findById(decoded.userId).select('-password');
+    
+    // Reject suspended users even if their JWT is still valid
+    if (!user || user.status === 'Suspended') {
+      return null;
+    }
+
     return user;
   } catch {
     return null;

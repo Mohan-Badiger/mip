@@ -20,13 +20,8 @@ export async function GET(req) {
       .sort({ createdAt: -1 });
 
     const formattedOrders = dbOrders.map(order => {
-      // Map payment status code
-      let methodLabel = 'online';
-      if (order.paymentStatus === 'captured' && order.razorpayPaymentId?.startsWith('pay_mock_')) {
-        methodLabel = 'cod';
-      } else if (order.paymentStatus === 'pending') {
-        methodLabel = 'cod'; // assume cod or pending
-      }
+      // Map payment status code directly from database paymentMethod field
+      const methodLabel = order.paymentMethod === 'cod' ? 'cod' : 'online';
 
       // Map db statuses to client-side friendly statuses
       // DB statuses: 'received', 'processing', 'shipped', 'delivered', 'cancelled'
@@ -72,6 +67,6 @@ export async function GET(req) {
     return NextResponse.json({ success: true, orders: formattedOrders });
   } catch (error) {
     console.error('Error fetching client orders:', error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'An unexpected error occurred while fetching orders.' }, { status: 500 });
   }
 }
