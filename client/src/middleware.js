@@ -9,8 +9,10 @@ export function middleware(request) {
     response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
   }
   
-  // Protect against clickjacking (X-Frame-Options)
-  response.headers.set('X-Frame-Options', 'SAMEORIGIN');
+  // Protect against clickjacking — using CSP frame-ancestors instead of X-Frame-Options
+  // X-Frame-Options is deprecated in favor of CSP frame-ancestors in modern browsers
+  // but we keep DENY for legacy browser fallback consistency
+  response.headers.set('X-Frame-Options', 'DENY');
   
   // Protect against MIME type sniffing (X-Content-Type-Options)
   response.headers.set('X-Content-Type-Options', 'nosniff');
@@ -18,21 +20,23 @@ export function middleware(request) {
   // Referrer-Policy setting: Send full URL for same-origin, only origin for cross-origin, nothing for insecure
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   
-  // Control browser feature permissions
-  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=*');
+  // Control browser feature permissions — restrict payment API to self and Razorpay only
+  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(self "https://checkout.razorpay.com")');
 
   // Control DNS prefetching to avoid leakages
   response.headers.set('X-DNS-Prefetch-Control', 'on');
 
   // Content Security Policy (CSP) Definition
+  // SECURITY: 'unsafe-eval' removed — it completely negates XSS protections
+  // 'unsafe-inline' kept for Next.js inline styles/scripts compatibility
   const cspHeader = `
     default-src 'self';
-    script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://checkout.razorpay.com https://*.razorpay.com;
+    script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://checkout.razorpay.com https://*.razorpay.com;
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     img-src 'self' blob: data: https: http:;
     font-src 'self' https://fonts.gstatic.com;
     connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://open.er-api.com https://api.gold-api.com https://*.razorpay.com;
-    frame-src 'self' https://checkout.razorpay.com https://*.razorpay.com https:;
+    frame-src 'self' https://checkout.razorpay.com https://*.razorpay.com;
     object-src 'none';
     base-uri 'self';
     form-action 'self' https:;
@@ -41,6 +45,26 @@ export function middleware(request) {
   `.replace(/\s{2,}/g, ' ').trim();
 
   response.headers.set('Content-Security-Policy', cspHeader);
+
+  // CORS: Restrict cross-origin API access
+  const origin = request.headers.get('origin');
+  const allowedOrigins = [
+    process.env.NEXT_PUBLIC_SITE_URL || 'https://mipjewellers.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+  ].filter(Boolean);
+
+  if (origin && allowedOrigins.includes(origin)) {
+    response.headers.set('Access-Control-Allow-Origin', origin);
+    response.headers.set('Access-Control-Allow-Credentials', 'true');
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  }
+
+  // Handle preflight requests
+  if (request.method === 'OPTIONS') {
+    return new NextResponse(null, { status: 204, headers: response.headers });
+  }
 
   return response;
 }
