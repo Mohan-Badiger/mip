@@ -6,9 +6,22 @@ import User from '@/lib/models/User';
 import Category from '@/lib/models/Category';
 import { withAuth } from '@/lib/withAuth';
 
+let cachedDashboardData = null;
+let cacheTimestamp = 0;
+const CACHE_DURATION = 60 * 1000; // 1 minute in-memory cache
+
 export const GET = withAuth(async function GET() {
   try {
     await dbConnect();
+
+    // Check cache first
+    const now = Date.now();
+    if (cachedDashboardData && (now - cacheTimestamp < CACHE_DURATION)) {
+      return NextResponse.json({
+        success: true,
+        data: cachedDashboardData
+      });
+    }
 
     // Register schemas
     User.name;
@@ -49,26 +62,28 @@ export const GET = withAuth(async function GET() {
       status: o.orderStatus
     }));
 
-    // 6. Top Categories Chart Data
-    const categoryCounts = await Product.aggregate([
+    // 6. Top Categories Chart Data (optimized with Mongo $lookup to avoid N+1 DB requests)
+    const topCategoriesDb = await Product.aggregate([
       { $group: { _id: '$category', count: { $sum: 1 } } },
       { $sort: { count: -1 } },
-      { $limit: 5 }
+      { $limit: 5 },
+      {
+        $lookup: {
+          from: 'categories',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'categoryInfo'
+        }
+      },
+      {
+        $project: {
+          name: { $ifNull: [{ $arrayElemAt: ['$categoryInfo.name', 0] }, 'Uncategorized'] },
+          products: '$count'
+        }
+      }
     ]);
 
-    const populatedCategoryCounts = await Promise.all(categoryCounts.map(async (c, i) => {
-      let name = 'Uncategorized';
-      if (c._id) {
-        const cat = await Category.findById(c._id);
-        if (cat) name = cat.name;
-      }
-      return {
-        name,
-        products: c.count
-      };
-    }));
-
-    const topCategories = populatedCategoryCounts.length > 0 ? populatedCategoryCounts : [
+    const topCategories = topCategoriesDb.length > 0 ? topCategoriesDb : [
       { name: "Bridal Necklaces", products: 0 },
       { name: "Diamond Rings", products: 0 },
       { name: "Gold Bangles", products: 0 },
@@ -97,17 +112,9 @@ export const GET = withAuth(async function GET() {
       total: s.total
     }));
 
-    // Fallback if no sales data
+    // Fallback if no sales data: Return empty array instead of fake revenue numbers (BUG-05)
     if (revenueData.length === 0) {
-      revenueData = [
-        { name: "Jan", total: 345000 },
-        { name: "Feb", total: 280000 },
-        { name: "Mar", total: 420000 },
-        { name: "Apr", total: 510000 },
-        { name: "May", total: 480000 },
-        { name: "Jun", total: 560000 },
-        { name: "Jul", total: 610000 }
-      ];
+      revenueData = [];
     }
 
     // 8. Conversion Data (Mock premium rate curve)
@@ -121,24 +128,30 @@ export const GET = withAuth(async function GET() {
       { name: "Sun", rate: 4.1 }
     ];
 
+    const dashboardData = {
+      stats: {
+        totalRevenue: `₹${totalRevenue.toLocaleString('en-IN')}`,
+        pendingOrders: pendingOrdersCount,
+        visitors: customerCount,
+        activeProducts: activeProductsCount
+      },
+      revenueData,
+      conversionData,
+      recentOrders,
+      topCategories
+    };
+
+    // Save to cache
+    cachedDashboardData = dashboardData;
+    cacheTimestamp = now;
+
     return NextResponse.json({
       success: true,
-      data: {
-        stats: {
-          totalRevenue: `₹${totalRevenue.toLocaleString('en-IN')}`,
-          pendingOrders: pendingOrdersCount,
-          visitors: customerCount, // maps to customers count
-          activeProducts: activeProductsCount
-        },
-        revenueData,
-        conversionData,
-        recentOrders,
-        topCategories
-      }
+      data: dashboardData
     });
   } catch (error) {
     console.error('Error loading dashboard statistics:', error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'An unexpected error occurred while loading dashboard statistics.' }, { status: 500 });
   }
 });
 

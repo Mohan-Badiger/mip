@@ -45,7 +45,7 @@ export const GET = withAuth(async function GET() {
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
     console.error('Error fetching staff users:', error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'An unexpected error occurred while fetching staff users.' }, { status: 500 });
   }
 }, ['admin']);
 
@@ -56,8 +56,12 @@ export const POST = withAuth(async function POST(req) {
     const body = await req.json();
     const { name, email, phone, role, status, password } = body;
 
-    if (!name || !email || !phone) {
-      return NextResponse.json({ success: false, error: 'Name, email, and phone are required.' }, { status: 400 });
+    if (!name || !email || !phone || !password) {
+      return NextResponse.json({ success: false, error: 'Name, email, phone, and password are required.' }, { status: 400 });
+    }
+
+    if (password.length < 6) {
+      return NextResponse.json({ success: false, error: 'Password must be at least 6 characters.' }, { status: 400 });
     }
 
     // Check if email already exists
@@ -67,7 +71,7 @@ export const POST = withAuth(async function POST(req) {
     }
 
     const dbRole = ROLE_MAP[role] || 'sales-rep';
-    const hashedPassword = await bcrypt.hash(password || 'MIP@2025', 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await User.create({
       name,
@@ -99,7 +103,7 @@ export const POST = withAuth(async function POST(req) {
     });
   } catch (error) {
     console.error('Error creating staff user:', error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'An unexpected error occurred while creating staff user.' }, { status: 500 });
   }
 }, ['admin']);
 
@@ -154,7 +158,7 @@ export const PUT = withAuth(async function PUT(req) {
     });
   } catch (error) {
     console.error('Error updating staff user:', error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'An unexpected error occurred while updating staff user.' }, { status: 500 });
   }
 }, ['admin']);
 
@@ -194,6 +198,6 @@ export const DELETE = withAuth(async function DELETE(req) {
     return NextResponse.json({ success: true, message: 'Staff user removed successfully.' });
   } catch (error) {
     console.error('Error deleting staff user:', error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'An unexpected error occurred while deleting staff user.' }, { status: 500 });
   }
 }, ['admin']);
