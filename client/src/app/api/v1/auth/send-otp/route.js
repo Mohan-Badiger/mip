@@ -7,6 +7,8 @@ import Otp from '@/backend/models/Otp';
 import { sendOtpEmail } from '@/backend/services/emailService';
 import { rateLimit } from '@/backend/lib/rateLimit';
 
+const OTP_HASH_ROUNDS = 6; // Lower rounds OK for short-lived OTPs
+
 // Input validation schema to prevent NoSQL query injection and enforce type checks
 const sendOtpSchema = z.object({
   email: z.string().trim().email({ message: 'Invalid email address' }).max(100),
@@ -83,6 +85,9 @@ export async function POST(req) {
     // Generate 6-digit numeric OTP code
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
 
+    // Hash the OTP before storing (prevents plaintext exposure if DB is compromised)
+    const hashedOtp = await bcrypt.hash(otpCode, OTP_HASH_ROUNDS);
+
     // Process payload (hash password for register)
     let processedPayload = null;
     if (type === 'register') {
@@ -97,10 +102,10 @@ export async function POST(req) {
     // Remove any existing OTP records for this email and type
     await Otp.deleteMany({ email: normalizedEmail, type });
 
-    // Save new OTP record
+    // Save new OTP record with hashed OTP
     const otpDoc = new Otp({
       email: normalizedEmail,
-      otp: otpCode,
+      otp: hashedOtp,
       type,
       payload: processedPayload,
       expiresAt: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes from now
@@ -117,6 +122,6 @@ export async function POST(req) {
     });
   } catch (error) {
     console.error('Error in send-otp API:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'An unexpected error occurred. Please try again.' }, { status: 500 });
   }
 }
