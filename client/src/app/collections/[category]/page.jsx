@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { cache } from 'react';
 import Link from 'next/link';
 import dbConnect from '@/backend/config/dbConnect';
 import Category from '@/backend/models/Category';
@@ -7,6 +7,19 @@ import GoldRate from '@/backend/models/GoldRate';
 import { calculateLiveProductPrice } from '@/backend/services/pricingService';
 import CategoryClient from './CategoryClient';
 import PageLayout from '@/components/global/PageLayout';
+
+export const revalidate = 30; // Revalidate every 30 seconds
+
+export async function generateStaticParams() {
+  return [
+    { category: 'earrings' },
+    { category: 'bangles' },
+    { category: 'chains' },
+    { category: 'rings' },
+    { category: 'coins-bars' },
+    { category: 'necklaces' }
+  ];
+}
 
 const HERO_IMAGES = {
   earrings: '/images/hero_slide_1.webp',
@@ -17,7 +30,7 @@ const HERO_IMAGES = {
   necklaces: '/images/hero_slide_4.webp',
 };
 
-async function getCategoryData(slug) {
+const getCategoryData = cache(async (slug) => {
   try {
     await dbConnect();
     return await Category.findOne({ slug });
@@ -25,7 +38,8 @@ async function getCategoryData(slug) {
     console.error('Failed to load category on server:', err);
     return null;
   }
-}
+});
+
 
 async function getCategoryProducts(categoryId) {
   try {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { cache } from 'react';
 import Link from 'next/link';
 import dbConnect from '@/backend/config/dbConnect';
 import Product from '@/backend/models/Product';
@@ -6,7 +6,9 @@ import { calculateLiveProductPrice } from '@/backend/services/pricingService';
 import ProductClient from './ProductClient';
 import PageLayout from '@/components/global/PageLayout';
 
-async function getProductData(id) {
+export const revalidate = 30; // Revalidate every 30 seconds
+
+const getProductData = cache(async (id) => {
   try {
     await dbConnect();
     let product = null;
@@ -34,7 +36,8 @@ async function getProductData(id) {
     console.error('Failed to load product data on server:', err);
     return null;
   }
-}
+});
+
 
 async function getRelatedProducts(product) {
   try {
@@ -163,6 +166,7 @@ export default async function ProductPage({ params }) {
       "price": product.price,
       "itemCondition": "https://schema.org/NewCondition",
       "availability": rawProduct.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      // eslint-disable-next-line react-hooks/purity
       "priceValidUntil": new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // Valid 1 week
     }
   };

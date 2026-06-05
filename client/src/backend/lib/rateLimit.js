@@ -1,4 +1,15 @@
 // In-memory sliding-window rate limiter for Next.js API routes
+//
+// ⚠️ SERVERLESS LIMITATION WARNING (MEDIUM-12):
+// This rate limiter uses a local memory Map() to track requests.
+// - It does NOT persist across Serverless function cold starts (e.g., on Vercel).
+// - It does NOT share rate-limit state across multiple server instances/worker processes.
+// - Memory will reset on every deployment, scale-up, or idle function recycle.
+//
+// RECOMMENDATION FOR PRODUCTION & SCALE:
+// For production deployments, replace this in-memory Map with a centralized Redis-based
+// rate limiter (such as @upstash/ratelimit or ioredis) to ensure robust IP/Email throttling.
+//
 
 const rateLimitMap = new Map();
 
