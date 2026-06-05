@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/backend/config/dbConnect';
 import Cart from '@/backend/models/Cart';
 import Product from '@/backend/models/Product';
+import GoldRate from '@/backend/models/GoldRate';
 import { calculateLiveProductPrice } from '@/backend/services/pricingService';
 import { authenticate } from '@/backend/middlewares/authMiddleware';
 
@@ -26,6 +27,9 @@ export async function GET(req) {
         summary: { subTotal: 0, tax: 0, grandTotal: 0 }
       });
     }
+
+    // Preload rates to avoid N+1 queries in the loop
+    const rates = await GoldRate.find({}).lean();
 
     let subTotal = 0;
     let tax = 0;
@@ -71,7 +75,7 @@ export async function GET(req) {
         continue;
       }
 
-      const pricing = await calculateLiveProductPrice(item.product);
+      const pricing = await calculateLiveProductPrice(item.product, rates);
       const itemSubtotal = (pricing.rawMetalValue + pricing.makingCharges + pricing.gemstoneValue) * item.quantity;
       const itemTax = pricing.tax * item.quantity;
       const itemTotal = pricing.finalPrice * item.quantity;
@@ -105,7 +109,8 @@ export async function GET(req) {
       }
     });
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Error fetching cart:', error);
+    return NextResponse.json({ error: 'An unexpected error occurred while fetching the cart.' }, { status: 500 });
   }
 }
 
@@ -124,13 +129,16 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Invalid payload: items must be an array' }, { status: 400 });
     }
 
-    // Filter valid products and format
+    // Batch query products to avoid sequential findById calls (LOW-04)
+    const productIds = items.map(item => item.product).filter(Boolean);
+    const validProducts = await Product.find({ _id: { $in: productIds }, isActive: true }).select('_id').lean();
+    const validProductIds = new Set(validProducts.map(p => p._id.toString()));
+
     const formattedItems = [];
     for (const item of items) {
-      const prod = await Product.findById(item.product);
-      if (prod && prod.isActive) {
+      if (item.product && validProductIds.has(item.product.toString())) {
         formattedItems.push({
-          product: prod._id,
+          product: item.product,
           quantity: Math.max(1, parseInt(item.quantity) || 1)
         });
       }
@@ -144,7 +152,8 @@ export async function POST(req) {
 
     return NextResponse.json({ success: true, message: 'Cart synced successfully' });
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Error syncing cart:', error);
+    return NextResponse.json({ error: 'An unexpected error occurred while syncing the cart.' }, { status: 500 });
   }
 }
 
@@ -196,7 +205,8 @@ export async function PUT(req) {
 
     return NextResponse.json({ success: true, message: 'Cart updated successfully' });
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Error updating cart:', error);
+    return NextResponse.json({ error: 'An unexpected error occurred while updating the cart.' }, { status: 500 });
   }
 }
 
@@ -225,6 +235,7 @@ export async function DELETE(req) {
       return NextResponse.json({ success: true, message: 'Cart cleared successfully' });
     }
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Error deleting/clearing cart:', error);
+    return NextResponse.json({ error: 'An unexpected error occurred while processing the cart.' }, { status: 500 });
   }
 }

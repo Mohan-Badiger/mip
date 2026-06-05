@@ -11,13 +11,13 @@ export async function GET(req) {
   try {
     await dbConnect();
 
-    // 1. Verify cron secret if configured
+    // 1. Verify cron secret (MANDATORY — endpoint is locked without it)
     const { searchParams } = new URL(req.url);
     const secret = searchParams.get('secret') || req.headers.get('x-cron-secret');
     const expectedSecret = process.env.CRON_SECRET;
 
-    if (expectedSecret && secret !== expectedSecret) {
-      return NextResponse.json({ error: 'Forbidden: Invalid cron secret key' }, { status: 403 });
+    if (!expectedSecret || secret !== expectedSecret) {
+      return NextResponse.json({ error: 'Forbidden: Invalid or missing cron secret' }, { status: 403 });
     }
 
     // Ensure models are registered in Mongoose
