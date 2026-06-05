@@ -18,7 +18,7 @@ import CMS from "@/backend/models/CMS";
 import Settings from "@/backend/models/Settings";
 import AnnouncementBanner from "@/components/global/AnnouncementBanner";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30;
 
 const DEFAULT_SECTIONS = [
   { id: "hero", name: "Hero Carousel Slider", type: "Slider", active: true, order: 0 },
