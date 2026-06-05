@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import dbConnect from '@/backend/config/dbConnect';
 import User from '@/backend/models/User';
@@ -56,14 +57,22 @@ export async function POST(req) {
       );
     }
 
-
-    // Find the OTP document in the database that is not expired
-    const otpRecord = await Otp.findOne({
+    // Find OTP records for this email+type that are not expired
+    const otpRecords = await Otp.find({
       email: normalizedEmail,
-      otp: otpTrimmed,
       type,
       expiresAt: { $gt: new Date() }
-    });
+    }).sort({ createdAt: -1 }).limit(3);
+
+    // Compare submitted OTP against hashed records using bcrypt
+    let otpRecord = null;
+    for (const record of otpRecords) {
+      const isMatch = await bcrypt.compare(otpTrimmed, record.otp);
+      if (isMatch) {
+        otpRecord = record;
+        break;
+      }
+    }
 
     if (!otpRecord) {
       return NextResponse.json({ error: 'Invalid or expired verification passcode' }, { status: 400 });
@@ -150,6 +159,6 @@ export async function POST(req) {
 
   } catch (error) {
     console.error('Error in verify-otp API:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'An unexpected error occurred. Please try again.' }, { status: 500 });
   }
 }

@@ -5,20 +5,20 @@ import Category from '@/backend/models/Category';
 import Collection from '@/backend/models/Collection';
 import GoldRate from '@/backend/models/GoldRate';
 import { calculateLiveProductPrice } from '@/backend/services/pricingService';
-import { authenticate } from '@/backend/middlewares/authMiddleware';
 import { categories as mockCategories, products as mockProducts } from '@/lib/products';
 
 export async function GET(req) {
   try {
     await dbConnect();
 
-    // Auto-seed Category and Product collections if empty, incomplete, or lacking gender field
-    const firstProduct = await Product.findOne({});
-    const productCount = await Product.countDocuments();
-    if (productCount < 36 || (firstProduct && !firstProduct.gender)) {
-      if (productCount > 0) {
-        await Product.deleteMany({});
-      }
+    // Auto-seed Category and Product collections if empty, incomplete, or lacking gender field (non-production only)
+    if (process.env.NODE_ENV !== 'production') {
+      const firstProduct = await Product.findOne({});
+      const productCount = await Product.countDocuments();
+      if (productCount < 36 || (firstProduct && !firstProduct.gender)) {
+        if (productCount > 0) {
+          await Product.deleteMany({});
+        }
 
       // Ensure Gold Rates exist
       let rates = await GoldRate.find({});
@@ -124,6 +124,7 @@ export async function GET(req) {
           gender: mockP.gender || 'Women'
         });
       }
+    }
     }
 
     const { searchParams } = new URL(req.url);
@@ -234,34 +235,7 @@ export async function GET(req) {
       }
     });
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-}
-
-export async function POST(req) {
-  try {
-    await dbConnect();
-    
-    // Check Authorization: Admin only
-    const user = await authenticate(req);
-    if (!user || user.role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
-    }
-
-    const body = await req.json();
-    const product = new Product(body);
-    await product.save();
-
-    const pricing = await calculateLiveProductPrice(product);
-
-    return NextResponse.json({
-      success: true,
-      product: {
-        ...product.toObject(),
-        pricing
-      }
-    }, { status: 201 });
-  } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Error in products GET API:', error);
+    return NextResponse.json({ error: 'An unexpected error occurred while fetching products.' }, { status: 500 });
   }
 }

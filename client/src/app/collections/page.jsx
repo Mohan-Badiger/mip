@@ -5,6 +5,8 @@ import Product from '@/backend/models/Product';
 import GoldRate from '@/backend/models/GoldRate';
 import { calculateLiveProductPrice } from '@/backend/services/pricingService';
 
+export const revalidate = 30; // Revalidate every 30 seconds
+
 export const metadata = {
   title: 'Our Collections | MIP Jewellers',
   description: 'Explore MIP\'s exquisite themed campaign collections and luxury handcrafted jewellery series.',
