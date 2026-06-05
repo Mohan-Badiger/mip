@@ -91,8 +91,12 @@ export default function AdminUsersPage() {
   };
 
   const handleCreateUser = async () => {
-    if (!formName || !formEmail || !formPhone) {
-      alert("Please fill in the Name, Email, and Phone.");
+    if (!formName || !formEmail || !formPhone || !formPassword) {
+      alert("Please fill in the Name, Email, Phone, and Initial Password.");
+      return;
+    }
+    if (formPassword.length < 6) {
+      alert("Password must be at least 6 characters.");
       return;
     }
     setSaving(true);
@@ -106,7 +110,7 @@ export default function AdminUsersPage() {
           phone: formPhone,
           role: formRole,
           status: formStatus,
-          password: formPassword || undefined,
+          password: formPassword,
         }),
       });
       const data = await res.json();
@@ -459,7 +463,7 @@ export default function AdminUsersPage() {
                       type="password"
                       value={formPassword}
                       onChange={(e) => setFormPassword(e.target.value)}
-                      placeholder="Leave blank for default (MIP@2025)"
+                      placeholder="Enter initial password (required)"
                       className="bg-white border-slate-200 text-sm shadow-sm"
                     />
                   </div>
