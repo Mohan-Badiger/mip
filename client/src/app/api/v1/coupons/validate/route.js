@@ -4,6 +4,7 @@ import Coupon from '@/backend/models/Coupon';
 import Order from '@/backend/models/Order';
 import Cart from '@/backend/models/Cart';
 import Settings from '@/backend/models/Settings';
+import GoldRate from '@/backend/models/GoldRate';
 import { authenticate } from '@/backend/middlewares/authMiddleware';
 import { calculateLiveProductPrice } from '@/backend/services/pricingService';
 
@@ -68,14 +69,17 @@ export async function POST(req) {
         const activeSettings = await Settings.findOne() || {};
         const gstRate = activeSettings.gstRate ?? 3.0;
 
+        // Fetch gold rates once in bulk to prevent N+1 queries
+        const rates = await GoldRate.find({}).lean();
+
         for (const item of cart.items) {
           if (item.product && item.product.isActive) {
-            const pricing = await calculateLiveProductPrice(item.product);
+            const pricing = await calculateLiveProductPrice(item.product, rates);
             
             // Calculate final price difference with vs without making charges
             const rawMetalValue = pricing.rawMetalValue;
-            const stoneValue = pricing.stoneValue;
-            const basePriceWithoutMaking = rawMetalValue + stoneValue;
+            const gemstoneValue = pricing.gemstoneValue; // Consistent naming (BUG-01)
+            const basePriceWithoutMaking = rawMetalValue + gemstoneValue;
             const taxWithoutMaking = basePriceWithoutMaking * (gstRate / 100);
             const finalPriceWithoutMaking = Math.round(basePriceWithoutMaking + taxWithoutMaking);
 
@@ -105,6 +109,6 @@ export async function POST(req) {
 
   } catch (error) {
     console.error('Error validating coupon:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'An unexpected error occurred while validating the coupon.' }, { status: 500 });
   }
 }

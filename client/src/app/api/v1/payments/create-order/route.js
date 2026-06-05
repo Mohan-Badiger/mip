@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { NextResponse } from 'next/server';
 import Razorpay from 'razorpay';
 import dbConnect from '@/backend/config/dbConnect';
@@ -5,6 +6,7 @@ import Cart from '@/backend/models/Cart';
 import Order from '@/backend/models/Order';
 import Settings from '@/backend/models/Settings';
 import Coupon from '@/backend/models/Coupon';
+import GoldRate from '@/backend/models/GoldRate';
 import { calculateLiveProductPrice } from '@/backend/services/pricingService';
 import { authenticate } from '@/backend/middlewares/authMiddleware';
 import { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } from '@/backend/config/env';
@@ -22,6 +24,11 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Incomplete shipping address provided' }, { status: 400 });
     }
 
+    const validatedPaymentMethod = paymentMethod || 'card';
+    if (!['cod', 'card'].includes(validatedPaymentMethod)) {
+      return NextResponse.json({ error: 'Invalid payment method' }, { status: 400 });
+    }
+
     // 1. Get user's cart
     const cart = await Cart.findOne({ user: user._id }).populate({
       path: 'items.product',
@@ -32,11 +39,14 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Shopping cart is empty' }, { status: 400 });
     }
 
-    // 2. Lock prices & build order items
+    // 2. Lock prices & build order items (preload gold rates once to fix N+1)
     let subTotal = 0;
     let taxAmount = 0;
     let grandTotal = 0;
     const orderItems = [];
+    const itemPricings = new Map(); // Store item pricing to avoid duplicate calculations (MEDIUM-11)
+    
+    const rates = await GoldRate.find({}).lean();
 
     for (const cartItem of cart.items) {
       const product = cartItem.product;
@@ -49,7 +59,8 @@ export async function POST(req) {
       }
 
       // Calculate dynamic price lock
-      const pricing = await calculateLiveProductPrice(product);
+      const pricing = await calculateLiveProductPrice(product, rates);
+      itemPricings.set(product._id.toString(), pricing);
 
       const itemSubtotal = (pricing.rawMetalValue + pricing.makingCharges + pricing.gemstoneValue) * cartItem.quantity;
       const itemTax = pricing.tax * cartItem.quantity;
@@ -93,7 +104,7 @@ export async function POST(req) {
     grandTotal += shippingFee + insuranceFee;
 
     // Apply COD surcharge & validation
-    if (paymentMethod === 'cod') {
+    if (validatedPaymentMethod === 'cod') {
       if (!codAllowed) {
         return NextResponse.json({ error: 'Cash on Delivery is currently disabled' }, { status: 400 });
       }
@@ -137,13 +148,15 @@ export async function POST(req) {
 
             for (const cartItem of cart.items) {
               if (cartItem.product && cartItem.product.isActive) {
-                const pricing = await calculateLiveProductPrice(cartItem.product);
-                const rawMetalValue = pricing.rawMetalValue;
-                const stoneValue = pricing.stoneValue;
-                const basePriceWithoutMaking = rawMetalValue + stoneValue;
-                const taxWithoutMaking = basePriceWithoutMaking * (gstRate / 100);
-                const finalPriceWithoutMaking = Math.round(basePriceWithoutMaking + taxWithoutMaking);
-                totalMakingChargesSaved += (pricing.finalPrice - finalPriceWithoutMaking) * cartItem.quantity;
+                const pricing = itemPricings.get(cartItem.product._id.toString());
+                if (pricing) {
+                  const rawMetalValue = pricing.rawMetalValue;
+                  const stoneValue = pricing.stoneValue;
+                  const basePriceWithoutMaking = rawMetalValue + stoneValue;
+                  const taxWithoutMaking = basePriceWithoutMaking * (gstRate / 100);
+                  const finalPriceWithoutMaking = Math.round(basePriceWithoutMaking + taxWithoutMaking);
+                  totalMakingChargesSaved += (pricing.finalPrice - finalPriceWithoutMaking) * cartItem.quantity;
+                }
               }
             }
             discountAmount = totalMakingChargesSaved || coupon.discountValue || 1000;
@@ -155,26 +168,8 @@ export async function POST(req) {
 
     grandTotal = Math.max(0, grandTotal - discountAmount);
 
-    // 3. Initialize Order record (generate a placeholder first to get _id)
-    const tempRazorpayOrderId = `temp_rp_${Math.random().toString(36).substring(7)}`;
-    const order = new Order({
-      user: user._id,
-      items: orderItems,
-      shippingAddress,
-      subTotal,
-      taxAmount,
-      grandTotal,
-      couponCode: validCouponCode,
-      discountAmount,
-      razorpayOrderId: tempRazorpayOrderId,
-      paymentStatus: 'pending',
-      paymentMethod: paymentMethod || 'card',
-      orderStatus: 'received'
-    });
-
-    await order.save();
-
-    // 4. Connect to Razorpay
+    // 3. Initialize mongoose order ID (pre-generated to avoid temporary order record cleanup failures)
+    const orderId = new mongoose.Types.ObjectId();
     const key_id = RAZORPAY_KEY_ID;
     const key_secret = RAZORPAY_KEY_SECRET;
     let finalRazorpayOrderId = '';
@@ -187,22 +182,36 @@ export async function POST(req) {
         const options = {
           amount: finalAmount, // Razorpay works in paise
           currency: 'INR',
-          receipt: order._id.toString()
+          receipt: orderId.toString()
         };
         const rpOrder = await razorpay.orders.create(options);
         finalRazorpayOrderId = rpOrder.id;
       } catch (rpErr) {
-        // Cleanup created order if integration fails
-        await Order.findByIdAndDelete(order._id);
-        return NextResponse.json({ error: `Razorpay Integration Error: ${rpErr.message}` }, { status: 502 });
+        console.error('Razorpay Order Creation Error:', rpErr);
+        return NextResponse.json({ error: 'Failed to initiate payment gateway.' }, { status: 502 });
       }
     } else {
       // Mock order creation for development environment without credentials
       finalRazorpayOrderId = `order_mock_${Math.random().toString(36).substring(2, 15)}`;
     }
 
-    // Update order with the actual Razorpay Order ID
-    order.razorpayOrderId = finalRazorpayOrderId;
+    // 4. Save actual order record to database
+    const order = new Order({
+      _id: orderId,
+      user: user._id,
+      items: orderItems,
+      shippingAddress,
+      subTotal,
+      taxAmount,
+      grandTotal,
+      couponCode: validCouponCode,
+      discountAmount,
+      razorpayOrderId: finalRazorpayOrderId,
+      paymentStatus: 'pending',
+      paymentMethod: validatedPaymentMethod,
+      orderStatus: 'received'
+    });
+
     await order.save();
 
     return NextResponse.json({
@@ -214,6 +223,7 @@ export async function POST(req) {
       grandTotal
     });
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Error in create-order API:', error);
+    return NextResponse.json({ error: 'An unexpected error occurred while creating the order.' }, { status: 500 });
   }
 }
