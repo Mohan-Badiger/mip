@@ -42,22 +42,28 @@ export function SettingsProvider({ children }) {
 
   useEffect(() => {
     let active = true;
+    const controller = new AbortController();
     async function load() {
       try {
-        const res = await fetch('/api/v1/settings');
+        const res = await fetch('/api/v1/settings', { signal: controller.signal });
         if (!res.ok) throw new Error('Failed to fetch settings');
         const data = await res.json();
         if (active && data && data.success && data.settings) {
           setSettings(data.settings);
         }
       } catch (e) {
-        console.error('SettingsContext failed to load live settings:', e);
+        if (e.name !== 'AbortError' && active) {
+          console.error('SettingsContext failed to load live settings:', e);
+        }
       } finally {
         if (active) setLoading(false);
       }
     }
     load();
-    return () => { active = false; };
+    return () => {
+      active = false;
+      controller.abort();
+    };
   }, []);
 
   return (

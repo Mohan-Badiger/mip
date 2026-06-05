@@ -50,18 +50,34 @@ const ProductSchema = new mongoose.Schema({
   images: [String]
 }, { timestamps: true });
 
+const CollectionSchema = new mongoose.Schema({
+  name: String,
+  slug: String,
+  description: String,
+  bannerImage: String
+}, { timestamps: true });
+
+const HeroSlideSchema = new mongoose.Schema({
+  image: String,
+});
+const CMSSchema = new mongoose.Schema({
+  heroSlides: [HeroSlideSchema],
+});
+
 const Category = mongoose.models.Category || mongoose.model('Category', CategorySchema);
 const Product = mongoose.models.Product || mongoose.model('Product', ProductSchema);
+const Collection = mongoose.models.Collection || mongoose.model('Collection', CollectionSchema);
+const CMS = mongoose.models.CMS || mongoose.model('CMS', CMSSchema);
 
 // Mappings for updates
 const mappings = {
-  'bridal_jewellery_1779199671286.png': 'category_necklaces.png',
-  'category_bangles_1779203423031.png': 'category_bangles.png',
-  'exquisite_model_1779203407757.png': 'exquisite_model.png',
-  'hero_model_scheme_1779204168417.png': 'category_coins.png',
-  'luxury_gold_hero_1779199654262.png': 'category_chains.png',
-  'modern_diamonds_1779199687171.png': 'category_rings.png',
-  'product_earrings_1.png': 'category_earrings.png',
+  'bridal_jewellery_1779199671286.png': 'category_necklaces.webp',
+  'category_bangles_1779203423031.png': 'category_bangles.webp',
+  'exquisite_model_1779203407757.png': 'exquisite_model.webp',
+  'hero_model_scheme_1779204168417.png': 'category_coins.webp',
+  'luxury_gold_hero_1779199654262.png': 'category_chains.webp',
+  'modern_diamonds_1779199687171.png': 'category_rings.webp',
+  'product_earrings_1.png': 'category_earrings.webp',
 };
 
 async function runMigration() {
@@ -85,6 +101,11 @@ async function runMigration() {
             imagePath = imagePath.replace(oldName, newName);
             updated = true;
           }
+        }
+
+        if (imagePath.toLowerCase().endsWith('.png')) {
+          imagePath = imagePath.slice(0, -4) + '.webp';
+          updated = true;
         }
         
         if (updated) {
@@ -112,6 +133,10 @@ async function runMigration() {
               updated = true;
             }
           }
+          if (updatedImg.toLowerCase().endsWith('.png')) {
+            updatedImg = updatedImg.slice(0, -4) + '.webp';
+            updated = true;
+          }
           return updatedImg;
         });
 
@@ -124,9 +149,73 @@ async function runMigration() {
       }
     }
 
+    // 5. Migrate Collections
+    const collections = await Collection.find({});
+    console.log(`Checking ${collections.length} collections...`);
+    let collectionUpdates = 0;
+    for (const col of collections) {
+      if (col.bannerImage) {
+        let updated = false;
+        let imagePath = col.bannerImage;
+        for (const [oldName, newName] of Object.entries(mappings)) {
+          if (imagePath.includes(oldName)) {
+            imagePath = imagePath.replace(oldName, newName);
+            updated = true;
+          }
+        }
+        if (imagePath.toLowerCase().endsWith('.png')) {
+          imagePath = imagePath.slice(0, -4) + '.webp';
+          updated = true;
+        }
+        if (updated) {
+          col.bannerImage = imagePath;
+          await col.save();
+          console.log(`Updated Collection [${col.slug}]: bannerImage -> ${imagePath}`);
+          collectionUpdates++;
+        }
+      }
+    }
+
+    // 6. Migrate CMS
+    const cmsRecords = await CMS.find({});
+    console.log(`Checking ${cmsRecords.length} CMS records...`);
+    let cmsUpdates = 0;
+    for (const record of cmsRecords) {
+      let recordUpdated = false;
+      if (Array.isArray(record.heroSlides)) {
+        for (const slide of record.heroSlides) {
+          if (slide.image) {
+            let updated = false;
+            let imagePath = slide.image;
+            for (const [oldName, newName] of Object.entries(mappings)) {
+              if (imagePath.includes(oldName)) {
+                imagePath = imagePath.replace(oldName, newName);
+                updated = true;
+              }
+            }
+            if (imagePath.toLowerCase().endsWith('.png')) {
+              imagePath = imagePath.slice(0, -4) + '.webp';
+              updated = true;
+            }
+            if (updated) {
+              slide.image = imagePath;
+              recordUpdated = true;
+            }
+          }
+        }
+      }
+      if (recordUpdated) {
+        await record.save();
+        console.log(`Updated CMS record`);
+        cmsUpdates++;
+      }
+    }
+
     console.log(`\nMigration completed!`);
     console.log(`Categories updated: ${categoryUpdates}`);
     console.log(`Products updated: ${productUpdates}`);
+    console.log(`Collections updated: ${collectionUpdates}`);
+    console.log(`CMS records updated: ${cmsUpdates}`);
 
   } catch (err) {
     console.error('Migration failed with error:', err.message);

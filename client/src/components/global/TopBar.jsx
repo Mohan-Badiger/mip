@@ -13,12 +13,14 @@ export default function TopBar() {
   });
 
   useEffect(() => {
+    let active = true;
+    const controller = new AbortController();
     async function fetchRates() {
       try {
-        const res = await fetch('/api/v1/gold-rates');
+        const res = await fetch('/api/v1/gold-rates', { signal: controller.signal });
         if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) throw new Error('Not JSON');
         const data = await res.json();
-        if (data && data.success && Array.isArray(data.rates)) {
+        if (active && data && data.success && Array.isArray(data.rates)) {
           setRates(prevRates => {
             const newRates = { ...prevRates };
             data.rates.forEach(r => {
@@ -38,6 +40,10 @@ export default function TopBar() {
       }
     }
     fetchRates();
+    return () => {
+      active = false;
+      controller.abort();
+    };
   }, []);
 
   return (

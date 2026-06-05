@@ -56,20 +56,36 @@ function SearchOverlay({ onClose }) {
       return;
     }
     setIsSearching(true);
-    fetch(`/api/v1/products?search=${encodeURIComponent(debouncedQuery.trim())}&limit=6`)
+    let active = true;
+    const controller = new AbortController();
+    fetch(`/api/v1/products?search=${encodeURIComponent(debouncedQuery.trim())}&limit=6`, { signal: controller.signal })
       .then(r => {
         if (!r.ok || !r.headers.get('content-type')?.includes('application/json')) throw new Error('Not JSON');
         return r.json();
       })
       .then(data => {
-        if (data.success && Array.isArray(data.products)) {
-          setResults(data.products);
-        } else {
+        if (active) {
+          if (data.success && Array.isArray(data.products)) {
+            setResults(data.products);
+          } else {
+            setResults([]);
+          }
+        }
+      })
+      .catch((err) => {
+        if (err.name !== 'AbortError' && active) {
           setResults([]);
         }
       })
-      .catch(() => setResults([]))
-      .finally(() => setIsSearching(false));
+      .finally(() => {
+        if (active) {
+          setIsSearching(false);
+        }
+      });
+    return () => {
+      active = false;
+      controller.abort();
+    };
   }, [debouncedQuery]);
 
   const handleSubmit = (e) => {
@@ -332,20 +348,36 @@ export default function Navbar() {
       return;
     }
     setMobileSearching(true);
-    fetch(`/api/v1/products?search=${encodeURIComponent(debouncedMobileQuery.trim())}&limit=5`)
+    let active = true;
+    const controller = new AbortController();
+    fetch(`/api/v1/products?search=${encodeURIComponent(debouncedMobileQuery.trim())}&limit=5`, { signal: controller.signal })
       .then(r => {
         if (!r.ok || !r.headers.get('content-type')?.includes('application/json')) throw new Error('Not JSON');
         return r.json();
       })
       .then(data => {
-        if (data.success && Array.isArray(data.products)) {
-          setMobileResults(data.products);
-        } else {
+        if (active) {
+          if (data.success && Array.isArray(data.products)) {
+            setMobileResults(data.products);
+          } else {
+            setMobileResults([]);
+          }
+        }
+      })
+      .catch((err) => {
+        if (err.name !== 'AbortError' && active) {
           setMobileResults([]);
         }
       })
-      .catch(() => setMobileResults([]))
-      .finally(() => setMobileSearching(false));
+      .finally(() => {
+        if (active) {
+          setMobileSearching(false);
+        }
+      });
+    return () => {
+      active = false;
+      controller.abort();
+    };
   }, [debouncedMobileQuery]);
 
   const handleMobileSearch = (e) => {

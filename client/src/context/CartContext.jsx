@@ -36,41 +36,53 @@ export function CartProvider({ children }) {
 
   // 1. Initial Load: load from backend if logged in, otherwise from localStorage
   useEffect(() => {
+    let active = true;
+    const controller = new AbortController();
     async function loadInitialCart() {
       if (authMounted) {
         if (isLoggedIn) {
           try {
-            const res = await fetch('/api/v1/cart');
+            const res = await fetch('/api/v1/cart', { signal: controller.signal });
             if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) throw new Error('Not JSON');
             const data = await res.json();
-            if (data.success && data.cart && Array.isArray(data.cart.items)) {
+            if (active && data.success && data.cart && Array.isArray(data.cart.items)) {
               setCartItems(mapBackendCartItems(data.cart.items));
             }
           } catch (e) {
-            console.error('Failed to load cart from backend:', e);
+            if (e.name !== 'AbortError' && active) {
+              console.error('Failed to load cart from backend:', e);
+            }
           }
         } else {
-          const savedCart = localStorage.getItem('mip_cart');
-          if (savedCart) {
-            try {
-              setCartItems(JSON.parse(savedCart));
-            } catch (e) {
-              console.error('Failed to parse cart items from localStorage:', e);
+          if (active) {
+            const savedCart = localStorage.getItem('mip_cart');
+            if (savedCart) {
+              try {
+                setCartItems(JSON.parse(savedCart));
+              } catch (e) {
+                console.error('Failed to parse cart items from localStorage:', e);
+                setCartItems([]);
+              }
+            } else {
               setCartItems([]);
             }
-          } else {
-            setCartItems([]);
           }
         }
-        setIsMounted(true);
+        if (active) setIsMounted(true);
       }
     }
     loadInitialCart();
+    return () => {
+      active = false;
+      controller.abort();
+    };
   }, [isLoggedIn, authMounted]);
 
   // 2. Sync guest cart items to backend upon login
   useEffect(() => {
     if (isMounted && isLoggedIn && cartItems.length > 0) {
+      let active = true;
+      const controller = new AbortController();
       async function syncCartOnLogin() {
         try {
           const formattedItems = cartItems.map(item => ({
@@ -80,19 +92,26 @@ export function CartProvider({ children }) {
           await fetch('/api/v1/cart', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ items: formattedItems })
+            body: JSON.stringify({ items: formattedItems }),
+            signal: controller.signal
           });
           // Fetch updated cart from backend to resolve prices/names
-          const res = await fetch('/api/v1/cart');
+          const res = await fetch('/api/v1/cart', { signal: controller.signal });
           const data = await res.json();
-          if (data.success && data.cart && Array.isArray(data.cart.items)) {
+          if (active && data.success && data.cart && Array.isArray(data.cart.items)) {
             setCartItems(mapBackendCartItems(data.cart.items));
           }
         } catch (e) {
-          console.error('Failed to sync cart on login:', e);
+          if (e.name !== 'AbortError' && active) {
+            console.error('Failed to sync cart on login:', e);
+          }
         }
       }
       syncCartOnLogin();
+      return () => {
+        active = false;
+        controller.abort();
+      };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoggedIn]);

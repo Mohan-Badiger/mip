@@ -364,7 +364,7 @@ export default function OrderDetailsPage({ params }) {
                   {order.items.map((item, idx) => (
                     <div key={idx} className="flex gap-4 py-4 first:pt-0 last:pb-0 items-center">
                       <div className="relative w-16 h-16 bg-bg-cream overflow-hidden border border-gray-100 shrink-0">
-                        <Image src={item.image} alt={item.name} fill className="object-cover" />
+                        <Image src={item.image} alt={item.name} fill sizes="64px" className="object-cover" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <h4 className="font-primary text-sm text-brand-brown font-bold truncate leading-snug">

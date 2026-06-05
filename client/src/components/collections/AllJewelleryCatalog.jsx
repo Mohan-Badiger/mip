@@ -204,15 +204,17 @@ function CatalogContent() {
   }, [initialGender, initialCategory]);
 
   useEffect(() => {
+    let active = true;
+    const controller = new AbortController();
     async function loadProducts() {
       try {
         let url = '/api/v1/products?limit=100';
         if (initialCollection) {
           url += `&collection=${encodeURIComponent(initialCollection)}`;
         }
-        const res = await fetch(url);
+        const res = await fetch(url, { signal: controller.signal });
         const data = await res.json();
-        if (data.success && Array.isArray(data.products)) {
+        if (active && data.success && Array.isArray(data.products)) {
           const mapped = data.products.map(p => ({
             id: p._id,
             slug: p.slug,
@@ -238,12 +240,18 @@ function CatalogContent() {
           }
         }
       } catch (err) {
-        console.error('Failed to load products:', err);
+        if (err.name !== 'AbortError' && active) {
+          console.error('Failed to load products:', err);
+        }
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     }
     loadProducts();
+    return () => {
+      active = false;
+      controller.abort();
+    };
   }, [initialCollection]);
 
   // Update URL SearchParams to mirror current state

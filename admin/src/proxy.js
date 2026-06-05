@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 
-export function middleware(request) {
+export function proxy(request) {
   const response = NextResponse.next();
   const isProd = process.env.NODE_ENV === 'production';
+  const host = request.headers.get('host') || '';
+  const isDev = !isProd || host.includes('localhost') || host.includes('127.0.0.1') || host.includes('192.168.');
+  const unsafeEval = isDev ? "'unsafe-eval'" : "";
 
   // ── Security Headers ──────────────────────────────────────────────
   if (isProd) {
@@ -16,7 +19,7 @@ export function middleware(request) {
 
   const cspHeader = `
     default-src 'self';
-    script-src 'self' 'unsafe-inline';
+    script-src 'self' 'unsafe-inline' ${unsafeEval};
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     img-src 'self' blob: data: https: http:;
     font-src 'self' https://fonts.gstatic.com;

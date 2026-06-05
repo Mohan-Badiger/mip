@@ -92,21 +92,87 @@ export default function CartPage() {
   const [promoLoading, setPromoLoading] = useState(false);
 
   React.useEffect(() => {
+    let active = true;
+    const controller = new AbortController();
     async function fetchApplicable() {
       try {
-        const res = await fetch('/api/v1/coupons/applicable');
+        const res = await fetch('/api/v1/coupons/applicable', { signal: controller.signal });
         const data = await res.json();
-        if (data.success) {
+        if (active && data.success) {
           setApplicapleCoupons(data.coupons || []);
         }
       } catch (err) {
-        console.error('Error fetching coupons:', err);
+        if (err.name !== 'AbortError' && active) {
+          console.error('Error fetching coupons:', err);
+        }
       }
     }
     if (isMounted) {
       fetchApplicable();
     }
+    return () => {
+      active = false;
+      controller.abort();
+    };
   }, [isMounted, isLoggedIn, user]);
+
+  // Dynamic recommendations based on current cart items and database gold rate prices
+  const [recommendations, setRecommendations] = useState([]);
+
+  React.useEffect(() => {
+    let active = true;
+    const controller = new AbortController();
+    
+    async function loadRecommendations() {
+      try {
+        const res = await fetch('/api/v1/products?limit=100', { signal: controller.signal });
+        const data = await res.json();
+        if (active && data.success && Array.isArray(data.products)) {
+          const mapped = data.products.map(p => ({
+            id: p._id,
+            slug: p.slug,
+            name: p.name,
+            category: p.category?.slug || p.category,
+            image: p.images[0] || '/images/placeholder.webp',
+            price: p.pricing?.finalPrice || p.price,
+            weight: p.metalWeight + 'g',
+            metal: `${p.metalPurity} ${p.metalType.charAt(0).toUpperCase() + p.metalType.slice(1)}`,
+            stone: p.gemstones && p.gemstones[0] ? (p.gemstones[0].type.charAt(0).toUpperCase() + p.gemstones[0].type.slice(1)) : null,
+            tag: p.tag,
+            gender: p.gender || 'Women'
+          }));
+
+          const cartProductIds = new Set(cartItems.map(item => item.product.id || item.product._id));
+          const available = mapped.filter(p => !cartProductIds.has(p.id));
+
+          let recommended = available.filter(p => p.tag === 'Bestseller');
+          if (recommended.length < 3) {
+            const newArrivals = available.filter(p => p.tag === 'New' && !recommended.some(r => r.id === p.id));
+            recommended = [...recommended, ...newArrivals];
+          }
+          if (recommended.length < 3) {
+            const others = available.filter(p => !recommended.some(r => r.id === p.id));
+            recommended = [...recommended, ...others];
+          }
+
+          setRecommendations(recommended.slice(0, 3));
+        }
+      } catch (err) {
+        if (err.name !== 'AbortError' && active) {
+          console.error('Error fetching recommendations:', err);
+        }
+      }
+    }
+
+    if (isMounted) {
+      loadRecommendations();
+    }
+
+    return () => {
+      active = false;
+      controller.abort();
+    };
+  }, [isMounted, cartItems]);
 
   // 1. Promo codes
   const applyPromoCode = async (codeStr) => {
@@ -535,10 +601,7 @@ export default function CartPage() {
     }
   };
 
-  // Cross-sell recommendations (limit to 3 rings or bestsellers)
-  const recommendations = products
-    .filter(p => p.tag === 'Bestseller' || p.tag === 'New')
-    .slice(0, 3);
+  // Cross-sell recommendations are loaded dynamically via recommendations state
 
   if (!isMounted) {
     return (
@@ -594,7 +657,7 @@ export default function CartPage() {
                     {recommendations.map((p) => (
                       <Link key={p.id} href={`/products/${p.slug}`} className="flex gap-4 group">
                         <div className="relative w-16 h-16 bg-bg-cream overflow-hidden shrink-0 border border-gray-100">
-                          <Image src={p.image} alt={p.name} fill className="object-cover group-hover:scale-105 transition-transform" />
+                          <Image src={p.image} alt={p.name} fill sizes="64px" className="object-cover group-hover:scale-105 transition-transform" />
                         </div>
                         <div className="flex flex-col justify-center min-w-0">
                           <h4 className="font-secondary text-xs text-brand-brown truncate group-hover:text-brand-gold transition-colors font-bold">
@@ -797,6 +860,37 @@ export default function CartPage() {
                     </div>
                   ))}
                 </div>
+
+                {/* Recommendations Section in Left Column */}
+                {recommendations.length > 0 && (
+                  <div className="bg-white border border-brand-gold/15 p-6 md:p-8 mt-6">
+                    <h3 className="font-secondary text-lg text-brand-brown mb-6 border-b border-gray-100 pb-3">
+                      Bestsellers For You
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                      {recommendations.map((p) => (
+                        <Link key={p.id} href={`/products/${p.slug}`} className="group flex flex-col gap-3">
+                          <div className="relative aspect-square w-full bg-bg-cream/40 overflow-hidden border border-gray-100">
+                            <Image
+                              src={p.image}
+                              alt={p.name}
+                              fill
+                              sizes="(max-width: 640px) 100vw, 25vw"
+                              className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                          </div>
+                          <div className="flex flex-col min-w-0">
+                            <h4 className="font-secondary text-sm text-brand-brown truncate group-hover:text-brand-gold transition-colors font-bold">
+                              {p.name}
+                            </h4>
+                            <span className="text-[10px] text-gray-400 font-primary tracking-wide mt-0.5">{p.metal} · {p.weight}</span>
+                            <span className="text-sm text-brand-brown font-semibold mt-1">{formatPrice(p.price)}</span>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
               </div>
 
@@ -1373,7 +1467,7 @@ export default function CartPage() {
                               {cartItems.map((item) => (
                                 <div key={item.product.id} className="flex gap-3 items-center">
                                   <div className="relative w-10 h-10 bg-white border border-gray-100 shrink-0">
-                                    <Image src={item.product.image} alt={item.product.name} fill className="object-cover" />
+                                    <Image src={item.product.image} alt={item.product.name} fill sizes="40px" className="object-cover" />
                                   </div>
                                   <div className="flex-1 min-w-0">
                                     <h5 className="font-secondary text-xs text-brand-brown font-semibold truncate leading-tight">{item.product.name}</h5>

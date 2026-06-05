@@ -23,28 +23,33 @@ export function AuthProvider({ children }) {
 
   // Load session from backend me API on mount
   useEffect(() => {
+    let active = true;
+    const controller = new AbortController();
     async function checkSession() {
       let isUserLoggedIn = false;
       const isLoggedInHint = localStorage.getItem('mip_is_logged_in') === 'true';
       if (isLoggedInHint) {
         try {
-          const res = await fetch('/api/v1/auth/me');
+          const res = await fetch('/api/v1/auth/me', { signal: controller.signal });
           if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) throw new Error('Not JSON');
           const data = await res.json();
-          if (data.success && data.user) {
+          if (active && data.success && data.user) {
             setUser(data.user);
             isUserLoggedIn = true;
-          } else {
+          } else if (active) {
             setUser(null);
             localStorage.setItem('mip_is_logged_in', 'false');
           }
-        } catch {
-          setUser(null);
+        } catch (err) {
+          if (err.name !== 'AbortError' && active) {
+            setUser(null);
+          }
         }
-      } else {
+      } else if (active) {
         setUser(null);
       }
       
+      if (!active) return;
       const storedOrders = localStorage.getItem('mip_user_orders');
       const storedWishlist = localStorage.getItem('mip_user_wishlist');
       setOrders(storedOrders ? JSON.parse(storedOrders) : []);
@@ -54,18 +59,24 @@ export function AuthProvider({ children }) {
       // Fetch fresh orders from db if user session exists
       if (isUserLoggedIn) {
         try {
-          const ordersRes = await fetch('/api/v1/orders');
+          const ordersRes = await fetch('/api/v1/orders', { signal: controller.signal });
           const ordersData = await ordersRes.json();
-          if (ordersData.success && ordersData.orders) {
+          if (active && ordersData.success && ordersData.orders) {
             setOrders(ordersData.orders);
             localStorage.setItem('mip_user_orders', JSON.stringify(ordersData.orders));
           }
         } catch (err) {
-          console.error('Failed to sync DB orders on session load:', err);
+          if (err.name !== 'AbortError' && active) {
+            console.error('Failed to sync DB orders on session load:', err);
+          }
         }
       }
     }
     checkSession();
+    return () => {
+      active = false;
+      controller.abort();
+    };
   }, []);
 
   // Synchronize state changes to localStorage

@@ -499,7 +499,7 @@ function AccountDashboardContent() {
                                   <div key={idx} className="flex gap-6 items-center">
                                     {/* Big Large Image */}
                                     <div className="relative w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 border border-gray-100 shrink-0 bg-bg-cream/40 overflow-hidden shadow-xs rounded-sm">
-                                      <Image src={item.image} alt={item.name} fill className="object-cover" />
+                                      <Image src={item.image} alt={item.name} fill sizes="(max-width: 768px) 112px, (max-width: 1024px) 128px, 144px" className="object-cover" />
                                     </div>
                                     <div className="min-w-0 flex-1">
                                       <span className="bg-bg-cream text-brand-gold text-[9px] tracking-widest uppercase font-bold px-2 py-0.5 inline-block mb-1.5">
@@ -599,6 +599,7 @@ function AccountDashboardContent() {
                                 src={item.image}
                                 alt={item.name}
                                 fill
+                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 30vw"
                                 className="object-cover group-hover:scale-105 transition-transform duration-[1.4s]"
                               />
                             </div>

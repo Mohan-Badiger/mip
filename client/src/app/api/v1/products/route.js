@@ -11,11 +11,12 @@ export async function GET(req) {
   try {
     await dbConnect();
 
-    // Auto-seed Category and Product collections if empty, incomplete, or lacking gender field (non-production only)
+    // Auto-seed Category and Product collections if empty, incomplete, or lacking gender field/tags (non-production only)
     if (process.env.NODE_ENV !== 'production') {
       const firstProduct = await Product.findOne({});
       const productCount = await Product.countDocuments();
-      if (productCount < 36 || (firstProduct && !firstProduct.gender)) {
+      const hasTags = await Product.findOne({ tag: { $in: ['Bestseller', 'New'] } });
+      if (productCount < 36 || (firstProduct && !firstProduct.gender) || !hasTags) {
         if (productCount > 0) {
           await Product.deleteMany({});
         }
@@ -120,6 +121,7 @@ export async function GET(req) {
           makingChargeValue: Math.round(makingCharges),
           gemstones,
           stock: 10,
+          tag: mockP.tag || null,
           isActive: true,
           gender: mockP.gender || 'Women'
         });
