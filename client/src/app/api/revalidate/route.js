@@ -8,9 +8,9 @@ export async function GET(request) {
     const secret = searchParams.get('secret');
 
     // Validate the revalidation token/secret to prevent DOS attacks
-    const expectedSecret = process.env.REVALIDATION_SECRET || 'mip-secret';
-    if (secret !== expectedSecret) {
-      return NextResponse.json({ message: 'Invalid token' }, { status: 401 });
+    const expectedSecret = process.env.REVALIDATION_SECRET;
+    if (!expectedSecret || secret !== expectedSecret) {
+      return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
     if (!tag) {
