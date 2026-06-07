@@ -47,7 +47,7 @@ async function getRelatedProducts(product) {
       _id: { $ne: product._id },
       isActive: true
     })
-    .limit(4);
+    .limit(5);
 
     return await Promise.all(
       relatedList.map(async (p) => {
@@ -63,6 +63,45 @@ async function getRelatedProducts(product) {
     );
   } catch (err) {
     console.error('Failed to load related products on server:', err);
+    return [];
+  }
+}
+
+async function getBestSellers(product, limit = 5, excludeIds = []) {
+  try {
+    await dbConnect();
+    // 1. Fetch storewide bestseller products (excluding current product and category products already shown)
+    let list = await Product.find({
+      tag: 'Bestseller',
+      _id: { $nin: [...excludeIds, product._id] },
+      isActive: true
+    }).limit(limit);
+
+    // 2. If we need more, fallback to other active products in the store (excluding current, related and found bestsellers)
+    if (list.length < limit) {
+      const currentIds = list.map(p => p._id);
+      const remainingLimit = limit - list.length;
+      const fallbackList = await Product.find({
+        _id: { $nin: [...excludeIds, ...currentIds, product._id] },
+        isActive: true
+      }).limit(remainingLimit);
+      list = [...list, ...fallbackList];
+    }
+
+    return await Promise.all(
+      list.map(async (p) => {
+        const pricing = await calculateLiveProductPrice(p);
+        return {
+          id: p._id.toString(),
+          slug: p.slug,
+          name: p.name,
+          image: p.images[0] || '/images/placeholder.webp',
+          price: pricing.finalPrice
+        };
+      })
+    );
+  } catch (err) {
+    console.error('Failed to load bestseller products on server:', err);
     return [];
   }
 }
@@ -143,9 +182,11 @@ export default async function ProductPage({ params }) {
   };
 
   const related = await getRelatedProducts(rawProduct);
+  const relatedIds = related.map(p => p.id);
+  const bestsellers = await getBestSellers(rawProduct, 5, relatedIds);
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mipjewellers.com';
-
+  
   // 3. Dynamic JSON-LD Product Schema for SEO Rich Snippets
   const productSchema = {
     "@context": "https://schema.org",
@@ -182,6 +223,7 @@ export default async function ProductPage({ params }) {
         product={product} 
         rawProduct={JSON.parse(JSON.stringify(rawProduct))} 
         related={related} 
+        bestsellers={bestsellers}
       />
     </>
   );

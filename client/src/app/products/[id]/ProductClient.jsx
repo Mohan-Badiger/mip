@@ -116,7 +116,7 @@ function getSpecsAndBreakdown(product, rawProduct) {
   };
 }
 
-export default function ProductClient({ product, rawProduct, related }) {
+export default function ProductClient({ product, rawProduct, related, bestsellers = [] }) {
   const [selectedImage, setSelectedImage] = useState(product.image);
   const [activeTab, setActiveTab] = useState('details');
   const [openFaq, setOpenFaq] = useState(null);
@@ -502,16 +502,38 @@ export default function ProductClient({ product, rawProduct, related }) {
         </div>
       </div>
 
-      {/* Related Products */}
+      {/* Related Products / You May Also Like */}
       {related.length > 0 && (
         <section className="border-t border-gray-100 py-14 bg-bg-cream">
           <div className="max-w-480 mx-auto px-4 md:px-16">
             <h2 className="font-secondary text-2xl md:text-3xl text-brand-brown mb-8">You May Also Like</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-8">
               {related.map((p) => (
                 <Link key={p.id} href={`/products/${p.slug}`} className="group">
                   <div className="relative aspect-square bg-white overflow-hidden mb-3">
-                    <Image src={p.image} alt={p.name} fill sizes="25vw" className="object-cover group-hover:scale-105 transition-transform duration-[1.4s]" />
+                    <Image src={p.image} alt={p.name} fill sizes="(max-width: 768px) 50vw, 20vw" className="object-cover group-hover:scale-105 transition-transform duration-[1.4s]" />
+                  </div>
+                  <h3 className="font-secondary text-base text-brand-brown group-hover:text-brand-gold transition-colors flex items-center gap-1">
+                    {p.name} <ArrowUpRight className="w-3 h-3 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </h3>
+                  <p className="font-primary text-xs text-gray-400 mt-0.5">{formatPrice(p.price)}</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Best Sellers */}
+      {bestsellers.length > 0 && (
+        <section className="border-t border-gray-100 py-14 bg-white">
+          <div className="max-w-480 mx-auto px-4 md:px-16">
+            <h2 className="font-secondary text-2xl md:text-3xl text-brand-brown mb-8">Best Sellers</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-8">
+              {bestsellers.map((p) => (
+                <Link key={p.id} href={`/products/${p.slug}`} className="group">
+                  <div className="relative aspect-square bg-bg-cream overflow-hidden mb-3">
+                    <Image src={p.image} alt={p.name} fill sizes="(max-width: 768px) 50vw, 20vw" className="object-cover group-hover:scale-105 transition-transform duration-[1.4s]" />
                   </div>
                   <h3 className="font-secondary text-base text-brand-brown group-hover:text-brand-gold transition-colors flex items-center gap-1">
                     {p.name} <ArrowUpRight className="w-3 h-3 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity" />
