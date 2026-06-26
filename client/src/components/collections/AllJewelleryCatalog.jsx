@@ -11,6 +11,20 @@ import { useAuth } from '@/context/AuthContext';
 import { useSearchParams } from 'next/navigation';
 import { preloadProductImage } from '@/lib/image-prefetch';
 
+const parseImageAdjustments = (val) => {
+  if (!val) return { x: 50, y: 50, scale: 1 };
+  const parts = val.split(' ');
+  if (parts.length === 3) {
+    return {
+      x: parseInt(parts[0]) || 50,
+      y: parseInt(parts[1]) || 50,
+      scale: parseFloat(parts[2]) || 1
+    };
+  }
+  const yVal = parseInt(val) || 50;
+  return { x: 50, y: yVal, scale: 1 };
+};
+
 const METALS = ['22KT Gold', '18KT Gold', '24KT Gold', 'Silver'];
 const STONES = ['Diamond', 'Ruby', 'Pearl', 'Emerald'];
 const PRICE_RANGES = [
@@ -167,6 +181,7 @@ function CatalogContent() {
   const [colName, setColName] = useState('All Jewellery');
   const [colDesc, setColDesc] = useState('Explore our complete handcrafted collections. Gold, diamonds, platinum and precious gemstones curated for every generation.');
   const [colBanner, setColBanner] = useState('/images/exquisite_model.webp');
+  const [colImagePosition, setColImagePosition] = useState('50%');
 
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedGenders, setSelectedGenders] = useState([]);
@@ -230,13 +245,26 @@ function CatalogContent() {
           }));
           setProductsList(mapped);
 
-          if (data.products.length > 0 && initialCollection) {
-            const withCol = data.products.find(p => p.collectionRef);
-            if (withCol && withCol.collectionRef) {
-              setColName(withCol.collectionRef.name);
-              setColDesc(withCol.collectionRef.description || 'Exclusive themed collection.');
-              setColBanner(withCol.collectionRef.bannerImage || '/images/exquisite_model.webp');
+          if (initialCollection) {
+            if (data.collection) {
+              setColName(data.collection.name);
+              setColDesc(data.collection.description || 'Exclusive themed collection.');
+              setColBanner(data.collection.bannerImage || '/images/exquisite_model.webp');
+              setColImagePosition(data.collection.imagePosition || '50%');
+            } else if (data.products.length > 0) {
+              const withCol = data.products.find(p => p.collectionRef);
+              if (withCol && withCol.collectionRef) {
+                setColName(withCol.collectionRef.name);
+                setColDesc(withCol.collectionRef.description || 'Exclusive themed collection.');
+                setColBanner(withCol.collectionRef.bannerImage || '/images/exquisite_model.webp');
+                setColImagePosition(withCol.collectionRef.imagePosition || '50%');
+              }
             }
+          } else {
+            setColName('All Jewellery');
+            setColDesc('Explore our complete handcrafted collections. Gold, diamonds, platinum and precious gemstones curated for every generation.');
+            setColBanner('/images/exquisite_model.webp');
+            setColImagePosition('50%');
           }
         }
       } catch (err) {
@@ -256,12 +284,16 @@ function CatalogContent() {
 
   // Update URL SearchParams to mirror current state
   useEffect(() => {
-    const params = new URLSearchParams();
+    const params = new URLSearchParams(window.location.search);
     if (selectedCategories.length === 1) {
       params.set('category', selectedCategories[0]);
+    } else {
+      params.delete('category');
     }
     if (selectedGenders.length === 1) {
       params.set('gender', selectedGenders[0].toLowerCase());
+    } else {
+      params.delete('gender');
     }
     const queryString = params.toString();
     const newUrl = `${window.location.pathname}${queryString ? '?' + queryString : ''}`;
@@ -285,7 +317,7 @@ function CatalogContent() {
           <li className="text-gray-300">/</li>
           {initialCollection ? (
             <>
-              <li><Link href="/collections" className="hover:text-brand-gold transition-colors">Collections</Link></li>
+              <li><Link href="/products" className="hover:text-brand-gold transition-colors">Jewellery</Link></li>
               <li className="text-gray-300">/</li>
               <li className="text-brand-brown font-medium">{colName}</li>
             </>
@@ -297,16 +329,28 @@ function CatalogContent() {
 
       {/* Hero Banner */}
       <div className="relative bg-[#0F0E0C] overflow-hidden h-45 sm:h-55 md:h-65 lg:h-75 flex items-center border-b border-gray-900 mb-8">
-        <div className="absolute right-0 top-0 bottom-0 w-full md:w-[60%] lg:w-[50%] h-full">
-          <Image
-            src={colBanner}
-            alt={colName}
-            fill
-            priority
-            sizes="(max-width: 768px) 100vw, 50vw"
-            className="object-cover object-center transition-transform duration-[2s] ease-out hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-linear-to-r from-[#0F0E0C] via-[#0F0E0C]/80 to-transparent" />
+        <div className="absolute right-0 top-0 bottom-0 w-full md:w-[60%] lg:w-[50%] h-full group">
+          {(() => {
+            const adj = parseImageAdjustments(colImagePosition);
+            return (
+              <div className="w-full h-full">
+                <Image
+                  src={colBanner}
+                  alt={colName}
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover"
+                  style={{
+                    objectPosition: `${adj.x}% ${adj.y}%`,
+                    transform: `scale(${adj.scale})`,
+                    transformOrigin: `${adj.x}% ${adj.y}%`
+                  }}
+                />
+              </div>
+            );
+          })()}
+          <div className="absolute inset-0 bg-linear-to-r from-[#0F0E0C] via-[#0F0E0C]/80 to-transparent pointer-events-none" />
         </div>
 
         <div className="relative z-10 max-w-480 mx-auto px-4 md:px-16 w-full flex flex-col items-start text-left">

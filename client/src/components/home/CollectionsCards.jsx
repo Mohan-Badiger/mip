@@ -45,13 +45,28 @@ const COLLECTIONS = [
   }
 ];
 
+const parseImageAdjustments = (val) => {
+  if (!val) return { x: 50, y: 50, scale: 1 };
+  const parts = val.split(' ');
+  if (parts.length === 3) {
+    return {
+      x: parseInt(parts[0]) || 50,
+      y: parseInt(parts[1]) || 50,
+      scale: parseFloat(parts[2]) || 1
+    };
+  }
+  const yVal = parseInt(val) || 50;
+  return { x: 50, y: yVal, scale: 1 };
+};
+
 export default function CollectionsCards({ collections: propCollections, name }) {
   const displayCollections = propCollections && propCollections.length > 0
     ? propCollections.map(col => ({
         title: col.name,
         sub: col.description || "Themed Collection",
         img: col.bannerImage || "/images/category_bangles.webp",
-        link: `/products?collection=${col.slug}`
+        link: `/products?collection=${col.slug}`,
+        imagePosition: col.imagePosition || "50%"
       }))
     : COLLECTIONS;
 
@@ -79,30 +94,39 @@ export default function CollectionsCards({ collections: propCollections, name })
 
       {/* Mobile-first scroll track that becomes a grid on desktop */}
       <div className="flex lg:grid overflow-x-auto lg:overflow-x-visible snap-x snap-mandatory lg:snap-none scrollbar-none gap-4 sm:gap-5 lg:gap-6 pb-6 lg:pb-0 lg:grid-cols-6 scroll-smooth">
-        {displayCollections.map((item, idx) => (
-          <div
-            key={item.title}
-            className="w-[43vw] xs:w-[38vw] sm:w-[28vw] lg:w-auto shrink-0 snap-center lg:snap-align-none"
-          >
-            <FadeInUp delay={idx * 0.08}>
-              <Link href={item.link} className="group block">
-                {/* Indian Royal Arch Frame Container */}
-                <div className="relative p-1.5 border border-brand-gold/25 rounded-t-full bg-white transition-all duration-[0.6s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:border-brand-gold/70 group-hover:shadow-[0_20px_50px_rgba(179,146,84,0.12)]">
+        {displayCollections.map((item, idx) => {
+          const adj = parseImageAdjustments(item.imagePosition);
+          return (
+            <div
+              key={item.title}
+              className="w-[43vw] xs:w-[38vw] sm:w-[28vw] lg:w-auto shrink-0 snap-center lg:snap-align-none"
+            >
+              <FadeInUp delay={idx * 0.08}>
+                <Link href={item.link} className="group block">
+                  {/* Indian Royal Arch Frame Container */}
+                  <div className="relative p-1.5 border border-brand-gold/25 rounded-t-full bg-white transition-all duration-[0.6s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:border-brand-gold/70 group-hover:shadow-[0_20px_50px_rgba(179,146,84,0.12)]">
 
-                  {/* Perfect Arch Shape Image Mask */}
-                  <div className="relative aspect-3/4 w-full overflow-hidden rounded-t-full bg-gray-50">
-                    <Image
-                      src={item.img}
-                      alt={item.title}
-                      fill
-                      sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 16vw"
-                      className="object-cover transition-transform duration-[1.8s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-105"
-                    />
+                    {/* Perfect Arch Shape Image Mask */}
+                    <div className="relative aspect-3/4 w-full overflow-hidden rounded-t-full bg-gray-50">
+                      <div className="w-full h-full transition-transform duration-[1.8s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-105">
+                        <Image
+                          src={item.img}
+                          alt={item.title}
+                          fill
+                          sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 16vw"
+                          className="object-cover"
+                          style={{
+                            objectPosition: `${adj.x}% ${adj.y}%`,
+                            transform: `scale(${adj.scale})`,
+                            transformOrigin: `${adj.x}% ${adj.y}%`
+                          }}
+                        />
+                      </div>
 
-                    {/* Subtle Luxury Gradient Overlay */}
-                    <div className="absolute inset-0 bg-linear-to-t from-brand-brown/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                      {/* Subtle Luxury Gradient Overlay */}
+                      <div className="absolute inset-0 bg-linear-to-t from-brand-brown/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                    </div>
                   </div>
-                </div>
 
                 {/* Typography details block */}
                 <div className="mt-4 text-center px-1">
@@ -119,7 +143,7 @@ export default function CollectionsCards({ collections: propCollections, name })
               </Link>
             </FadeInUp>
           </div>
-        ))}
+        )})}
       </div>
     </section>
   );
