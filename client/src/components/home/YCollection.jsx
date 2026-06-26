@@ -63,10 +63,10 @@ export default function YCollection({ name }) {
         {/* CTA */}
         <FadeInUp delay={0.2}>
           <Link
-            href="/collections"
+            href="/products"
             className="inline-flex items-center gap-2 font-primary text-sm font-medium text-brand-brown pb-1 border-b border-brand-gold hover:text-brand-gold transition-colors"
           >
-            Explore Collection <ArrowUpRight className="w-4 h-4 text-brand-gold" />
+            Explore All Jewellery <ArrowUpRight className="w-4 h-4 text-brand-gold" />
           </Link>
         </FadeInUp>
       </div>
@@ -130,10 +130,10 @@ export default function YCollection({ name }) {
               className="object-cover object-center"
             />
             <Link
-              href="/collections"
+              href="/products"
               className="absolute -bottom-12 right-0 inline-flex items-center gap-2 font-primary text-base text-brand-brown pb-1 border-b border-brand-gold hover:text-brand-gold transition-colors"
             >
-              Explore More <ArrowUpRight className="w-4 h-4 text-gray-400" />
+              Explore More Jewellery <ArrowUpRight className="w-4 h-4 text-gray-400" />
             </Link>
           </motion.div>
 

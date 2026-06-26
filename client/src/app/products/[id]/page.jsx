@@ -158,7 +158,7 @@ export default async function ProductPage({ params }) {
         <div className="flex items-center justify-center min-h-[50vh]">
           <div className="text-center">
             <p className="font-secondary text-3xl text-brand-brown mb-4">Product not found</p>
-            <Link href="/collections" className="font-primary text-sm text-brand-gold underline">Browse Collections</Link>
+            <Link href="/products" className="font-primary text-sm text-brand-gold underline">Browse All Jewellery</Link>
           </div>
         </div>
       </PageLayout>
