@@ -171,6 +171,7 @@ export async function GET(req) {
     }
 
     // Resolve Collection if provided by ID or Slug
+    let resolvedCollection = null;
     if (collectionParam) {
       let col = null;
       if (collectionParam.match(/^[0-9a-fA-F]{24}$/)) {
@@ -180,6 +181,7 @@ export async function GET(req) {
       }
       if (col) {
         query.collectionRef = col._id;
+        resolvedCollection = col;
       } else {
         // Collection filter provided but not found
         return NextResponse.json({
@@ -230,6 +232,7 @@ export async function GET(req) {
     return NextResponse.json({
       success: true,
       products: productsWithLivePrices,
+      collection: resolvedCollection,
       pagination: {
         total,
         page,

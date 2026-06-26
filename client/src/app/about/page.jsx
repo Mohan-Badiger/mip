@@ -1,4 +1,4 @@
-﻿import Image from 'next/image';
+import Image from 'next/image';
 import Link from 'next/link';
 import PageLayout from '@/components/global/PageLayout';
 
@@ -27,7 +27,7 @@ export default function AboutPage() {
   return (
     <PageLayout>
       {/* Hero */}
-      <section className="relative w-full h-[340px] md:h-[480px] overflow-hidden">
+      <section className="relative w-full h-85 md:h-120 overflow-hidden">
         <Image src="/images/luxury_gold_hero_1779199654262.png" alt="MIP Jewellers Heritage" fill sizes="100vw" className="object-cover object-center" priority />
         <div className="absolute inset-0 bg-brand-brown/60" />
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
@@ -40,7 +40,7 @@ export default function AboutPage() {
       </section>
 
       {/* Breadcrumb */}
-      <nav className="max-w-[1920px] mx-auto px-4 md:px-16 py-4 border-b border-gray-100">
+      <nav className="max-w-480 mx-auto px-4 md:px-16 py-4 border-b border-gray-100">
         <ol className="flex items-center gap-2 text-[11px] font-primary text-gray-400 tracking-wide">
           <li><Link href="/" className="hover:text-brand-gold transition-colors">Home</Link></li>
           <li className="text-gray-300">/</li>
@@ -49,7 +49,7 @@ export default function AboutPage() {
       </nav>
 
       {/* Our Story */}
-      <section className="max-w-[1920px] mx-auto px-4 md:px-16 lg:px-24 py-16 md:py-20">
+      <section className="max-w-480 mx-auto px-4 md:px-16 lg:px-24 py-16 md:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           <div>
             <p className="font-primary text-[10px] tracking-[0.3em] uppercase text-brand-gold mb-3">Our Story</p>
@@ -62,7 +62,7 @@ export default function AboutPage() {
               <p>We have existed since 1925. Need we say more? Would it have been possible without the unwavering trust of generations?</p>
             </div>
           </div>
-          <div className="relative h-[420px] md:h-[520px]">
+          <div className="relative h-105 md:h-130">
             <Image src="/images/exquisite_model_1779203407757.png" alt="MIP Craftsmanship" fill sizes="50vw" className="object-cover object-top" />
             <div className="absolute -bottom-6 -left-6 bg-brand-brown text-white p-6 w-40 text-center hidden md:block">
               <p className="font-secondary text-4xl text-brand-gold">99+</p>
@@ -74,7 +74,7 @@ export default function AboutPage() {
 
       {/* Values */}
       <section className="bg-bg-cream border-y border-gray-100 py-16 md:py-20">
-        <div className="max-w-[1920px] mx-auto px-4 md:px-16 lg:px-24">
+        <div className="max-w-480 mx-auto px-4 md:px-16 lg:px-24">
           <div className="text-center mb-12">
             <p className="font-primary text-[10px] tracking-[0.3em] uppercase text-brand-gold mb-3">Our Promise</p>
             <h2 className="font-secondary text-3xl md:text-4xl text-brand-brown">Why Choose MIP?</h2>
@@ -92,7 +92,7 @@ export default function AboutPage() {
       </section>
 
       {/* Milestones */}
-      <section className="max-w-[1920px] mx-auto px-4 md:px-16 lg:px-24 py-16 md:py-20">
+      <section className="max-w-480 mx-auto px-4 md:px-16 lg:px-24 py-16 md:py-20">
         <div className="text-center mb-12">
           <p className="font-primary text-[10px] tracking-[0.3em] uppercase text-brand-gold mb-3">Our Journey</p>
           <h2 className="font-secondary text-3xl md:text-4xl text-brand-brown">A Century of Milestones</h2>
@@ -122,7 +122,7 @@ export default function AboutPage() {
           <Link href="/stores" className="inline-block font-primary text-xs font-semibold tracking-[0.2em] uppercase text-white border border-white/40 hover:border-brand-gold hover:text-brand-gold px-8 py-3.5 transition-colors">
             Find a Store
           </Link>
-          <Link href="/collections" className="inline-block font-primary text-xs font-semibold tracking-[0.2em] uppercase bg-brand-gold hover:bg-brand-gold-light text-white px-8 py-3.5 transition-colors">
+          <Link href="/products" className="inline-block font-primary text-xs font-semibold tracking-[0.2em] uppercase bg-brand-gold hover:bg-brand-gold-light text-white px-8 py-3.5 transition-colors">
             Shop Online
           </Link>
         </div>
