@@ -46,10 +46,10 @@ export default function ShopByGender({ name }) {
               <div className="w-12 h-0.5 bg-brand-gold mt-4" />
             </div>
             <Link
-              href="/collections"
+              href="/products"
               className="hidden md:inline-flex items-center gap-1.5 font-primary text-[11px] tracking-[0.15em] uppercase text-brand-brown hover:text-brand-gold transition-colors pb-1 border-b border-brand-gold/50"
             >
-              View All Collections <ArrowUpRight className="w-4 h-4 text-brand-gold" />
+              Shop All Jewellery <ArrowUpRight className="w-4 h-4 text-brand-gold" />
             </Link>
           </div>
         </FadeInUp>
@@ -123,10 +123,10 @@ export default function ShopByGender({ name }) {
         {/* Mobile "View All" */}
         <div className="mt-4 text-center md:hidden">
           <Link
-            href="/collections"
+            href="/products"
             className="inline-flex items-center gap-1.5 font-primary text-xs tracking-[0.15em] uppercase text-brand-brown hover:text-brand-gold transition-colors border-b border-brand-gold pb-1"
           >
-            View All Collections <ArrowUpRight className="w-3.5 h-3.5 text-brand-gold" />
+            Shop All Jewellery <ArrowUpRight className="w-3.5 h-3.5 text-brand-gold" />
           </Link>
         </div>
 

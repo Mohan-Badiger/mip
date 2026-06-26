@@ -157,6 +157,7 @@ export default async function CategoryPage({ params }) {
         categoryLabel={cat.name} 
         categoryDescription={cat.description} 
         categoryImage={heroImage} 
+        categoryImagePosition={cat.imagePosition} 
         products={products} 
       />
     </>

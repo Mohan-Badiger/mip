@@ -162,7 +162,7 @@ export default function ProductClient({ product, rawProduct, related, bestseller
         <ol className="flex items-center gap-2 text-[11px] font-primary text-gray-400 tracking-wide">
           <li><Link href="/" className="hover:text-brand-gold transition-colors">Home</Link></li>
           <li className="text-gray-300">/</li>
-          <li><Link href="/collections" className="hover:text-brand-gold transition-colors">Collections</Link></li>
+          <li><Link href="/products" className="hover:text-brand-gold transition-colors">Jewellery</Link></li>
           <li className="text-gray-300">/</li>
           <li><Link href={`/collections/${product.category}`} className="hover:text-brand-gold transition-colors">{product.categoryLabel}</Link></li>
           <li className="text-gray-300">/</li>
