@@ -37,7 +37,8 @@ export const POST = withAuth(async function POST(req) {
       name: body.name,
       slug,
       description: body.description || '',
-      image: body.image || ''
+      image: body.image || '',
+      imagePosition: body.imagePosition || '50%'
     });
 
     // Log admin action
@@ -60,7 +61,7 @@ export const PUT = withAuth(async function PUT(req) {
   try {
     await dbConnect();
     const body = await req.json();
-    const { _id, name, description, image } = body;
+    const { _id, name, description, image, imagePosition } = body;
 
     if (!_id) {
       return NextResponse.json({ success: false, error: 'Category ID (_id) is required for update' }, { status: 400 });
@@ -74,6 +75,7 @@ export const PUT = withAuth(async function PUT(req) {
     const updates = {};
     if (description !== undefined) updates.description = description;
     if (image !== undefined) updates.image = image;
+    if (imagePosition !== undefined) updates.imagePosition = imagePosition;
     if (name !== undefined && name !== category.name) {
       updates.name = name;
       updates.slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');

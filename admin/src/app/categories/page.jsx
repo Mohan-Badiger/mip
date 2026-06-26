@@ -28,6 +28,20 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+const parseImageAdjustments = (val) => {
+  if (!val) return { x: 50, y: 50, scale: 1 };
+  const parts = val.split(' ');
+  if (parts.length === 3) {
+    return {
+      x: parseInt(parts[0]) || 50,
+      y: parseInt(parts[1]) || 50,
+      scale: parseFloat(parts[2]) || 1
+    };
+  }
+  const yVal = parseInt(val) || 50;
+  return { x: 50, y: yVal, scale: 1 };
+};
+
 export default function CategoriesPage() {
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
@@ -38,10 +52,52 @@ export default function CategoriesPage() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    image: ""
+    image: "",
+    imagePosition: "50%"
   });
 
   const [uploading, setUploading] = useState(false);
+  const [isDraggingImage, setIsDraggingImage] = useState(false);
+
+  const handlePointerDown = (e) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setIsDraggingImage(true);
+    updateFocalPoint(e);
+  };
+
+  const handlePointerMove = (e) => {
+    if (!isDraggingImage) return;
+    updateFocalPoint(e);
+  };
+
+  const handlePointerUp = (e) => {
+    e.currentTarget.releasePointerCapture(e.pointerId);
+    setIsDraggingImage(false);
+  };
+
+  const updateFocalPoint = (e) => {
+    const container = e.currentTarget;
+    const rect = container.getBoundingClientRect();
+    const clientX = e.clientX;
+    const clientY = e.clientY;
+    if (clientX === undefined || clientY === undefined) return;
+    const rawX = ((clientX - rect.left) / rect.width) * 100;
+    const rawY = ((clientY - rect.top) / rect.height) * 100;
+    const x = Math.max(0, Math.min(100, Math.round(rawX)));
+    const y = Math.max(0, Math.min(100, Math.round(rawY)));
+    const dialogAdj = parseImageAdjustments(formData.imagePosition);
+    setFormData(prev => ({
+      ...prev,
+      imagePosition: `${x} ${y} ${dialogAdj.scale}`
+    }));
+  };
+
+  const resetImagePosition = () => {
+    setFormData(prev => ({
+      ...prev,
+      imagePosition: "50 50 1.0"
+    }));
+  };
 
   async function loadData() {
     try {
@@ -67,7 +123,7 @@ export default function CategoriesPage() {
 
   const openCreateDialog = () => {
     setSelectedCategory(null);
-    setFormData({ name: "", description: "", image: "" });
+    setFormData({ name: "", description: "", image: "", imagePosition: "50%" });
     setIsDialogOpen(true);
   };
 
@@ -76,7 +132,8 @@ export default function CategoriesPage() {
     setFormData({
       name: category.name || "",
       description: category.description || "",
-      image: category.image || ""
+      image: category.image || "",
+      imagePosition: category.imagePosition || "50%"
     });
     setIsDialogOpen(true);
   };
@@ -134,7 +191,7 @@ export default function CategoriesPage() {
       const json = await res.json();
       if (json.success) {
         setIsDialogOpen(false);
-        setFormData({ name: "", description: "", image: "" });
+        setFormData({ name: "", description: "", image: "", imagePosition: "50%" });
         loadData();
       } else {
         alert(json.error || "Failed to save category");
@@ -241,13 +298,23 @@ export default function CategoriesPage() {
                       <TableCell>
                         <div className="w-12 h-12 rounded bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-100 relative">
                           {category.image ? (
-                            <Image
-                              src={category.image}
-                              alt={category.name}
-                              fill
-                              sizes="48px"
-                              className="object-cover"
-                            />
+                            (() => {
+                              const adj = parseImageAdjustments(category.imagePosition);
+                              return (
+                                <Image
+                                  src={category.image}
+                                  alt={category.name}
+                                  fill
+                                  sizes="48px"
+                                  className="object-cover"
+                                  style={{
+                                    objectPosition: `${adj.x}% ${adj.y}%`,
+                                    transform: `scale(${adj.scale})`,
+                                    transformOrigin: `${adj.x}% ${adj.y}%`
+                                  }}
+                                />
+                              );
+                            })()
                           ) : (
                             <ImageIcon className="w-5 h-5 text-slate-300" />
                           )}
@@ -352,25 +419,166 @@ export default function CategoriesPage() {
                   </h4>
 
                   <div className="pt-3 space-y-4">
-                    {/* Image Preview Thumbnail */}
+                    {/* Image Previews & Crop Simulator */}
                     {formData.image ? (
-                      <div className="relative w-full aspect-video rounded-lg border border-slate-200 overflow-hidden bg-white shadow-sm group">
-                        <img src={formData.image} alt="Category Banner preview" className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <button
-                            type="button"
-                            onClick={() => setFormData(prev => ({ ...prev, image: "" }))}
-                            className="p-1 bg-rose-600 text-white rounded-full hover:bg-rose-700 transition-colors"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
+                      (() => {
+                        const dialogAdj = parseImageAdjustments(formData.imagePosition);
+                        return (
+                          <div className="space-y-4">
+                            <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Storefront Crop Simulators</span>
+                              <button
+                                type="button"
+                                onClick={() => setFormData(prev => ({ ...prev, image: "" }))}
+                                className="text-xs text-rose-600 hover:text-rose-700 font-semibold flex items-center gap-1"
+                              >
+                                <X className="w-3.5 h-3.5" /> Remove Banner
+                              </button>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                              {/* Homepage Card Layout (4:5 Portrait asymmetric) */}
+                              <div className="space-y-1.5 flex flex-col items-center">
+                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block self-start">Homepage Card (4:5 - Drag to Focus)</span>
+                                <div
+                                  className="relative aspect-4/5 w-full max-w-35 overflow-hidden rounded-tl-[24px] rounded-br-[24px] bg-slate-50 border border-slate-200/50 shadow-sm cursor-crosshair select-none touch-none"
+                                  onPointerDown={handlePointerDown}
+                                  onPointerMove={handlePointerMove}
+                                  onPointerUp={handlePointerUp}
+                                >
+                                  <img
+                                    src={formData.image}
+                                    alt="Homepage category card preview"
+                                    className="w-full h-full object-cover pointer-events-none"
+                                    style={{
+                                      objectPosition: `${dialogAdj.x}% ${dialogAdj.y}%`,
+                                      transform: `scale(${dialogAdj.scale})`,
+                                      transformOrigin: `${dialogAdj.x}% ${dialogAdj.y}%`
+                                    }}
+                                  />
+                                  <div className="absolute inset-2 border border-white/20 rounded-tl-2xl rounded-br-2xl pointer-events-none" />
+                                  {/* Reticle Target Overlay */}
+                                  <div
+                                    className="absolute w-6 h-6 border-2 border-brand-gold rounded-full -translate-x-1/2 -translate-y-1/2 pointer-events-none shadow-[0_0_8px_rgba(251,191,36,0.6)] flex items-center justify-center bg-brand-gold/10"
+                                    style={{ left: `${dialogAdj.x}%`, top: `${dialogAdj.y}%` }}
+                                  >
+                                    <div className="w-1.5 h-1.5 bg-brand-gold rounded-full" />
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Catalog Page Hero Layout (Wide Landscape) */}
+                              <div className="space-y-1.5 flex flex-col justify-end w-full">
+                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Catalog Header Banner (Wide Landscape)</span>
+                                <div className="relative h-18 w-full rounded-lg border border-slate-200 overflow-hidden bg-white shadow-sm">
+                                  <img
+                                    src={formData.image}
+                                    alt="Category catalog page hero preview"
+                                    className="w-full h-full object-cover pointer-events-none"
+                                    style={{
+                                      objectPosition: `${dialogAdj.x}% ${dialogAdj.y}%`,
+                                      transform: `scale(${dialogAdj.scale})`,
+                                      transformOrigin: `${dialogAdj.x}% ${dialogAdj.y}%`
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })()
                     ) : (
                       <div className="w-full aspect-video rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-450 bg-white">
                         <ImageIcon className="w-8 h-8 text-slate-350 mb-2" />
                         <span className="text-xs font-medium">No banner image uploaded</span>
                       </div>
+                    )}
+
+                    {formData.image && (
+                      (() => {
+                        const dialogAdj = parseImageAdjustments(formData.imagePosition);
+                        return (
+                          <div className="space-y-3.5 mt-2 bg-slate-50/50 p-3 rounded-lg border border-slate-100/50">
+                            <div className="text-[10px] font-bold text-slate-700 uppercase tracking-wider border-b border-slate-100 pb-1.5 flex justify-between items-center">
+                              <span>Advanced Image Adjustments</span>
+                              <button
+                                type="button"
+                                onClick={resetImagePosition}
+                                className="text-[9px] text-brand-gold hover:underline font-semibold uppercase tracking-wider"
+                              >
+                                Reset Position
+                              </button>
+                            </div>
+
+                            {/* Zoom Scale Slider */}
+                            <div className="space-y-1.5">
+                              <div className="flex justify-between text-[10px] font-semibold text-slate-500 uppercase tracking-wide">
+                                <Label htmlFor="adj-zoom">Zoom (Scale)</Label>
+                                <span className="text-brand-gold font-mono">{dialogAdj.scale.toFixed(2)}x</span>
+                              </div>
+                              <Input
+                                id="adj-zoom"
+                                type="range"
+                                min="1"
+                                max="3"
+                                step="0.05"
+                                value={dialogAdj.scale}
+                                onChange={(e) => setFormData(prev => ({
+                                  ...prev,
+                                  imagePosition: `${dialogAdj.x} ${dialogAdj.y} ${e.target.value}`
+                                }))}
+                                className="h-2 bg-slate-200 accent-brand-gold cursor-pointer p-0"
+                              />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                              {/* Horizontal Alignment Focus Slider */}
+                              <div className="space-y-1.5">
+                                <div className="flex justify-between text-[10px] font-semibold text-slate-500 uppercase tracking-wide">
+                                  <Label htmlFor="adj-x">Horizontal Position</Label>
+                                  <span className="text-brand-gold font-mono">{dialogAdj.x}%</span>
+                                </div>
+                                <Input
+                                  id="adj-x"
+                                  type="range"
+                                  min="0"
+                                  max="100"
+                                  value={dialogAdj.x}
+                                  onChange={(e) => setFormData(prev => ({
+                                    ...prev,
+                                    imagePosition: `${e.target.value} ${dialogAdj.y} ${dialogAdj.scale}`
+                                  }))}
+                                  className="h-2 bg-slate-200 accent-brand-gold cursor-pointer p-0"
+                                />
+                              </div>
+
+                              {/* Vertical Alignment Focus Slider */}
+                              <div className="space-y-1.5">
+                                <div className="flex justify-between text-[10px] font-semibold text-slate-500 uppercase tracking-wide">
+                                  <Label htmlFor="adj-y">Vertical Position</Label>
+                                  <span className="text-brand-gold font-mono">{dialogAdj.y}%</span>
+                                </div>
+                                <Input
+                                  id="adj-y"
+                                  type="range"
+                                  min="0"
+                                  max="100"
+                                  value={dialogAdj.y}
+                                  onChange={(e) => setFormData(prev => ({
+                                    ...prev,
+                                    imagePosition: `${dialogAdj.x} ${e.target.value} ${dialogAdj.scale}`
+                                  }))}
+                                  className="h-2 bg-slate-200 accent-brand-gold cursor-pointer p-0"
+                                />
+                              </div>
+                            </div>
+
+                            <p className="text-[9px] text-slate-405 leading-normal">
+                              Fine-tune scale, focal center, and crop coordinates dynamically to align highlight elements accurately across all viewports.
+                            </p>
+                          </div>
+                        );
+                      })()
                     )}
 
                     {/* Drag & Drop File Upload Area */}
