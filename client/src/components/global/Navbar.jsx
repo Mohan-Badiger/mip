@@ -395,7 +395,6 @@ export default function Navbar() {
     { label: 'RINGS', href: '/collections/rings' },
     { label: 'COINS & BARS', href: '/collections/coins-bars' },
     { label: 'ALL JEWELLERY', href: '/products' },
-    { label: 'COLLECTIONS', href: '/collections' },
   ];
 
   return (
@@ -827,7 +826,6 @@ export default function Navbar() {
 
                   {/* Rest of the links */}
                   {[
-                    { label: 'COLLECTIONS', href: '/collections' },
                     { label: 'PURCHASE PLAN', href: '/purchase-plan' },
                     { label: 'OUR STORES', href: '/stores' },
                     { label: 'ABOUT US', href: '/about' },

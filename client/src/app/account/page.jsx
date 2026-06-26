@@ -454,7 +454,7 @@ function AccountDashboardContent() {
                         You have not placed any orders yet. Add beautiful items to your shopping cart to begin.
                       </p>
                       <Link
-                        href="/collections"
+                        href="/products"
                         className="inline-block bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white font-primary text-[10px] font-bold tracking-widest uppercase px-6 py-3 transition-colors shadow-xs"
                       >
                         Shop Now
@@ -569,10 +569,10 @@ function AccountDashboardContent() {
                         Explore our jewellery collections and click the Heart icon on any product page to curate your favourites list here.
                       </p>
                       <Link
-                        href="/collections"
+                        href="/products"
                         className="inline-block bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white font-primary text-[10px] font-bold tracking-widest uppercase px-6 py-3 transition-colors shadow-xs"
                       >
-                        Explore Collections
+                        Explore Catalogue
                       </Link>
                     </div>
                   ) : (

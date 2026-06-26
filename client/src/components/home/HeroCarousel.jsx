@@ -15,7 +15,7 @@ const slides = [
     collection: "Aradhana",
     title: "Nature's most graceful bloom,\nset in diamond and gold.",
     cta: "Explore Collection",
-    href: "/collections",
+    href: "/products",
     textSide: "left",
     tagColor: "text-brand-gold",
     textColor: "text-brand-brown",
