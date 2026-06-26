@@ -6,6 +6,20 @@ import { ArrowRight, Sparkles, ShieldCheck, Award, Truck, RefreshCw, Gem, Heart,
 import { motion } from 'framer-motion';
 import PageLayout from '@/components/global/PageLayout';
 
+const parseImageAdjustments = (val) => {
+  if (!val) return { x: 50, y: 50, scale: 1 };
+  const parts = val.split(' ');
+  if (parts.length === 3) {
+    return {
+      x: parseInt(parts[0]) || 50,
+      y: parseInt(parts[1]) || 50,
+      scale: parseFloat(parts[2]) || 1
+    };
+  }
+  const yVal = parseInt(val) || 50;
+  return { x: 50, y: yVal, scale: 1 };
+};
+
 export default function CollectionsShowcase({ collections = [] }) {
   // Fallback campaign items if dynamic database collections are empty
   const FALLBACK_COLLECTIONS = [
@@ -135,6 +149,7 @@ export default function CollectionsShowcase({ collections = [] }) {
         <section className="max-w-7xl mx-auto px-4 md:px-16 pb-24 space-y-20 lg:space-y-36">
           {displayCollections.map((collection, idx) => {
             const isEven = idx % 2 === 0;
+            const adj = parseImageAdjustments(collection.imagePosition);
             return (
               <motion.div
                 key={collection._id}
@@ -150,14 +165,21 @@ export default function CollectionsShowcase({ collections = [] }) {
                     {/* Double Luxury Border Frame */}
                     <div className="border border-brand-gold/20 p-2 bg-white rounded-md transition-all duration-700 ease-out group-hover:border-brand-gold/60 shadow-[0_4px_30px_rgba(78,54,41,0.03)] group-hover:shadow-[0_20px_60px_rgba(179,146,84,0.1)]">
                       <div className="relative aspect-4/3 w-full overflow-hidden rounded bg-bg-cream">
-                        <Image
-                          src={collection.bannerImage || "/images/category_bangles.webp"}
-                          alt={collection.name}
-                          fill
-                          sizes="(max-width: 1024px) 100vw, 45vw"
-                          className="object-cover transition-transform duration-[2s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.04]"
-                        />
-                        <div className="absolute inset-0 bg-linear-to-t from-[#0F0E0C]/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                        <div className="w-full h-full transition-transform duration-[2s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.04]">
+                          <Image
+                            src={collection.bannerImage || "/images/category_bangles.webp"}
+                            alt={collection.name}
+                            fill
+                            sizes="(max-width: 1024px) 100vw, 45vw"
+                            className="object-cover"
+                            style={{
+                              objectPosition: `${adj.x}% ${adj.y}%`,
+                              transform: `scale(${adj.scale})`,
+                              transformOrigin: `${adj.x}% ${adj.y}%`
+                            }}
+                          />
+                        </div>
+                        <div className="absolute inset-0 bg-linear-to-t from-[#0F0E0C]/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                       </div>
                     </div>
                   </Link>
