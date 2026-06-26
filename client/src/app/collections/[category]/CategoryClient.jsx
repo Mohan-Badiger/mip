@@ -10,6 +10,20 @@ import { formatPrice } from '@/lib/products';
 import { useAuth } from '@/context/AuthContext';
 import { preloadProductImage } from '@/lib/image-prefetch';
 
+const parseImageAdjustments = (val) => {
+  if (!val) return { x: 50, y: 50, scale: 1 };
+  const parts = val.split(' ');
+  if (parts.length === 3) {
+    return {
+      x: parseInt(parts[0]) || 50,
+      y: parseInt(parts[1]) || 50,
+      scale: parseFloat(parts[2]) || 1
+    };
+  }
+  const yVal = parseInt(val) || 50;
+  return { x: 50, y: yVal, scale: 1 };
+};
+
 const METALS = ['22KT Gold', '18KT Gold', '24KT Gold', 'Silver'];
 const STONES = ['Diamond', 'Ruby', 'Pearl', 'Emerald'];
 const PRICE_RANGES = [
@@ -71,7 +85,7 @@ function FilterPanel({ selectedMetals, setSelectedMetals, selectedStones, setSel
   );
 }
 
-export default function CategoryClient({ categorySlug, categoryLabel, categoryDescription, categoryImage, products }) {
+export default function CategoryClient({ categorySlug, categoryLabel, categoryDescription, categoryImage, categoryImagePosition, products }) {
   const [selectedMetals, setSelectedMetals] = useState([]);
   const [selectedStones, setSelectedStones] = useState([]);
   const [selectedPrice, setSelectedPrice] = useState(null);
@@ -107,7 +121,7 @@ export default function CategoryClient({ categorySlug, categoryLabel, categoryDe
         <ol className="flex items-center gap-2 text-[11px] font-primary text-gray-400 tracking-wide">
           <li><Link href="/" className="hover:text-brand-gold transition-colors">Home</Link></li>
           <li className="text-gray-300">/</li>
-          <li><Link href="/collections" className="hover:text-brand-gold transition-colors">Collections</Link></li>
+          <li><Link href="/products" className="hover:text-brand-gold transition-colors">Jewellery</Link></li>
           <li className="text-gray-300">/</li>
           <li className="text-brand-brown font-medium">{categoryLabel}</li>
         </ol>
@@ -116,17 +130,29 @@ export default function CategoryClient({ categorySlug, categoryLabel, categoryDe
       {/* Hero Banner */}
       <div className="relative bg-[#0F0E0C] overflow-hidden h-45 sm:h-55 md:h-65 lg:h-75 flex items-center border-b border-gray-900 mb-8">
         {/* Right side background image */}
-        <div className="absolute right-0 top-0 bottom-0 w-full md:w-[60%] lg:w-[50%] h-full">
-          <Image
-            src={categoryImage}
-            alt={categoryLabel}
-            fill
-            priority
-            sizes="(max-width: 768px) 100vw, 50vw"
-            className="object-cover object-center transition-transform duration-[2s] ease-out hover:scale-105"
-          />
+        <div className="absolute right-0 top-0 bottom-0 w-full md:w-[60%] lg:w-[50%] h-full group">
+          {(() => {
+            const adj = parseImageAdjustments(categoryImagePosition);
+            return (
+              <div className="w-full h-full">
+                <Image
+                  src={categoryImage}
+                  alt={categoryLabel}
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover"
+                  style={{
+                    objectPosition: `${adj.x}% ${adj.y}%`,
+                    transform: `scale(${adj.scale})`,
+                    transformOrigin: `${adj.x}% ${adj.y}%`
+                  }}
+                />
+              </div>
+            );
+          })()}
           {/* Gradient fade to blend with left dark background */}
-          <div className="absolute inset-0 bg-linear-to-r from-[#0F0E0C] via-[#0F0E0C]/80 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-r from-[#0F0E0C] via-[#0F0E0C]/80 to-transparent pointer-events-none" />
         </div>
 
         {/* Left side text content */}

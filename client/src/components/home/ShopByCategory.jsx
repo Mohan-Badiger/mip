@@ -5,6 +5,20 @@ import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import FadeInUp from '@/components/global/FadeInUp';
 
+const parseImageAdjustments = (val) => {
+  if (!val) return { x: 50, y: 50, scale: 1 };
+  const parts = val.split(' ');
+  if (parts.length === 3) {
+    return {
+      x: parseInt(parts[0]) || 50,
+      y: parseInt(parts[1]) || 50,
+      scale: parseFloat(parts[2]) || 1
+    };
+  }
+  const yVal = parseInt(val) || 50;
+  return { x: 50, y: yVal, scale: 1 };
+};
+
 const CATEGORIES = [
   { name: "Bangles", slug: "bangles", subtitle: "Curated Cuffs", img: "/images/category_bangles.webp" },
   { name: "Chains", slug: "chains", subtitle: "Sleek Links", img: "/images/category_chains.webp" },
@@ -20,21 +34,21 @@ const GIFT_TIERS = [
     label: "Gifts of Light",
     sub: "Spark joy with every sparkle",
     img: "/images/gift_under_15k.webp",
-    link: "/collections"
+    link: "/products"
   },
   {
     title: "Under ₹50,000",
     label: "Treasured Tokens",
     sub: "Gifts that spark a million memories",
     img: "/images/gift_under_50k.webp",
-    link: "/collections"
+    link: "/products"
   },
   {
     title: "Under ₹70,000",
     label: "Timeless Legacies",
     sub: "Mark your moments with a timeless piece",
     img: "/images/gift_under_70k.webp",
-    link: "/collections"
+    link: "/products"
   }
 ];
 
@@ -53,7 +67,8 @@ export default function ShopByCategory({ categories: propCategories, name }) {
         name: cat.name || cat.label,
         slug: cat.slug,
         subtitle: SUBTITLES[cat.slug] || cat.description || "Exquisite Designs",
-        img: cat.image || "/images/placeholder.webp"
+        img: cat.image || "/images/placeholder.webp",
+        imagePosition: cat.imagePosition || "50%"
       }))
     : CATEGORIES;
 
@@ -72,32 +87,40 @@ export default function ShopByCategory({ categories: propCategories, name }) {
           <div className="w-12 h-0.5 bg-brand-gold mt-4" />
         </div>
 
-        {/* Horizontal scroll track on mobile, grid on desktop */}
         <div className="flex lg:grid overflow-x-auto lg:overflow-x-visible snap-x snap-mandatory lg:snap-none scrollbar-none gap-6 lg:gap-8 lg:grid-cols-6 pb-8 lg:pb-0 px-2">
-          {displayCategories.map((cat, idx) => (
-            <FadeInUp key={cat.name} delay={idx * 0.08}>
-              <Link
-                href={`/collections/${cat.slug}`}
-                className="group block text-center shrink-0 w-[42vw] sm:w-[26vw] lg:w-auto snap-center relative"
-              >
+          {displayCategories.map((cat, idx) => {
+            const adj = parseImageAdjustments(cat.imagePosition);
+            return (
+              <FadeInUp key={cat.name} delay={idx * 0.08}>
+                <Link
+                  href={`/collections/${cat.slug}`}
+                  className="group block text-center shrink-0 w-[42vw] sm:w-[26vw] lg:w-auto snap-center relative"
+                >
 
-                {/* Image Container with Shop By Gender shape (asymmetric rounded corners) */}
-                <div className="relative w-full aspect-4/5 mb-4 overflow-hidden rounded-tl-[36px] rounded-br-[36px] bg-bg-cream border border-gray-100/50 shadow-sm transition-all duration-700 ease-out group-hover:shadow-md group-hover:border-brand-gold/20">
-                  <Image
-                    src={cat.img}
-                    alt={cat.name}
-                    fill
-                    priority={idx < 4}
-                    sizes="(max-width: 768px) 42vw, 15vw"
-                    className="object-cover transition-transform duration-[1.8s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-105"
-                  />
+                  {/* Image Container with Shop By Gender shape (asymmetric rounded corners) */}
+                  <div className="relative w-full aspect-4/5 mb-4 overflow-hidden rounded-tl-[36px] rounded-br-[36px] bg-bg-cream border border-gray-100/50 shadow-sm transition-all duration-700 ease-out group-hover:shadow-md group-hover:border-brand-gold/20">
+                    <div className="w-full h-full transition-transform duration-[1.8s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-105">
+                      <Image
+                        src={cat.img}
+                        alt={cat.name}
+                        fill
+                        priority={idx < 4}
+                        sizes="(max-width: 768px) 42vw, 15vw"
+                        className="object-cover"
+                        style={{
+                          objectPosition: `${adj.x}% ${adj.y}%`,
+                          transform: `scale(${adj.scale})`,
+                          transformOrigin: `${adj.x}% ${adj.y}%`
+                        }}
+                      />
+                    </div>
 
-                  {/* Subtle vignette overlay at bottom */}
-                  <div className="absolute inset-0 bg-linear-to-t from-brand-brown/15 via-transparent to-transparent opacity-85 group-hover:opacity-100 transition-opacity duration-700" />
+                    {/* Subtle vignette overlay at bottom */}
+                    <div className="absolute inset-0 bg-linear-to-t from-brand-brown/15 via-transparent to-transparent opacity-85 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
 
-                  {/* Inset Border overlay matching the asymmetric shape */}
-                  <div className="absolute inset-3 border border-white/25 rounded-tl-3xl rounded-br-3xl pointer-events-none transition-all duration-700 ease-out group-hover:border-brand-gold/35 group-hover:inset-4" />
-                </div>
+                    {/* Inset Border overlay matching the asymmetric shape */}
+                    <div className="absolute inset-3 border border-white/25 rounded-tl-3xl rounded-br-3xl pointer-events-none transition-all duration-700 ease-out group-hover:border-brand-gold/35 group-hover:inset-4" />
+                  </div>
 
                 {/* Category Labels */}
                 <div className="px-1">
@@ -111,7 +134,7 @@ export default function ShopByCategory({ categories: propCategories, name }) {
 
               </Link>
             </FadeInUp>
-          ))}
+          )})}
         </div>
       </div>
 

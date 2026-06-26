@@ -640,10 +640,10 @@ export default function CartPage() {
                   Browse our handpicked collections of pure 22KT gold necklaces, diamond rings, and masterwork earrings to start your selection.
                 </p>
                 <Link
-                  href="/collections"
+                  href="/products"
                   className="inline-block bg-brand-brown hover:bg-brand-gold hover:text-brand-brown text-white font-primary text-xs font-semibold tracking-[0.2em] uppercase px-8 py-4 transition-all duration-300 shadow-md"
                 >
-                  Browse Collections
+                  Explore Jewellery
                 </Link>
               </div>
 
