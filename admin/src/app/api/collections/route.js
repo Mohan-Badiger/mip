@@ -8,7 +8,34 @@ import { withAuth } from '@/lib/withAuth';
 export const GET = withAuth(async function GET() {
   try {
     await dbConnect();
-    const collections = await Collection.find({}).sort({ name: 1 });
+    let collections = await Collection.find({}).sort({ name: 1 });
+    
+    // Auto-seed default collections if database is empty
+    if (collections.length === 0) {
+      const DEFAULT_COLLECTIONS = [
+        {
+          name: "Aradhana Collection",
+          slug: "necklaces",
+          description: "Inspired by our rich Indian royal traditions, featuring meticulously crafted heritage gold sets. Each piece reflects centuries of Nakashi and Kundan craftsmanship, tailored for the modern bride seeking timeless legacy.",
+          bannerImage: "/images/category_necklaces.webp"
+        },
+        {
+          name: "Sunshine Series",
+          slug: "bangles",
+          description: "Traditional kadas to modern stacks designed with gold craftsmanship made to last over time. Combining geometric purity with structural grace, these bangles are designed to be layered and cherished daily.",
+          bannerImage: "/images/category_bangles.webp"
+        },
+        {
+          name: "Kahani Bridal",
+          slug: "rings",
+          description: "Capturing wedding stories in gold, eternity bands, and premium solitaires designed for couples. Hand-selected diamonds of exceptional color and clarity, set in handcrafted gold and platinum to last a lifetime.",
+          bannerImage: "/images/category_rings.webp"
+        }
+      ];
+      await Collection.insertMany(DEFAULT_COLLECTIONS);
+      collections = await Collection.find({}).sort({ name: 1 });
+    }
+    
     return NextResponse.json({ success: true, data: collections });
   } catch (error) {
     console.error('Error fetching collections:', error);
@@ -37,7 +64,8 @@ export const POST = withAuth(async function POST(req) {
       name: body.name,
       slug,
       description: body.description || '',
-      bannerImage: body.bannerImage || ''
+      bannerImage: body.bannerImage || '',
+      imagePosition: body.imagePosition || '50%'
     });
 
     // Log admin action
@@ -60,7 +88,7 @@ export const PUT = withAuth(async function PUT(req) {
   try {
     await dbConnect();
     const body = await req.json();
-    const { _id, name, description, bannerImage } = body;
+    const { _id, name, description, bannerImage, imagePosition } = body;
 
     if (!_id) {
       return NextResponse.json({ success: false, error: 'Collection ID (_id) is required for update' }, { status: 400 });
@@ -74,6 +102,7 @@ export const PUT = withAuth(async function PUT(req) {
     const updates = {};
     if (description !== undefined) updates.description = description;
     if (bannerImage !== undefined) updates.bannerImage = bannerImage;
+    if (imagePosition !== undefined) updates.imagePosition = imagePosition;
     if (name !== undefined && name !== collection.name) {
       updates.name = name;
       updates.slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
