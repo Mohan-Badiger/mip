@@ -108,7 +108,7 @@ export default function CollectionsCards({ collections: propCollections, name })
 
                     {/* Perfect Arch Shape Image Mask */}
                     <div className="relative aspect-3/4 w-full overflow-hidden rounded-t-full bg-gray-50">
-                      <div className="w-full h-full transition-transform duration-[1.8s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-105">
+                      <div className="relative w-full h-full transition-transform duration-[1.8s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-105">
                         <Image
                           src={item.img}
                           alt={item.title}
