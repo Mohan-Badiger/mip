@@ -99,7 +99,7 @@ export default function ShopByCategory({ categories: propCategories, name }) {
 
                   {/* Image Container with Shop By Gender shape (asymmetric rounded corners) */}
                   <div className="relative w-full aspect-4/5 mb-4 overflow-hidden rounded-tl-[36px] rounded-br-[36px] bg-bg-cream border border-gray-100/50 shadow-sm transition-all duration-700 ease-out group-hover:shadow-md group-hover:border-brand-gold/20">
-                    <div className="w-full h-full transition-transform duration-[1.8s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-105">
+                    <div className="relative w-full h-full transition-transform duration-[1.8s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-105">
                       <Image
                         src={cat.img}
                         alt={cat.name}
