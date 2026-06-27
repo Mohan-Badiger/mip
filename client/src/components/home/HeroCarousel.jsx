@@ -168,14 +168,16 @@ export default function HeroCarousel({ slides: propSlides }) {
                     className="absolute inset-0 w-full h-full object-cover object-center"
                   />
                 ) : (
-                  <Image
-                    src={slide.image}
-                    alt={slide.collectionName || slide.collection || "Hero Banner"}
-                    fill
-                    priority
-                    sizes="100vw"
-                    className="object-cover object-center"
-                  />
+                  <div className="relative w-full h-full">
+                    <Image
+                      src={slide.image}
+                      alt={slide.collectionName || slide.collection || "Hero Banner"}
+                      fill
+                      priority
+                      sizes="100vw"
+                      className="object-cover object-center"
+                    />
+                  </div>
                 )
               )}
 
