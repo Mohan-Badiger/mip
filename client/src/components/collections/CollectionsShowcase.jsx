@@ -165,7 +165,7 @@ export default function CollectionsShowcase({ collections = [] }) {
                     {/* Double Luxury Border Frame */}
                     <div className="border border-brand-gold/20 p-2 bg-white rounded-md transition-all duration-700 ease-out group-hover:border-brand-gold/60 shadow-[0_4px_30px_rgba(78,54,41,0.03)] group-hover:shadow-[0_20px_60px_rgba(179,146,84,0.1)]">
                       <div className="relative aspect-4/3 w-full overflow-hidden rounded bg-bg-cream">
-                        <div className="w-full h-full transition-transform duration-[2s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.04]">
+                        <div className="relative w-full h-full transition-transform duration-[2s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.04]">
                           <Image
                             src={collection.bannerImage || "/images/category_bangles.webp"}
                             alt={collection.name}
