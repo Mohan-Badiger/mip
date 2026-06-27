@@ -333,7 +333,7 @@ function CatalogContent() {
           {(() => {
             const adj = parseImageAdjustments(colImagePosition);
             return (
-              <div className="w-full h-full">
+              <div className="relative w-full h-full">
                 <Image
                   src={colBanner}
                   alt={colName}
