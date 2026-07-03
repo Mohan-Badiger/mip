@@ -128,7 +128,8 @@ export async function POST(req) {
       }
     });
 
-    response.headers.set('Set-Cookie', `adminAccessToken=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`);
+    const isProd = process.env.NODE_ENV === 'production';
+    response.headers.set('Set-Cookie', `adminAccessToken=${token}; Path=/; HttpOnly; ${isProd ? 'Secure;' : ''} SameSite=Lax; Max-Age=604800`);
 
     return response;
   } catch (error) {
