@@ -17,6 +17,7 @@ import {
   RotateCcw,
   UserCheck,
   Mail,
+  Shield,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -98,11 +99,29 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="h-16 flex justify-center px-4 border-b border-border/50 overflow-hidden bg-background">
-        <div className="flex items-center w-full">
-          <h2 className="text-xl md:text-2xl font-bold tracking-widest text-primary font-heading uppercase truncate whitespace-nowrap">
-            {state === "collapsed" ? "MIP" : "MIP ADMIN"}
-          </h2>
+      <SidebarHeader className={`h-16 flex justify-center border-b border-border/50 bg-background transition-all duration-300 ${
+        state === "collapsed" ? "px-0" : "px-4"
+      }`}>
+        <div className="flex items-center w-full justify-center">
+          {state === "collapsed" ? (
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-900/5 hover:bg-slate-900/10 transition-colors duration-205">
+              <Shield className="w-4 h-4 text-amber-500 shrink-0 hover:rotate-12 transition-transform duration-300" />
+            </div>
+          ) : (
+            <div className="flex items-center gap-2.5 w-full animate-in fade-in duration-200">
+              <div className="p-1.5 bg-slate-900 rounded-lg shadow-sm shrink-0 flex items-center justify-center">
+                <Shield className="w-4 h-4 text-amber-400" />
+              </div>
+              <div className="flex flex-col text-left min-w-0">
+                <span className="text-xs font-bold tracking-widest text-slate-800 font-heading uppercase whitespace-nowrap leading-none">
+                  MIP Atelier
+                </span>
+                <span className="text-[8px] font-sans font-bold text-amber-500 uppercase tracking-widest leading-none mt-1">
+                  Admin Portal
+                </span>
+              </div>
+            </div>
+          )}
         </div>
       </SidebarHeader>
       <SidebarContent className="bg-background py-4 space-y-4">
