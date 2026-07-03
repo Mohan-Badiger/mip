@@ -52,23 +52,6 @@ export function proxy(request) {
     return new NextResponse(null, { status: 204, headers: response.headers });
   }
 
-  // ── Server-side Auth Gate for Admin Pages ─────────────────────────
-  // Protect all admin page routes (not API routes — those have their own withAuth)
-  const { pathname } = request.nextUrl;
-  const isApiRoute = pathname.startsWith('/api/');
-  const isLoginPage = pathname === '/login' || pathname.startsWith('/login');
-  const isPublicAsset = pathname.startsWith('/_next/') || pathname.startsWith('/favicon');
-
-  if (!isApiRoute && !isLoginPage && !isPublicAsset) {
-    // Check for admin access token cookie
-    const cookie = request.cookies.get('adminAccessToken');
-    if (!cookie || !cookie.value) {
-      // Redirect unauthenticated users to login page
-      const loginUrl = new URL('/login', request.url);
-      return NextResponse.redirect(loginUrl);
-    }
-  }
-
   return response;
 }
 
