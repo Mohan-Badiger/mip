@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
@@ -332,6 +333,7 @@ export default function ProductsPage() {
             <Table>
               <TableHeader>
                 <TableRow className="border-slate-100 bg-slate-50/50 hover:bg-slate-50/50">
+                  <TableHead className="font-semibold text-slate-600 w-16">Cover</TableHead>
                   <TableHead className="font-semibold text-slate-600">SKU</TableHead>
                   <TableHead className="font-semibold text-slate-600">Product Name</TableHead>
                   <TableHead className="font-semibold text-slate-600">Category</TableHead>
@@ -345,6 +347,21 @@ export default function ProductsPage() {
               <TableBody>
                 {products.map((product) => (
                   <TableRow key={product._id} className="border-slate-100 hover:bg-slate-50/50 transition-colors">
+                    <TableCell>
+                      <div className="w-10 h-10 rounded bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-200/50 relative shrink-0">
+                        {product.images?.[0] ? (
+                          <Image
+                            src={product.images[0]}
+                            alt={product.name}
+                            fill
+                            sizes="40px"
+                            className="object-cover"
+                          />
+                        ) : (
+                          <ImageIcon className="w-4 h-4 text-slate-350" />
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell className="font-mono text-xs font-semibold text-slate-700">{product.sku}</TableCell>
                     <TableCell className="max-w-50">
                       <div className="font-medium text-slate-900 truncate">{product.name}</div>

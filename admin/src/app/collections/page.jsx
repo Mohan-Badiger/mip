@@ -793,10 +793,12 @@ export default function CollectionsPage() {
                       >
                         <div className="flex items-center gap-3 min-w-0">
                           <div className="relative w-11 h-11 rounded-lg border border-slate-250/20 overflow-hidden bg-white shrink-0">
-                            <img
+                            <Image
                               src={p.images?.[0] || 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?q=80&w=100'}
                               alt={p.name}
-                              className="object-cover w-full h-full"
+                              fill
+                              sizes="44px"
+                              className="object-cover"
                             />
                           </div>
                           <div className="min-w-0">
